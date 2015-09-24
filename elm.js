@@ -13515,7 +13515,8 @@ Elm.Update.make = function (_elm) {
                     return _U.replace([["board"
                                        ,board$]
                                       ,["turn",$Model.other(player)]
-                                      ,["state",$Model.Origin]],
+                                      ,["state",$Model.Origin]
+                                      ,["turnInSeconds",0]],
                     game);
                  }();
                case "Restart":
@@ -13544,7 +13545,7 @@ Elm.Update.make = function (_elm) {
                                     $Model.Pawn) ? true : false;
                                   case "Nothing": return false;}
                                _U.badCase($moduleName,
-                               "between lines 94 and 103");
+                               "between lines 95 and 104");
                             }();
                             var promoted = (_U.eq(row,
                             1) || _U.eq(row,8)) && isPawn;
@@ -13554,6 +13555,7 @@ Elm.Update.make = function (_elm) {
                                                           ,$Model.Promotion(action._0)]],
                             game$) : _U.replace([["turn"
                                                  ,$Model.other(player)]
+                                                ,["turnInSeconds",0]
                                                 ,["state",$Model.Origin]],
                             game$);
                          }() : _U.replace([["turn"
@@ -13576,19 +13578,19 @@ Elm.Update.make = function (_elm) {
                                     game);
                                   case "Nothing": return game;}
                                _U.badCase($moduleName,
-                               "between lines 65 and 82");
+                               "between lines 66 and 83");
                             }();
                          }();
                        case "Promotion": return game;}
                     _U.badCase($moduleName,
-                    "between lines 53 and 121");
+                    "between lines 54 and 123");
                  }();
                case "UpdateTimer":
                return _U.replace([["turnInSeconds"
                                   ,game.turnInSeconds + 1]],
                  game);}
             _U.badCase($moduleName,
-            "between lines 25 and 121");
+            "between lines 25 and 123");
          }();
       }();
    });
