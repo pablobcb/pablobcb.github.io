@@ -1,0 +1,324 @@
+Elm.View = Elm.View || {};
+Elm.View.make = function (_elm) {
+   "use strict";
+   _elm.View = _elm.View || {};
+   if (_elm.View.values)
+   return _elm.View.values;
+   var _op = {},
+   _N = Elm.Native,
+   _U = _N.Utils.make(_elm),
+   _L = _N.List.make(_elm),
+   $moduleName = "View",
+   $Basics = Elm.Basics.make(_elm),
+   $Debug = Elm.Debug.make(_elm),
+   $Html = Elm.Html.make(_elm),
+   $Html$Attributes = Elm.Html.Attributes.make(_elm),
+   $Html$Events = Elm.Html.Events.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Model = Elm.Model.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm),
+   $String = Elm.String.make(_elm),
+   $Update = Elm.Update.make(_elm);
+   var getPieceClass = function (piece) {
+      return function () {
+         var className = function () {
+            var _v0 = piece.figure;
+            switch (_v0.ctor)
+            {case "Bishop":
+               return function () {
+                    var _v1 = piece.color;
+                    switch (_v1.ctor)
+                    {case "Black":
+                       return "black bishop";
+                       case "White":
+                       return "white bishop";}
+                    _U.badCase($moduleName,
+                    "between lines 38 and 42");
+                 }();
+               case "King":
+               return function () {
+                    var _v2 = piece.color;
+                    switch (_v2.ctor)
+                    {case "Black":
+                       return "black king";
+                       case "White":
+                       return "white king";}
+                    _U.badCase($moduleName,
+                    "between lines 26 and 30");
+                 }();
+               case "Knight":
+               return function () {
+                    var _v3 = piece.color;
+                    switch (_v3.ctor)
+                    {case "Black":
+                       return "black knight";
+                       case "White":
+                       return "white knight";}
+                    _U.badCase($moduleName,
+                    "between lines 42 and 46");
+                 }();
+               case "Pawn":
+               return function () {
+                    var _v4 = piece.color;
+                    switch (_v4.ctor)
+                    {case "Black":
+                       return "black pawn";
+                       case "White":
+                       return "white pawn";}
+                    _U.badCase($moduleName,
+                    "between lines 46 and 50");
+                 }();
+               case "Queen":
+               return function () {
+                    var _v5 = piece.color;
+                    switch (_v5.ctor)
+                    {case "Black":
+                       return "black queen";
+                       case "White":
+                       return "white queen";}
+                    _U.badCase($moduleName,
+                    "between lines 30 and 34");
+                 }();
+               case "Rook":
+               return function () {
+                    var _v6 = piece.color;
+                    switch (_v6.ctor)
+                    {case "Black":
+                       return "black rook";
+                       case "White":
+                       return "white rook";}
+                    _U.badCase($moduleName,
+                    "between lines 34 and 38");
+                 }();}
+            _U.badCase($moduleName,
+            "between lines 25 and 50");
+         }();
+         return A2($Basics._op["++"],
+         "piece ",
+         className);
+      }();
+   };
+   var renderBoardSquare = F3(function (address,
+   position,
+   square) {
+      return function () {
+         switch (square.ctor)
+         {case "Just":
+            return A2($Html.div,
+              _L.fromArray([$Html$Attributes.$class(A2($Basics._op["++"],
+                           "square ",
+                           getPieceClass(square._0)))
+                           ,A2($Html$Events.onClick,
+                           address,
+                           $Update.Select(position))]),
+              _L.fromArray([]));
+            case "Nothing":
+            return A2($Html.div,
+              _L.fromArray([$Html$Attributes.$class("square")
+                           ,A2($Html$Events.onClick,
+                           address,
+                           $Update.Select(position))]),
+              _L.fromArray([]));}
+         _U.badCase($moduleName,
+         "between lines 57 and 66");
+      }();
+   });
+   var renderBoard = F2(function (address,
+   board) {
+      return function () {
+         var positions = $List.concat(A2($List.map,
+         function (digit) {
+            return A2($List.map,
+            function (letter) {
+               return {ctor: "_Tuple2"
+                      ,_0: letter
+                      ,_1: digit};
+            },
+            _L.fromArray([_U.chr("A")
+                         ,_U.chr("B")
+                         ,_U.chr("C")
+                         ,_U.chr("D")
+                         ,_U.chr("E")
+                         ,_U.chr("F")
+                         ,_U.chr("G")
+                         ,_U.chr("H")]));
+         },
+         _L.range(1,8)));
+         var pieces = A2($List.map,
+         $Model.getSquareContent(board),
+         positions);
+         var squares = A3($List.map2,
+         renderBoardSquare(address),
+         positions,
+         pieces);
+         return A2($Html.div,
+         _L.fromArray([$Html$Attributes.$class("chessboard")]),
+         squares);
+      }();
+   });
+   var renderGraveyardSquare = function (square) {
+      return function () {
+         var attrs = function () {
+            switch (square.ctor)
+            {case "Just":
+               return getPieceClass(square._0);
+               case "Nothing": return "";}
+            _U.badCase($moduleName,
+            "between lines 97 and 101");
+         }();
+         return A2($Html.div,
+         _L.fromArray([$Html$Attributes.$class(A2($Basics._op["++"],
+         "graveyard square ",
+         attrs))]),
+         _L.fromArray([]));
+      }();
+   };
+   var renderGraveyard = F2(function (graveyard,
+   color) {
+      return function () {
+         var renderSquare = function (figure) {
+            return function () {
+               switch (figure.ctor)
+               {case "Just":
+                  return renderGraveyardSquare($Maybe.Just(A2($Model.piece,
+                    figure._0,
+                    color)));
+                  case "Nothing":
+                  return renderGraveyardSquare($Maybe.Nothing);}
+               _U.badCase($moduleName,
+               "between lines 110 and 115");
+            }();
+         };
+         return A2($Html.div,
+         _L.fromArray([$Html$Attributes.$class(F2(function (x,
+         y) {
+            return A2($Basics._op["++"],
+            x,
+            y);
+         })("graveyard ")($String.toLower($Basics.toString(color))))]),
+         A2($List.map,
+         renderSquare,
+         graveyard));
+      }();
+   });
+   var renderStatusBar = F2(function (address,
+   game) {
+      return function () {
+         var time = function (f) {
+            return $Basics.toString(A2(f,
+            game.turnInSeconds,
+            60));
+         };
+         var minutes = time(F2(function (x,
+         y) {
+            return x / y | 0;
+         }));
+         var assert2digits = function (str) {
+            return _U.eq($String.length(str),
+            1) ? A2($Basics._op["++"],
+            "0",
+            str) : str;
+         };
+         var seconds = assert2digits(time($Basics.rem));
+         var parsedTime = A2($Basics._op["++"],
+         minutes,
+         A2($Basics._op["++"],
+         ":",
+         seconds));
+         var prefix = A2($Basics._op["++"],
+         "waiting for ",
+         $Basics.toString(game.turn));
+         var statusBar = function () {
+            var _v13 = game.state;
+            switch (_v13.ctor)
+            {case "Destination":
+               return _L.fromArray([$Html.text(A2($Basics._op["++"],
+                 prefix,
+                 " to select a destination"))]);
+               case "Finished":
+               return _L.fromArray([$Html.text(A2($Basics._op["++"],
+                 "the game has ended, ",
+                 A2($Basics._op["++"],
+                 $Basics.toString(_v13._0),
+                 " has won!")))]);
+               case "Origin":
+               return _L.fromArray([$Html.text(A2($Basics._op["++"],
+                 prefix,
+                 " to select a piece"))]);
+               case "Promotion":
+               return function () {
+                    var knight = A2($Model.piece,
+                    $Model.Knight,
+                    game.turn);
+                    var queen = A2($Model.piece,
+                    $Model.Queen,
+                    game.turn);
+                    return _L.fromArray([$Html.text("promote to:")
+                                        ,A2($Html.button,
+                                        _L.fromArray([$Html$Events.onClick(address)(A2($Update.Promote,
+                                                     _v13._0,
+                                                     queen.figure))
+                                                     ,$Html$Attributes.$class(A2($Basics._op["++"],
+                                                     "square ",
+                                                     getPieceClass(queen)))]),
+                                        _L.fromArray([]))
+                                        ,A2($Html.button,
+                                        _L.fromArray([$Html$Events.onClick(address)(A2($Update.Promote,
+                                                     _v13._0,
+                                                     knight.figure))
+                                                     ,$Html$Attributes.$class(A2($Basics._op["++"],
+                                                     "square ",
+                                                     getPieceClass(knight)))]),
+                                        _L.fromArray([]))]);
+                 }();}
+            _U.badCase($moduleName,
+            "between lines 141 and 172");
+         }();
+         return A2($Html.div,
+         _L.fromArray([$Html$Attributes.$class("status-bar")]),
+         A2($Basics._op["++"],
+         statusBar,
+         _L.fromArray([$Html.text(A2($Basics._op["++"],
+         " ",
+         parsedTime))])));
+      }();
+   });
+   var renderGame = F2(function (address,
+   game) {
+      return function () {
+         var magro = A2($Debug.watch,
+         "state",
+         game.state);
+         var breno = A2($Debug.watch,
+         "turn",
+         game.turn);
+         return A2($Html.div,
+         _L.fromArray([$Html$Attributes.$class("game")]),
+         _L.fromArray([A2(renderStatusBar,
+                      address,
+                      game)
+                      ,A2($Html.div,
+                      _L.fromArray([$Html$Attributes.$class("board-and-graveyard")]),
+                      _L.fromArray([A2(renderGraveyard,
+                                   game.graveyard2,
+                                   $Model.Black)
+                                   ,A2(renderBoard,
+                                   address,
+                                   game.board)
+                                   ,A2(renderGraveyard,
+                                   game.graveyard1,
+                                   $Model.White)]))]));
+      }();
+   });
+   _elm.View.values = {_op: _op
+                      ,getPieceClass: getPieceClass
+                      ,renderBoardSquare: renderBoardSquare
+                      ,renderBoard: renderBoard
+                      ,renderGraveyardSquare: renderGraveyardSquare
+                      ,renderGraveyard: renderGraveyard
+                      ,renderStatusBar: renderStatusBar
+                      ,renderGame: renderGame};
+   return _elm.View.values;
+};
