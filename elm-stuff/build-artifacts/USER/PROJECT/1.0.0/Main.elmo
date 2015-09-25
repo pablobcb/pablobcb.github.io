@@ -10,10 +10,10 @@ Elm.Main.make = function (_elm) {
    _L = _N.List.make(_elm),
    $moduleName = "Main",
    $Basics = Elm.Basics.make(_elm),
+   $Chess$Game = Elm.Chess.Game.make(_elm),
    $Html = Elm.Html.make(_elm),
    $List = Elm.List.make(_elm),
    $Maybe = Elm.Maybe.make(_elm),
-   $Model = Elm.Model.make(_elm),
    $Result = Elm.Result.make(_elm),
    $Signal = Elm.Signal.make(_elm),
    $Time = Elm.Time.make(_elm),
@@ -28,7 +28,7 @@ Elm.Main.make = function (_elm) {
    var actions = inbox.signal;
    var model = A3($Signal.foldp,
    $Update.update,
-   $Model.makeInitialGame,
+   $Chess$Game.makeInitialGame,
    A2($Signal.merge,
    actions,
    ticker));

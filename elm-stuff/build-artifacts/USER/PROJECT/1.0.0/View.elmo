@@ -10,13 +10,16 @@ Elm.View.make = function (_elm) {
    _L = _N.List.make(_elm),
    $moduleName = "View",
    $Basics = Elm.Basics.make(_elm),
+   $Chess$Board = Elm.Chess.Board.make(_elm),
+   $Chess$Color = Elm.Chess.Color.make(_elm),
+   $Chess$Game = Elm.Chess.Game.make(_elm),
+   $Chess$Piece = Elm.Chess.Piece.make(_elm),
    $Debug = Elm.Debug.make(_elm),
    $Html = Elm.Html.make(_elm),
    $Html$Attributes = Elm.Html.Attributes.make(_elm),
    $Html$Events = Elm.Html.Events.make(_elm),
    $List = Elm.List.make(_elm),
    $Maybe = Elm.Maybe.make(_elm),
-   $Model = Elm.Model.make(_elm),
    $Result = Elm.Result.make(_elm),
    $Signal = Elm.Signal.make(_elm),
    $String = Elm.String.make(_elm),
@@ -35,7 +38,7 @@ Elm.View.make = function (_elm) {
                        case "White":
                        return "white bishop";}
                     _U.badCase($moduleName,
-                    "between lines 38 and 42");
+                    "between lines 41 and 45");
                  }();
                case "King":
                return function () {
@@ -46,7 +49,7 @@ Elm.View.make = function (_elm) {
                        case "White":
                        return "white king";}
                     _U.badCase($moduleName,
-                    "between lines 26 and 30");
+                    "between lines 29 and 33");
                  }();
                case "Knight":
                return function () {
@@ -57,7 +60,7 @@ Elm.View.make = function (_elm) {
                        case "White":
                        return "white knight";}
                     _U.badCase($moduleName,
-                    "between lines 42 and 46");
+                    "between lines 45 and 49");
                  }();
                case "Pawn":
                return function () {
@@ -68,7 +71,7 @@ Elm.View.make = function (_elm) {
                        case "White":
                        return "white pawn";}
                     _U.badCase($moduleName,
-                    "between lines 46 and 50");
+                    "between lines 49 and 53");
                  }();
                case "Queen":
                return function () {
@@ -79,7 +82,7 @@ Elm.View.make = function (_elm) {
                        case "White":
                        return "white queen";}
                     _U.badCase($moduleName,
-                    "between lines 30 and 34");
+                    "between lines 33 and 37");
                  }();
                case "Rook":
                return function () {
@@ -90,10 +93,10 @@ Elm.View.make = function (_elm) {
                        case "White":
                        return "white rook";}
                     _U.badCase($moduleName,
-                    "between lines 34 and 38");
+                    "between lines 37 and 41");
                  }();}
             _U.badCase($moduleName,
-            "between lines 25 and 50");
+            "between lines 28 and 53");
          }();
          return A2($Basics._op["++"],
          "piece ",
@@ -122,7 +125,7 @@ Elm.View.make = function (_elm) {
                            $Update.Select(position))]),
               _L.fromArray([]));}
          _U.badCase($moduleName,
-         "between lines 57 and 66");
+         "between lines 60 and 69");
       }();
    });
    var renderBoard = F2(function (address,
@@ -147,7 +150,7 @@ Elm.View.make = function (_elm) {
          },
          _L.range(1,8)));
          var pieces = A2($List.map,
-         $Model.getSquareContent(board),
+         $Chess$Board.getSquareContent(board),
          positions);
          var squares = A3($List.map2,
          renderBoardSquare(address),
@@ -166,7 +169,7 @@ Elm.View.make = function (_elm) {
                return getPieceClass(square._0);
                case "Nothing": return "";}
             _U.badCase($moduleName,
-            "between lines 97 and 101");
+            "between lines 100 and 104");
          }();
          return A2($Html.div,
          _L.fromArray([$Html$Attributes.$class(A2($Basics._op["++"],
@@ -182,13 +185,13 @@ Elm.View.make = function (_elm) {
             return function () {
                switch (figure.ctor)
                {case "Just":
-                  return renderGraveyardSquare($Maybe.Just(A2($Model.piece,
+                  return renderGraveyardSquare($Maybe.Just(A2($Chess$Piece.piece,
                     figure._0,
                     color)));
                   case "Nothing":
                   return renderGraveyardSquare($Maybe.Nothing);}
                _U.badCase($moduleName,
-               "between lines 110 and 115");
+               "between lines 113 and 118");
             }();
          };
          return A2($Html.div,
@@ -249,11 +252,11 @@ Elm.View.make = function (_elm) {
                  " to select a piece"))]);
                case "Promotion":
                return function () {
-                    var knight = A2($Model.piece,
-                    $Model.Knight,
+                    var knight = A2($Chess$Piece.piece,
+                    $Chess$Piece.Knight,
                     game.turn);
-                    var queen = A2($Model.piece,
-                    $Model.Queen,
+                    var queen = A2($Chess$Piece.piece,
+                    $Chess$Piece.Queen,
                     game.turn);
                     return _L.fromArray([$Html.text("promote to:")
                                         ,A2($Html.button,
@@ -274,7 +277,7 @@ Elm.View.make = function (_elm) {
                                         _L.fromArray([]))]);
                  }();}
             _U.badCase($moduleName,
-            "between lines 141 and 172");
+            "between lines 144 and 175");
          }();
          return A2($Html.div,
          _L.fromArray([$Html$Attributes.$class("status-bar")]),
@@ -303,13 +306,13 @@ Elm.View.make = function (_elm) {
                       _L.fromArray([$Html$Attributes.$class("board-and-graveyard")]),
                       _L.fromArray([A2(renderGraveyard,
                                    game.graveyard2,
-                                   $Model.Black)
+                                   $Chess$Color.Black)
                                    ,A2(renderBoard,
                                    address,
                                    game.board)
                                    ,A2(renderGraveyard,
                                    game.graveyard1,
-                                   $Model.White)]))]));
+                                   $Chess$Color.White)]))]));
       }();
    });
    _elm.View.values = {_op: _op

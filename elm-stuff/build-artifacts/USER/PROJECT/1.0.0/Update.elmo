@@ -10,10 +10,13 @@ Elm.Update.make = function (_elm) {
    _L = _N.List.make(_elm),
    $moduleName = "Update",
    $Basics = Elm.Basics.make(_elm),
+   $Chess$Board = Elm.Chess.Board.make(_elm),
+   $Chess$Color = Elm.Chess.Color.make(_elm),
+   $Chess$Game = Elm.Chess.Game.make(_elm),
+   $Chess$Piece = Elm.Chess.Piece.make(_elm),
    $Dict = Elm.Dict.make(_elm),
    $List = Elm.List.make(_elm),
    $Maybe = Elm.Maybe.make(_elm),
-   $Model = Elm.Model.make(_elm),
    $Result = Elm.Result.make(_elm),
    $Signal = Elm.Signal.make(_elm);
    var update = F2(function (action,
@@ -35,57 +38,58 @@ Elm.Update.make = function (_elm) {
                     board);
                     return _U.replace([["board"
                                        ,board$]
-                                      ,["turn",$Model.other(player)]
-                                      ,["state",$Model.Origin]
+                                      ,["turn"
+                                       ,$Chess$Color.other(player)]
+                                      ,["state",$Chess$Game.Origin]
                                       ,["turnInSeconds",0]],
                     game);
                  }();
                case "Restart":
-               return $Model.makeInitialGame;
+               return $Chess$Game.makeInitialGame;
                case "Select":
                return function () {
                     var _v4 = game.state;
                     switch (_v4.ctor)
                     {case "Destination":
-                       return A3($Model.validateMove,
+                       return A3($Chess$Game.validateMove,
                          _v4._0,
                          action._0,
                          game) ? function () {
                             var row = $Basics.snd(action._0);
-                            var game$ = A3($Model.move,
+                            var game$ = A3($Chess$Game.move,
                             game,
                             _v4._0,
                             action._0);
-                            var selectedDestination = A2($Model.getSquareContent,
+                            var selectedDestination = A2($Chess$Board.getSquareContent,
                             game$.board,
                             action._0);
                             var isPawn = function () {
                                switch (selectedDestination.ctor)
                                {case "Just":
                                   return _U.eq(selectedDestination._0.figure,
-                                    $Model.Pawn) ? true : false;
+                                    $Chess$Piece.Pawn) ? true : false;
                                   case "Nothing": return false;}
                                _U.badCase($moduleName,
-                               "between lines 95 and 104");
+                               "between lines 98 and 107");
                             }();
                             var promoted = (_U.eq(row,
                             1) || _U.eq(row,8)) && isPawn;
                             return promoted ? _U.replace([["turn"
                                                           ,player]
                                                          ,["state"
-                                                          ,$Model.Promotion(action._0)]],
+                                                          ,$Chess$Game.Promotion(action._0)]],
                             game$) : _U.replace([["turn"
-                                                 ,$Model.other(player)]
+                                                 ,$Chess$Color.other(player)]
                                                 ,["turnInSeconds",0]
-                                                ,["state",$Model.Origin]],
+                                                ,["state",$Chess$Game.Origin]],
                             game$);
                          }() : _U.replace([["turn"
                                            ,player]
-                                          ,["state",$Model.Origin]],
+                                          ,["state",$Chess$Game.Origin]],
                          game);
                        case "Origin":
                        return function () {
-                            var selectedOrigin = A2($Model.getSquareContent,
+                            var selectedOrigin = A2($Chess$Board.getSquareContent,
                             board,
                             action._0);
                             return function () {
@@ -93,25 +97,25 @@ Elm.Update.make = function (_elm) {
                                {case "Just":
                                   return !_U.eq(player,
                                     selectedOrigin._0.color) ? game : _U.replace([["state"
-                                                                                  ,$Model.Destination(action._0)]
+                                                                                  ,$Chess$Game.Destination(action._0)]
                                                                                  ,["turn"
                                                                                   ,player]],
                                     game);
                                   case "Nothing": return game;}
                                _U.badCase($moduleName,
-                               "between lines 66 and 83");
+                               "between lines 69 and 86");
                             }();
                          }();
                        case "Promotion": return game;}
                     _U.badCase($moduleName,
-                    "between lines 54 and 123");
+                    "between lines 57 and 126");
                  }();
                case "UpdateTimer":
                return _U.replace([["turnInSeconds"
                                   ,game.turnInSeconds + 1]],
                  game);}
             _U.badCase($moduleName,
-            "between lines 25 and 123");
+            "between lines 28 and 126");
          }();
       }();
    });

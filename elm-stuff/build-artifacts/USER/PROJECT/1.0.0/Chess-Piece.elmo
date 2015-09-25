@@ -1,0 +1,174 @@
+Elm.Chess = Elm.Chess || {};
+Elm.Chess.Piece = Elm.Chess.Piece || {};
+Elm.Chess.Piece.make = function (_elm) {
+   "use strict";
+   _elm.Chess = _elm.Chess || {};
+   _elm.Chess.Piece = _elm.Chess.Piece || {};
+   if (_elm.Chess.Piece.values)
+   return _elm.Chess.Piece.values;
+   var _op = {},
+   _N = Elm.Native,
+   _U = _N.Utils.make(_elm),
+   _L = _N.List.make(_elm),
+   $moduleName = "Chess.Piece",
+   $Basics = Elm.Basics.make(_elm),
+   $Chess$Color = Elm.Chess.Color.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm);
+   var ranges = function (piece) {
+      return function () {
+         var kingRanges = _L.fromArray([{ctor: "_Tuple2"
+                                        ,_0: 0
+                                        ,_1: 1}
+                                       ,{ctor: "_Tuple2",_0: 1,_1: 1}
+                                       ,{ctor: "_Tuple2",_0: 1,_1: 0}
+                                       ,{ctor: "_Tuple2",_0: 1,_1: -1}
+                                       ,{ctor: "_Tuple2",_0: 0,_1: -1}
+                                       ,{ctor: "_Tuple2",_0: -1,_1: -1}
+                                       ,{ctor: "_Tuple2",_0: -1,_1: 0}
+                                       ,{ctor: "_Tuple2"
+                                        ,_0: -1
+                                        ,_1: 1}]);
+         var zeros = A2($List.repeat,
+         7,
+         0);
+         var zip = $List.map2(F2(function (v0,
+         v1) {
+            return {ctor: "_Tuple2"
+                   ,_0: v0
+                   ,_1: v1};
+         }));
+         var rookRanges = A2($Basics._op["++"],
+         A2(zip,_L.range(1,7),zeros),
+         A2($Basics._op["++"],
+         A2(zip,_L.range(-1,-7),zeros),
+         A2($Basics._op["++"],
+         A2(zip,zeros,_L.range(1,7)),
+         A2(zip,
+         zeros,
+         _L.range(-1,-7)))));
+         var bishopRanges = A2($Basics._op["++"],
+         A2(zip,
+         _L.range(1,7),
+         _L.range(1,7)),
+         A2($Basics._op["++"],
+         A2(zip,
+         _L.range(-1,-7),
+         _L.range(1,7)),
+         A2($Basics._op["++"],
+         A2(zip,
+         _L.range(1,7),
+         _L.range(-1,-7)),
+         A2(zip,
+         _L.range(-1,-7),
+         _L.range(-1,-7)))));
+         return function () {
+            var _v0 = piece.figure;
+            switch (_v0.ctor)
+            {case "Bishop":
+               return bishopRanges;
+               case "King": return kingRanges;
+               case "Knight":
+               return _L.fromArray([{ctor: "_Tuple2"
+                                    ,_0: 1
+                                    ,_1: 2}
+                                   ,{ctor: "_Tuple2",_0: -1,_1: 2}
+                                   ,{ctor: "_Tuple2",_0: 2,_1: 1}
+                                   ,{ctor: "_Tuple2",_0: 2,_1: -1}
+                                   ,{ctor: "_Tuple2",_0: 1,_1: -2}
+                                   ,{ctor: "_Tuple2",_0: -1,_1: -2}
+                                   ,{ctor: "_Tuple2",_0: -2,_1: 1}
+                                   ,{ctor: "_Tuple2"
+                                    ,_0: -2
+                                    ,_1: -1}]);
+               case "Pawn":
+               return function () {
+                    var _v1 = piece.color;
+                    switch (_v1.ctor)
+                    {case "Black":
+                       return A2($Basics._op["++"],
+                         _L.fromArray([{ctor: "_Tuple2"
+                                       ,_0: 0
+                                       ,_1: -1}]),
+                         piece.moved ? _L.fromArray([]) : _L.fromArray([{ctor: "_Tuple2"
+                                                                        ,_0: 0
+                                                                        ,_1: -2}]));
+                       case "White":
+                       return A2($Basics._op["++"],
+                         _L.fromArray([{ctor: "_Tuple2"
+                                       ,_0: 0
+                                       ,_1: 1}]),
+                         piece.moved ? _L.fromArray([]) : _L.fromArray([{ctor: "_Tuple2"
+                                                                        ,_0: 0
+                                                                        ,_1: 2}]));}
+                    _U.badCase($moduleName,
+                    "between lines 75 and 88");
+                 }();
+               case "Queen":
+               return A2($Basics._op["++"],
+                 bishopRanges,
+                 A2($Basics._op["++"],
+                 rookRanges,
+                 kingRanges));
+               case "Rook": return rookRanges;}
+            _U.badCase($moduleName,
+            "between lines 73 and 111");
+         }();
+      }();
+   };
+   var pawnTakeRanges = function (color) {
+      return function () {
+         switch (color.ctor)
+         {case "Black": return {_: {}
+                               ,left: {ctor: "_Tuple2"
+                                      ,_0: -1
+                                      ,_1: -1}
+                               ,right: {ctor: "_Tuple2"
+                                       ,_0: 1
+                                       ,_1: -1}};
+            case "White": return {_: {}
+                                 ,left: {ctor: "_Tuple2"
+                                        ,_0: -1
+                                        ,_1: 1}
+                                 ,right: {ctor: "_Tuple2"
+                                         ,_0: 1
+                                         ,_1: 1}};}
+         _U.badCase($moduleName,
+         "between lines 34 and 39");
+      }();
+   };
+   var piece = F2(function (f,c) {
+      return {_: {}
+             ,color: c
+             ,figure: f
+             ,moved: false};
+   });
+   var Piece = F3(function (a,
+   b,
+   c) {
+      return {_: {}
+             ,color: c
+             ,figure: a
+             ,moved: b};
+   });
+   var King = {ctor: "King"};
+   var Queen = {ctor: "Queen"};
+   var Rook = {ctor: "Rook"};
+   var Bishop = {ctor: "Bishop"};
+   var Knight = {ctor: "Knight"};
+   var Pawn = {ctor: "Pawn"};
+   _elm.Chess.Piece.values = {_op: _op
+                             ,Pawn: Pawn
+                             ,Knight: Knight
+                             ,Bishop: Bishop
+                             ,Rook: Rook
+                             ,Queen: Queen
+                             ,King: King
+                             ,Piece: Piece
+                             ,piece: piece
+                             ,pawnTakeRanges: pawnTakeRanges
+                             ,ranges: ranges};
+   return _elm.Chess.Piece.values;
+};
