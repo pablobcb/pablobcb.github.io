@@ -334,6 +334,668 @@ Elm.Char.make = function (_elm) {
                       ,fromCode: fromCode};
    return _elm.Char.values;
 };
+Elm.Chess = Elm.Chess || {};
+Elm.Chess.Board = Elm.Chess.Board || {};
+Elm.Chess.Board.make = function (_elm) {
+   "use strict";
+   _elm.Chess = _elm.Chess || {};
+   _elm.Chess.Board = _elm.Chess.Board || {};
+   if (_elm.Chess.Board.values)
+   return _elm.Chess.Board.values;
+   var _op = {},
+   _N = Elm.Native,
+   _U = _N.Utils.make(_elm),
+   _L = _N.List.make(_elm),
+   $moduleName = "Chess.Board",
+   $Basics = Elm.Basics.make(_elm),
+   $Chess$Color = Elm.Chess.Color.make(_elm),
+   $Chess$Piece = Elm.Chess.Piece.make(_elm),
+   $Dict = Elm.Dict.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Maybe$Extra = Elm.Maybe.Extra.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm);
+   var numToChar = function (num) {
+      return _U.eq(num,
+      1) ? $Maybe.Just(_U.chr("A")) : _U.eq(num,
+      2) ? $Maybe.Just(_U.chr("B")) : _U.eq(num,
+      3) ? $Maybe.Just(_U.chr("C")) : _U.eq(num,
+      4) ? $Maybe.Just(_U.chr("D")) : _U.eq(num,
+      5) ? $Maybe.Just(_U.chr("E")) : _U.eq(num,
+      6) ? $Maybe.Just(_U.chr("F")) : _U.eq(num,
+      7) ? $Maybe.Just(_U.chr("G")) : _U.eq(num,
+      8) ? $Maybe.Just(_U.chr("H")) : $Maybe.Nothing;
+   };
+   var charToNum = function ($char) {
+      return _U.eq($char,
+      _U.chr("A")) ? $Maybe.Just(1) : _U.eq($char,
+      _U.chr("B")) ? $Maybe.Just(2) : _U.eq($char,
+      _U.chr("C")) ? $Maybe.Just(3) : _U.eq($char,
+      _U.chr("D")) ? $Maybe.Just(4) : _U.eq($char,
+      _U.chr("E")) ? $Maybe.Just(5) : _U.eq($char,
+      _U.chr("F")) ? $Maybe.Just(6) : _U.eq($char,
+      _U.chr("G")) ? $Maybe.Just(7) : _U.eq($char,
+      _U.chr("H")) ? $Maybe.Just(8) : $Maybe.Nothing;
+   };
+   var shift = F2(function (_v0,
+   _v1) {
+      return function () {
+         switch (_v1.ctor)
+         {case "_Tuple2":
+            return function () {
+                 switch (_v0.ctor)
+                 {case "_Tuple2":
+                    return function () {
+                         var charNumericalRepresentation = function () {
+                            var _v8 = charToNum(_v0._0);
+                            switch (_v8.ctor)
+                            {case "Just": return _v8._0;
+                               case "Nothing": return -10000;}
+                            _U.badCase($moduleName,
+                            "between lines 75 and 82");
+                         }();
+                         var shiftedCharNumericalRepresentation = charNumericalRepresentation + _v1._0;
+                         var shiftedChar = function () {
+                            var _v10 = numToChar(shiftedCharNumericalRepresentation);
+                            switch (_v10.ctor)
+                            {case "Just": return _v10._0;
+                               case "Nothing":
+                               return _U.chr("!");}
+                            _U.badCase($moduleName,
+                            "between lines 86 and 93");
+                         }();
+                         return {ctor: "_Tuple2"
+                                ,_0: shiftedChar
+                                ,_1: _v0._1 + _v1._1};
+                      }();}
+                 _U.badCase($moduleName,
+                 "between lines 73 and 94");
+              }();}
+         _U.badCase($moduleName,
+         "between lines 73 and 94");
+      }();
+   });
+   var positionAhead = F2(function (color,
+   position) {
+      return function () {
+         switch (color.ctor)
+         {case "Black": return A2(shift,
+              position,
+              {ctor: "_Tuple2",_0: 0,_1: -1});
+            case "White": return A2(shift,
+              position,
+              {ctor: "_Tuple2",_0: 0,_1: 1});}
+         _U.badCase($moduleName,
+         "between lines 98 and 102");
+      }();
+   });
+   var emptyRow = A2($List.repeat,
+   8,
+   $Maybe.Nothing);
+   var getSquareContent = function (board) {
+      return function ($) {
+         return $Maybe$Extra.join(A2($Basics.flip,
+         $Dict.get,
+         board)($));
+      };
+   };
+   var letters = _L.fromArray([_U.chr("A")
+                              ,_U.chr("B")
+                              ,_U.chr("C")
+                              ,_U.chr("D")
+                              ,_U.chr("E")
+                              ,_U.chr("F")
+                              ,_U.chr("G")
+                              ,_U.chr("H")]);
+   var makeInitialBoard = function () {
+      var zip = $List.map2(F2(function (v0,
+      v1) {
+         return {ctor: "_Tuple2"
+                ,_0: v0
+                ,_1: v1};
+      }));
+      var makeRow = function (number) {
+         return A2(zip,
+         letters,
+         A2($List.repeat,8,number));
+      };
+      var makePiece = F2(function (pieceColor,
+      figure) {
+         return $Maybe.Just(A2($Chess$Piece.piece,
+         figure,
+         pieceColor));
+      });
+      var makeFirstRow = function (color) {
+         return A2($List.map,
+         makePiece(color),
+         _L.fromArray([$Chess$Piece.Rook
+                      ,$Chess$Piece.Knight
+                      ,$Chess$Piece.Bishop
+                      ,$Chess$Piece.Queen
+                      ,$Chess$Piece.King
+                      ,$Chess$Piece.Bishop
+                      ,$Chess$Piece.Knight
+                      ,$Chess$Piece.Rook]));
+      };
+      var pawnRow = function (pawnColor) {
+         return $List.repeat(8)($Maybe.Just(A2($Chess$Piece.piece,
+         $Chess$Piece.Pawn,
+         pawnColor)));
+      };
+      return $Dict.fromList(A2($Basics._op["++"],
+      A2(zip,
+      makeRow(8),
+      makeFirstRow($Chess$Color.Black)),
+      A2($Basics._op["++"],
+      A2(zip,
+      makeRow(7),
+      pawnRow($Chess$Color.Black)),
+      A2($Basics._op["++"],
+      A2(zip,makeRow(6),emptyRow),
+      A2($Basics._op["++"],
+      A2(zip,makeRow(5),emptyRow),
+      A2($Basics._op["++"],
+      A2(zip,makeRow(4),emptyRow),
+      A2($Basics._op["++"],
+      A2(zip,makeRow(3),emptyRow),
+      A2($Basics._op["++"],
+      A2(zip,
+      makeRow(2),
+      pawnRow($Chess$Color.White)),
+      A2(zip,
+      makeRow(1),
+      makeFirstRow($Chess$Color.White))))))))));
+   }();
+   var getRegularMoves = F2(function (ranges,
+   position) {
+      return function () {
+         var filterPosition = function (pos) {
+            return A2($List.member,
+            $Basics.fst(pos),
+            letters) && A2($List.member,
+            $Basics.snd(pos),
+            _L.range(1,8));
+         };
+         return $List.filter(filterPosition)(A2($List.map,
+         shift(position),
+         ranges));
+      }();
+   });
+   _elm.Chess.Board.values = {_op: _op
+                             ,letters: letters
+                             ,getSquareContent: getSquareContent
+                             ,emptyRow: emptyRow
+                             ,makeInitialBoard: makeInitialBoard
+                             ,shift: shift
+                             ,positionAhead: positionAhead
+                             ,getRegularMoves: getRegularMoves
+                             ,charToNum: charToNum
+                             ,numToChar: numToChar};
+   return _elm.Chess.Board.values;
+};
+Elm.Chess = Elm.Chess || {};
+Elm.Chess.Color = Elm.Chess.Color || {};
+Elm.Chess.Color.make = function (_elm) {
+   "use strict";
+   _elm.Chess = _elm.Chess || {};
+   _elm.Chess.Color = _elm.Chess.Color || {};
+   if (_elm.Chess.Color.values)
+   return _elm.Chess.Color.values;
+   var _op = {},
+   _N = Elm.Native,
+   _U = _N.Utils.make(_elm),
+   _L = _N.List.make(_elm),
+   $moduleName = "Chess.Color",
+   $Basics = Elm.Basics.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm);
+   var White = {ctor: "White"};
+   var Black = {ctor: "Black"};
+   var other = function (color) {
+      return function () {
+         switch (color.ctor)
+         {case "Black": return White;
+            case "White": return Black;}
+         _U.badCase($moduleName,
+         "between lines 9 and 11");
+      }();
+   };
+   _elm.Chess.Color.values = {_op: _op
+                             ,Black: Black
+                             ,White: White
+                             ,other: other};
+   return _elm.Chess.Color.values;
+};
+Elm.Chess = Elm.Chess || {};
+Elm.Chess.Game = Elm.Chess.Game || {};
+Elm.Chess.Game.make = function (_elm) {
+   "use strict";
+   _elm.Chess = _elm.Chess || {};
+   _elm.Chess.Game = _elm.Chess.Game || {};
+   if (_elm.Chess.Game.values)
+   return _elm.Chess.Game.values;
+   var _op = {},
+   _N = Elm.Native,
+   _U = _N.Utils.make(_elm),
+   _L = _N.List.make(_elm),
+   $moduleName = "Chess.Game",
+   $Basics = Elm.Basics.make(_elm),
+   $Chess$Board = Elm.Chess.Board.make(_elm),
+   $Chess$Color = Elm.Chess.Color.make(_elm),
+   $Chess$Piece = Elm.Chess.Piece.make(_elm),
+   $Debug = Elm.Debug.make(_elm),
+   $Dict = Elm.Dict.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Maybe$Extra = Elm.Maybe.Extra.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm);
+   var remove = function (x) {
+      return $List.filter(F2(function (x,
+      y) {
+         return !_U.eq(x,y);
+      })(x));
+   };
+   var getValidDestinations = F3(function (origin,
+   piece,
+   game) {
+      return function () {
+         var regularMoves = $Debug.watch("regular moves")(A2($Chess$Board.getRegularMoves,
+         $Chess$Piece.ranges(piece),
+         origin));
+         var getSquareContent$ = $Chess$Board.getSquareContent(game.board);
+         var allowedMoves = function () {
+            var _v0 = piece.figure;
+            switch (_v0.ctor)
+            {case "Pawn":
+               return function () {
+                    var positionAhead = $Debug.watch("positionAhead")(A2($Chess$Board.positionAhead,
+                    game.turn,
+                    origin));
+                    var isPositionAheadBlocked = $Debug.watch("isPositionAheadBlocked")($Maybe$Extra.isJust(A2($Chess$Board.getSquareContent,
+                    game.board,
+                    positionAhead)));
+                    var enPassant = function () {
+                       var _v1 = game.state;
+                       switch (_v1.ctor)
+                       {case "EnPassant":
+                          return _L.fromArray([]);}
+                       return _L.fromArray([]);
+                    }();
+                    var pawnTakeRanges$ = $Chess$Piece.pawnTakeRanges(game.turn);
+                    var getSquareContent$$ = function (f) {
+                       return getSquareContent$($Chess$Board.shift(origin)(f(pawnTakeRanges$)));
+                    };
+                    var takeToRight = function () {
+                       var _v3 = getSquareContent$$(function (_) {
+                          return _.right;
+                       });
+                       switch (_v3.ctor)
+                       {case "Just":
+                          return _L.fromArray([A2($Chess$Board.shift,
+                            origin,
+                            function (_) {
+                               return _.right;
+                            }(pawnTakeRanges$))]);
+                          case "Nothing":
+                          return _L.fromArray([]);}
+                       _U.badCase($moduleName,
+                       "between lines 116 and 122");
+                    }();
+                    var takeToLeft = function () {
+                       var _v5 = getSquareContent$$(function (_) {
+                          return _.left;
+                       });
+                       switch (_v5.ctor)
+                       {case "Just":
+                          return _L.fromArray([A2($Chess$Board.shift,
+                            origin,
+                            function (_) {
+                               return _.left;
+                            }(pawnTakeRanges$))]);
+                          case "Nothing":
+                          return _L.fromArray([]);}
+                       _U.badCase($moduleName,
+                       "between lines 123 and 129");
+                    }();
+                    return A2($Basics._op["++"],
+                    takeToLeft,
+                    A2($Basics._op["++"],
+                    takeToRight,
+                    A2($Basics._op["++"],
+                    enPassant,
+                    isPositionAheadBlocked ? $Debug.watch("after remove")(A2(remove,
+                    positionAhead,
+                    regularMoves)) : regularMoves)));
+                 }();}
+            return regularMoves;
+         }();
+         var destinationHasNoAlly = function (destination) {
+            return function () {
+               var _v7 = getSquareContent$(destination);
+               switch (_v7.ctor)
+               {case "Just":
+                  return !_U.eq(_v7._0.color,
+                    game.turn);
+                  case "Nothing": return true;}
+               _U.badCase($moduleName,
+               "between lines 153 and 159");
+            }();
+         };
+         var filterDestinations = function (destination) {
+            return destinationHasNoAlly(destination) && !_U.eq(origin,
+            destination);
+         };
+         return A2($List.filter,
+         destinationHasNoAlly,
+         allowedMoves);
+      }();
+   });
+   var move = F3(function (game,
+   origin,
+   destination) {
+      return function () {
+         var board = game.board;
+         var destinationSquare = A2($Chess$Board.getSquareContent,
+         board,
+         destination);
+         var originSquare = A2($Chess$Board.getSquareContent,
+         board,
+         origin);
+         var board$ = function () {
+            var piece = function () {
+               switch (originSquare.ctor)
+               {case "Just":
+                  return $Maybe.Just(_U.replace([["moved"
+                                                 ,true]],
+                    originSquare._0));}
+               _U.badCase($moduleName,
+               "between lines 67 and 72");
+            }();
+            return A3($Dict.insert,
+            destination,
+            piece,
+            board);
+         }();
+         var game$ = _U.replace([["board"
+                                 ,A3($Dict.insert,
+                                 origin,
+                                 $Maybe.Nothing,
+                                 board$)]],
+         game);
+         return function () {
+            switch (destinationSquare.ctor)
+            {case "Just":
+               return function () {
+                    var _v13 = game.turn;
+                    switch (_v13.ctor)
+                    {case "Black":
+                       return _U.replace([["graveyard1"
+                                          ,A2($Basics._op["++"],
+                                          game$.graveyard1,
+                                          _L.fromArray([$Maybe.Just(destinationSquare._0.figure)]))]],
+                         game$);
+                       case "White":
+                       return _U.replace([["graveyard2"
+                                          ,A2($Basics._op["++"],
+                                          game$.graveyard2,
+                                          _L.fromArray([$Maybe.Just(destinationSquare._0.figure)]))]],
+                         game$);}
+                    _U.badCase($moduleName,
+                    "between lines 81 and 92");
+                 }();
+               case "Nothing": return game$;}
+            _U.badCase($moduleName,
+            "between lines 79 and 93");
+         }();
+      }();
+   });
+   var Game = F6(function (a,
+   b,
+   c,
+   d,
+   e,
+   f) {
+      return {_: {}
+             ,board: a
+             ,graveyard1: b
+             ,graveyard2: c
+             ,state: e
+             ,turn: d
+             ,turnInSeconds: f};
+   });
+   var Finished = function (a) {
+      return {ctor: "Finished"
+             ,_0: a};
+   };
+   var CheckMate = {ctor: "CheckMate"};
+   var EnPassant = function (a) {
+      return {ctor: "EnPassant"
+             ,_0: a};
+   };
+   var Promotion = function (a) {
+      return {ctor: "Promotion"
+             ,_0: a};
+   };
+   var Destination = F2(function (a,
+   b) {
+      return {ctor: "Destination"
+             ,_0: a
+             ,_1: b};
+   });
+   var Origin = {ctor: "Origin"};
+   var makeInitialGame = function () {
+      var emptyGraveyard = A2($Basics._op["++"],
+      $Chess$Board.emptyRow,
+      $Chess$Board.emptyRow);
+      return {_: {}
+             ,board: $Chess$Board.makeInitialBoard
+             ,graveyard1: emptyGraveyard
+             ,graveyard2: emptyGraveyard
+             ,state: Origin
+             ,turn: $Chess$Color.White
+             ,turnInSeconds: 0};
+   }();
+   _elm.Chess.Game.values = {_op: _op
+                            ,Origin: Origin
+                            ,Destination: Destination
+                            ,Promotion: Promotion
+                            ,EnPassant: EnPassant
+                            ,CheckMate: CheckMate
+                            ,Finished: Finished
+                            ,Game: Game
+                            ,makeInitialGame: makeInitialGame
+                            ,move: move
+                            ,remove: remove
+                            ,getValidDestinations: getValidDestinations};
+   return _elm.Chess.Game.values;
+};
+Elm.Chess = Elm.Chess || {};
+Elm.Chess.Piece = Elm.Chess.Piece || {};
+Elm.Chess.Piece.make = function (_elm) {
+   "use strict";
+   _elm.Chess = _elm.Chess || {};
+   _elm.Chess.Piece = _elm.Chess.Piece || {};
+   if (_elm.Chess.Piece.values)
+   return _elm.Chess.Piece.values;
+   var _op = {},
+   _N = Elm.Native,
+   _U = _N.Utils.make(_elm),
+   _L = _N.List.make(_elm),
+   $moduleName = "Chess.Piece",
+   $Basics = Elm.Basics.make(_elm),
+   $Chess$Color = Elm.Chess.Color.make(_elm),
+   $Debug = Elm.Debug.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm);
+   var ranges = function (piece) {
+      return function () {
+         var kingRanges = _L.fromArray([{ctor: "_Tuple2"
+                                        ,_0: 0
+                                        ,_1: 1}
+                                       ,{ctor: "_Tuple2",_0: 1,_1: 1}
+                                       ,{ctor: "_Tuple2",_0: 1,_1: 0}
+                                       ,{ctor: "_Tuple2",_0: 1,_1: -1}
+                                       ,{ctor: "_Tuple2",_0: 0,_1: -1}
+                                       ,{ctor: "_Tuple2",_0: -1,_1: -1}
+                                       ,{ctor: "_Tuple2",_0: -1,_1: 0}
+                                       ,{ctor: "_Tuple2"
+                                        ,_0: -1
+                                        ,_1: 1}]);
+         var oneToSeven = _L.range(1,7);
+         var negativeOneToSeven = A2($List.map,
+         F2(function (x,y) {
+            return x * y;
+         })(-1),
+         oneToSeven);
+         var zeros = A2($List.repeat,
+         7,
+         0);
+         var zip = $List.map2(F2(function (v0,
+         v1) {
+            return {ctor: "_Tuple2"
+                   ,_0: v0
+                   ,_1: v1};
+         }));
+         var rookRanges = A2($Basics._op["++"],
+         A2(zip,oneToSeven,zeros),
+         A2($Basics._op["++"],
+         A2(zip,
+         negativeOneToSeven,
+         zeros),
+         A2($Basics._op["++"],
+         A2(zip,zeros,oneToSeven),
+         A2(zip,
+         zeros,
+         negativeOneToSeven))));
+         var bishopRanges = A2($Basics._op["++"],
+         A2(zip,oneToSeven,oneToSeven),
+         A2($Basics._op["++"],
+         A2(zip,
+         negativeOneToSeven,
+         oneToSeven),
+         A2($Basics._op["++"],
+         A2(zip,
+         oneToSeven,
+         negativeOneToSeven),
+         A2(zip,
+         negativeOneToSeven,
+         negativeOneToSeven))));
+         return function () {
+            var _v0 = piece.figure;
+            switch (_v0.ctor)
+            {case "Bishop":
+               return A2($Debug.watch,
+                 "bishop Ranges",
+                 bishopRanges);
+               case "King": return kingRanges;
+               case "Knight":
+               return _L.fromArray([{ctor: "_Tuple2"
+                                    ,_0: 1
+                                    ,_1: 2}
+                                   ,{ctor: "_Tuple2",_0: -1,_1: 2}
+                                   ,{ctor: "_Tuple2",_0: 2,_1: 1}
+                                   ,{ctor: "_Tuple2",_0: 2,_1: -1}
+                                   ,{ctor: "_Tuple2",_0: 1,_1: -2}
+                                   ,{ctor: "_Tuple2",_0: -1,_1: -2}
+                                   ,{ctor: "_Tuple2",_0: -2,_1: 1}
+                                   ,{ctor: "_Tuple2"
+                                    ,_0: -2
+                                    ,_1: -1}]);
+               case "Pawn":
+               return function () {
+                    var _v1 = piece.color;
+                    switch (_v1.ctor)
+                    {case "Black":
+                       return A2($Basics._op["++"],
+                         _L.fromArray([{ctor: "_Tuple2"
+                                       ,_0: 0
+                                       ,_1: -1}]),
+                         piece.moved ? _L.fromArray([]) : _L.fromArray([{ctor: "_Tuple2"
+                                                                        ,_0: 0
+                                                                        ,_1: -2}]));
+                       case "White":
+                       return A2($Basics._op["++"],
+                         _L.fromArray([{ctor: "_Tuple2"
+                                       ,_0: 0
+                                       ,_1: 1}]),
+                         piece.moved ? _L.fromArray([]) : _L.fromArray([{ctor: "_Tuple2"
+                                                                        ,_0: 0
+                                                                        ,_1: 2}]));}
+                    _U.badCase($moduleName,
+                    "between lines 84 and 97");
+                 }();
+               case "Queen":
+               return A2($Basics._op["++"],
+                 bishopRanges,
+                 A2($Basics._op["++"],
+                 rookRanges,
+                 kingRanges));
+               case "Rook": return rookRanges;}
+            _U.badCase($moduleName,
+            "between lines 82 and 120");
+         }();
+      }();
+   };
+   var pawnTakeRanges = function (color) {
+      return function () {
+         switch (color.ctor)
+         {case "Black": return {_: {}
+                               ,left: {ctor: "_Tuple2"
+                                      ,_0: -1
+                                      ,_1: -1}
+                               ,right: {ctor: "_Tuple2"
+                                       ,_0: 1
+                                       ,_1: -1}};
+            case "White": return {_: {}
+                                 ,left: {ctor: "_Tuple2"
+                                        ,_0: -1
+                                        ,_1: 1}
+                                 ,right: {ctor: "_Tuple2"
+                                         ,_0: 1
+                                         ,_1: 1}};}
+         _U.badCase($moduleName,
+         "between lines 37 and 42");
+      }();
+   };
+   var piece = F2(function (f,c) {
+      return {_: {}
+             ,color: c
+             ,figure: f
+             ,moved: false};
+   });
+   var Piece = F3(function (a,
+   b,
+   c) {
+      return {_: {}
+             ,color: c
+             ,figure: a
+             ,moved: b};
+   });
+   var King = {ctor: "King"};
+   var Queen = {ctor: "Queen"};
+   var Rook = {ctor: "Rook"};
+   var Bishop = {ctor: "Bishop"};
+   var Knight = {ctor: "Knight"};
+   var Pawn = {ctor: "Pawn"};
+   _elm.Chess.Piece.values = {_op: _op
+                             ,Pawn: Pawn
+                             ,Knight: Knight
+                             ,Bishop: Bishop
+                             ,Rook: Rook
+                             ,Queen: Queen
+                             ,King: King
+                             ,Piece: Piece
+                             ,piece: piece
+                             ,pawnTakeRanges: pawnTakeRanges
+                             ,ranges: ranges};
+   return _elm.Chess.Piece.values;
+};
 Elm.Color = Elm.Color || {};
 Elm.Color.make = function (_elm) {
    "use strict";
@@ -4166,10 +4828,10 @@ Elm.Main.make = function (_elm) {
    _L = _N.List.make(_elm),
    $moduleName = "Main",
    $Basics = Elm.Basics.make(_elm),
+   $Chess$Game = Elm.Chess.Game.make(_elm),
    $Html = Elm.Html.make(_elm),
    $List = Elm.List.make(_elm),
    $Maybe = Elm.Maybe.make(_elm),
-   $Model = Elm.Model.make(_elm),
    $Result = Elm.Result.make(_elm),
    $Signal = Elm.Signal.make(_elm),
    $Time = Elm.Time.make(_elm),
@@ -4184,7 +4846,7 @@ Elm.Main.make = function (_elm) {
    var actions = inbox.signal;
    var model = A3($Signal.foldp,
    $Update.update,
-   $Model.makeInitialGame,
+   $Chess$Game.makeInitialGame,
    A2($Signal.merge,
    actions,
    ticker));
@@ -4471,271 +5133,6 @@ Elm.Maybe.Extra.make = function (_elm) {
                              ,traverseArray: traverseArray
                              ,combineArray: combineArray};
    return _elm.Maybe.Extra.values;
-};
-Elm.Model = Elm.Model || {};
-Elm.Model.make = function (_elm) {
-   "use strict";
-   _elm.Model = _elm.Model || {};
-   if (_elm.Model.values)
-   return _elm.Model.values;
-   var _op = {},
-   _N = Elm.Native,
-   _U = _N.Utils.make(_elm),
-   _L = _N.List.make(_elm),
-   $moduleName = "Model",
-   $Basics = Elm.Basics.make(_elm),
-   $Dict = Elm.Dict.make(_elm),
-   $List = Elm.List.make(_elm),
-   $Maybe = Elm.Maybe.make(_elm),
-   $Maybe$Extra = Elm.Maybe.Extra.make(_elm),
-   $Result = Elm.Result.make(_elm),
-   $Signal = Elm.Signal.make(_elm);
-   var Game = F6(function (a,
-   b,
-   c,
-   d,
-   e,
-   f) {
-      return {_: {}
-             ,board: a
-             ,graveyard1: b
-             ,graveyard2: c
-             ,state: e
-             ,turn: d
-             ,turnInSeconds: f};
-   });
-   var Finished = function (a) {
-      return {ctor: "Finished"
-             ,_0: a};
-   };
-   var CheckMate = {ctor: "CheckMate"};
-   var Promotion = function (a) {
-      return {ctor: "Promotion"
-             ,_0: a};
-   };
-   var Destination = function (a) {
-      return {ctor: "Destination"
-             ,_0: a};
-   };
-   var Origin = {ctor: "Origin"};
-   var Player = F2(function (a,b) {
-      return {_: {}
-             ,color: a
-             ,graveyard: b};
-   });
-   var emptyRow = A2($List.repeat,
-   8,
-   $Maybe.Nothing);
-   var getSquareContent = function (board) {
-      return function ($) {
-         return $Maybe$Extra.join(A2($Basics.flip,
-         $Dict.get,
-         board)($));
-      };
-   };
-   var validateMove = F3(function (origin,
-   destination,
-   game) {
-      return function () {
-         var otherColor = function () {
-            var _v0 = A2(getSquareContent,
-            game.board,
-            destination);
-            switch (_v0.ctor)
-            {case "Just":
-               return !_U.eq(_v0._0.color,
-                 game.turn);
-               case "Nothing": return true;}
-            _U.badCase($moduleName,
-            "between lines 59 and 66");
-         }();
-         return !_U.eq(origin,
-         destination) && otherColor;
-      }();
-   });
-   var move = F3(function (game,
-   origin,
-   destination) {
-      return function () {
-         var board = game.board;
-         var destinationSquare = A2(getSquareContent,
-         board,
-         destination);
-         var originSquare = A2(getSquareContent,
-         board,
-         origin);
-         var board$ = A3($Dict.insert,
-         destination,
-         originSquare,
-         board);
-         var game$ = _U.replace([["board"
-                                 ,A3($Dict.insert,
-                                 origin,
-                                 $Maybe.Nothing,
-                                 board$)]],
-         game);
-         return function () {
-            switch (destinationSquare.ctor)
-            {case "Just":
-               return function () {
-                    var _v4 = game.turn;
-                    switch (_v4.ctor)
-                    {case "Black":
-                       return _U.replace([["graveyard1"
-                                          ,A2($Basics._op["++"],
-                                          game$.graveyard1,
-                                          _L.fromArray([$Maybe.Just(destinationSquare._0.figure)]))]],
-                         game$);
-                       case "White":
-                       return _U.replace([["graveyard2"
-                                          ,A2($Basics._op["++"],
-                                          game$.graveyard2,
-                                          _L.fromArray([$Maybe.Just(destinationSquare._0.figure)]))]],
-                         game$);}
-                    _U.badCase($moduleName,
-                    "between lines 92 and 103");
-                 }();
-               case "Nothing": return game$;}
-            _U.badCase($moduleName,
-            "between lines 90 and 104");
-         }();
-      }();
-   });
-   var piece = F2(function (f,c) {
-      return {_: {}
-             ,color: c
-             ,figure: f
-             ,moved: false};
-   });
-   var Piece = F3(function (a,
-   b,
-   c) {
-      return {_: {}
-             ,color: c
-             ,figure: a
-             ,moved: b};
-   });
-   var King = {ctor: "King"};
-   var Queen = {ctor: "Queen"};
-   var Rook = {ctor: "Rook"};
-   var Bishop = {ctor: "Bishop"};
-   var Knight = {ctor: "Knight"};
-   var Pawn = {ctor: "Pawn"};
-   var White = {ctor: "White"};
-   var Black = {ctor: "Black"};
-   var other = function (color) {
-      return function () {
-         switch (color.ctor)
-         {case "Black": return White;
-            case "White": return Black;}
-         _U.badCase($moduleName,
-         "between lines 15 and 20");
-      }();
-   };
-   var makeInitialBoard = function () {
-      var zip = $List.map2(F2(function (v0,
-      v1) {
-         return {ctor: "_Tuple2"
-                ,_0: v0
-                ,_1: v1};
-      }));
-      var makeRow = function (number) {
-         return A2(zip,
-         _L.fromArray([_U.chr("A")
-                      ,_U.chr("B")
-                      ,_U.chr("C")
-                      ,_U.chr("D")
-                      ,_U.chr("E")
-                      ,_U.chr("F")
-                      ,_U.chr("G")
-                      ,_U.chr("H")]),
-         A2($List.repeat,8,number));
-      };
-      var makePiece = F2(function (pieceColor,
-      figure) {
-         return $Maybe.Just(A2(piece,
-         figure,
-         pieceColor));
-      });
-      var makeFirstRow = function (color) {
-         return A2($List.map,
-         makePiece(color),
-         _L.fromArray([Rook
-                      ,Knight
-                      ,Bishop
-                      ,Queen
-                      ,King
-                      ,Bishop
-                      ,Knight
-                      ,Rook]));
-      };
-      var pawnRow = function (pawnColor) {
-         return $List.repeat(8)($Maybe.Just(A2(piece,
-         Pawn,
-         pawnColor)));
-      };
-      return $Dict.fromList(A2($Basics._op["++"],
-      A2(zip,
-      makeRow(8),
-      makeFirstRow(Black)),
-      A2($Basics._op["++"],
-      A2(zip,
-      makeRow(7),
-      pawnRow(Black)),
-      A2($Basics._op["++"],
-      A2(zip,makeRow(6),emptyRow),
-      A2($Basics._op["++"],
-      A2(zip,makeRow(5),emptyRow),
-      A2($Basics._op["++"],
-      A2(zip,makeRow(4),emptyRow),
-      A2($Basics._op["++"],
-      A2(zip,makeRow(3),emptyRow),
-      A2($Basics._op["++"],
-      A2(zip,
-      makeRow(2),
-      pawnRow(White)),
-      A2(zip,
-      makeRow(1),
-      makeFirstRow(White))))))))));
-   }();
-   var makeInitialGame = function () {
-      var emptyGraveyard = A2($Basics._op["++"],
-      emptyRow,
-      emptyRow);
-      return {_: {}
-             ,board: makeInitialBoard
-             ,graveyard1: emptyGraveyard
-             ,graveyard2: emptyGraveyard
-             ,state: Origin
-             ,turn: White
-             ,turnInSeconds: 0};
-   }();
-   _elm.Model.values = {_op: _op
-                       ,Black: Black
-                       ,White: White
-                       ,other: other
-                       ,Pawn: Pawn
-                       ,Knight: Knight
-                       ,Bishop: Bishop
-                       ,Rook: Rook
-                       ,Queen: Queen
-                       ,King: King
-                       ,Piece: Piece
-                       ,piece: piece
-                       ,getSquareContent: getSquareContent
-                       ,validateMove: validateMove
-                       ,move: move
-                       ,emptyRow: emptyRow
-                       ,makeInitialBoard: makeInitialBoard
-                       ,Player: Player
-                       ,Origin: Origin
-                       ,Destination: Destination
-                       ,Promotion: Promotion
-                       ,CheckMate: CheckMate
-                       ,Finished: Finished
-                       ,Game: Game
-                       ,makeInitialGame: makeInitialGame};
-   return _elm.Model.values;
 };
 Elm.Native.Array = {};
 Elm.Native.Array.make = function(localRuntime) {
@@ -13489,10 +13886,13 @@ Elm.Update.make = function (_elm) {
    _L = _N.List.make(_elm),
    $moduleName = "Update",
    $Basics = Elm.Basics.make(_elm),
+   $Chess$Board = Elm.Chess.Board.make(_elm),
+   $Chess$Color = Elm.Chess.Color.make(_elm),
+   $Chess$Game = Elm.Chess.Game.make(_elm),
+   $Chess$Piece = Elm.Chess.Piece.make(_elm),
    $Dict = Elm.Dict.make(_elm),
    $List = Elm.List.make(_elm),
    $Maybe = Elm.Maybe.make(_elm),
-   $Model = Elm.Model.make(_elm),
    $Result = Elm.Result.make(_elm),
    $Signal = Elm.Signal.make(_elm);
    var update = F2(function (action,
@@ -13514,83 +13914,91 @@ Elm.Update.make = function (_elm) {
                     board);
                     return _U.replace([["board"
                                        ,board$]
-                                      ,["turn",$Model.other(player)]
-                                      ,["state",$Model.Origin]
+                                      ,["turn"
+                                       ,$Chess$Color.other(player)]
+                                      ,["state",$Chess$Game.Origin]
                                       ,["turnInSeconds",0]],
                     game);
                  }();
                case "Restart":
-               return $Model.makeInitialGame;
+               return $Chess$Game.makeInitialGame;
                case "Select":
                return function () {
                     var _v4 = game.state;
                     switch (_v4.ctor)
                     {case "Destination":
-                       return A3($Model.validateMove,
-                         _v4._0,
+                       return A2($List.member,
                          action._0,
-                         game) ? function () {
+                         _v4._1) ? function () {
                             var row = $Basics.snd(action._0);
-                            var game$ = A3($Model.move,
+                            var game$ = A3($Chess$Game.move,
                             game,
                             _v4._0,
                             action._0);
-                            var selectedDestination = A2($Model.getSquareContent,
+                            var selectedDestination = A2($Chess$Board.getSquareContent,
                             game$.board,
                             action._0);
                             var isPawn = function () {
                                switch (selectedDestination.ctor)
                                {case "Just":
                                   return _U.eq(selectedDestination._0.figure,
-                                    $Model.Pawn) ? true : false;
+                                    $Chess$Piece.Pawn) ? true : false;
                                   case "Nothing": return false;}
                                _U.badCase($moduleName,
-                               "between lines 95 and 104");
+                               "between lines 108 and 117");
                             }();
                             var promoted = (_U.eq(row,
                             1) || _U.eq(row,8)) && isPawn;
                             return promoted ? _U.replace([["turn"
                                                           ,player]
                                                          ,["state"
-                                                          ,$Model.Promotion(action._0)]],
+                                                          ,$Chess$Game.Promotion(action._0)]],
                             game$) : _U.replace([["turn"
-                                                 ,$Model.other(player)]
+                                                 ,$Chess$Color.other(player)]
                                                 ,["turnInSeconds",0]
-                                                ,["state",$Model.Origin]],
+                                                ,["state",$Chess$Game.Origin]],
                             game$);
                          }() : _U.replace([["turn"
                                            ,player]
-                                          ,["state",$Model.Origin]],
+                                          ,["state",$Chess$Game.Origin]],
                          game);
                        case "Origin":
                        return function () {
-                            var selectedOrigin = A2($Model.getSquareContent,
+                            var selectedOrigin = A2($Chess$Board.getSquareContent,
                             board,
                             action._0);
                             return function () {
                                switch (selectedOrigin.ctor)
                                {case "Just":
-                                  return !_U.eq(player,
-                                    selectedOrigin._0.color) ? game : _U.replace([["state"
-                                                                                  ,$Model.Destination(action._0)]
-                                                                                 ,["turn"
-                                                                                  ,player]],
-                                    game);
+                                  return function () {
+                                       var validDestinations = A3($Chess$Game.getValidDestinations,
+                                       action._0,
+                                       selectedOrigin._0,
+                                       game);
+                                       return !_U.eq(player,
+                                       selectedOrigin._0.color) ? game : _U.replace([["turn"
+                                                                                     ,player]
+                                                                                    ,["state"
+                                                                                     ,A2($Chess$Game.Destination,
+                                                                                     action._0,
+                                                                                     validDestinations)]],
+                                       game);
+                                    }();
                                   case "Nothing": return game;}
                                _U.badCase($moduleName,
-                               "between lines 66 and 83");
+                               "between lines 69 and 96");
                             }();
                          }();
                        case "Promotion": return game;}
                     _U.badCase($moduleName,
-                    "between lines 54 and 123");
+                    "between lines 57 and 136");
                  }();
                case "UpdateTimer":
                return _U.replace([["turnInSeconds"
                                   ,game.turnInSeconds + 1]],
                  game);}
             _U.badCase($moduleName,
-            "between lines 25 and 123");
+            "between lines 28 and 136");
          }();
       }();
    });
@@ -13626,13 +14034,16 @@ Elm.View.make = function (_elm) {
    _L = _N.List.make(_elm),
    $moduleName = "View",
    $Basics = Elm.Basics.make(_elm),
+   $Chess$Board = Elm.Chess.Board.make(_elm),
+   $Chess$Color = Elm.Chess.Color.make(_elm),
+   $Chess$Game = Elm.Chess.Game.make(_elm),
+   $Chess$Piece = Elm.Chess.Piece.make(_elm),
    $Debug = Elm.Debug.make(_elm),
    $Html = Elm.Html.make(_elm),
    $Html$Attributes = Elm.Html.Attributes.make(_elm),
    $Html$Events = Elm.Html.Events.make(_elm),
    $List = Elm.List.make(_elm),
    $Maybe = Elm.Maybe.make(_elm),
-   $Model = Elm.Model.make(_elm),
    $Result = Elm.Result.make(_elm),
    $Signal = Elm.Signal.make(_elm),
    $String = Elm.String.make(_elm),
@@ -13651,7 +14062,7 @@ Elm.View.make = function (_elm) {
                        case "White":
                        return "white bishop";}
                     _U.badCase($moduleName,
-                    "between lines 38 and 42");
+                    "between lines 41 and 45");
                  }();
                case "King":
                return function () {
@@ -13662,7 +14073,7 @@ Elm.View.make = function (_elm) {
                        case "White":
                        return "white king";}
                     _U.badCase($moduleName,
-                    "between lines 26 and 30");
+                    "between lines 29 and 33");
                  }();
                case "Knight":
                return function () {
@@ -13673,7 +14084,7 @@ Elm.View.make = function (_elm) {
                        case "White":
                        return "white knight";}
                     _U.badCase($moduleName,
-                    "between lines 42 and 46");
+                    "between lines 45 and 49");
                  }();
                case "Pawn":
                return function () {
@@ -13684,7 +14095,7 @@ Elm.View.make = function (_elm) {
                        case "White":
                        return "white pawn";}
                     _U.badCase($moduleName,
-                    "between lines 46 and 50");
+                    "between lines 49 and 53");
                  }();
                case "Queen":
                return function () {
@@ -13695,7 +14106,7 @@ Elm.View.make = function (_elm) {
                        case "White":
                        return "white queen";}
                     _U.badCase($moduleName,
-                    "between lines 30 and 34");
+                    "between lines 33 and 37");
                  }();
                case "Rook":
                return function () {
@@ -13706,44 +14117,77 @@ Elm.View.make = function (_elm) {
                        case "White":
                        return "white rook";}
                     _U.badCase($moduleName,
-                    "between lines 34 and 38");
+                    "between lines 37 and 41");
                  }();}
             _U.badCase($moduleName,
-            "between lines 25 and 50");
+            "between lines 28 and 53");
          }();
          return A2($Basics._op["++"],
          "piece ",
          className);
       }();
    };
-   var renderBoardSquare = F3(function (address,
+   var renderBoardSquare = F4(function (address,
+   state,
    position,
    square) {
       return function () {
-         switch (square.ctor)
-         {case "Just":
-            return A2($Html.div,
-              _L.fromArray([$Html$Attributes.$class(A2($Basics._op["++"],
-                           "square ",
-                           getPieceClass(square._0)))
-                           ,A2($Html$Events.onClick,
-                           address,
-                           $Update.Select(position))]),
-              _L.fromArray([]));
-            case "Nothing":
-            return A2($Html.div,
-              _L.fromArray([$Html$Attributes.$class("square")
-                           ,A2($Html$Events.onClick,
-                           address,
-                           $Update.Select(position))]),
-              _L.fromArray([]));}
-         _U.badCase($moduleName,
-         "between lines 57 and 66");
+         var highlight = function () {
+            switch (state.ctor)
+            {case "Destination":
+               return A2($List.member,
+                 position,
+                 state._1) ? " valid-destination" : "";}
+            return "";
+         }();
+         return function () {
+            switch (square.ctor)
+            {case "Just":
+               return A2($Html.div,
+                 _L.fromArray([$Html$Attributes.$class(A2($Basics._op["++"],
+                              "square ",
+                              A2($Basics._op["++"],
+                              getPieceClass(square._0),
+                              highlight)))
+                              ,A2($Html$Events.onClick,
+                              address,
+                              $Update.Select(position))
+                              ,$Html$Attributes.title($Basics.toString(position))]),
+                 _L.fromArray([]));
+               case "Nothing":
+               return A2($Html.div,
+                 _L.fromArray([$Html$Attributes.$class(A2($Basics._op["++"],
+                              "square",
+                              highlight))
+                              ,A2($Html$Events.onClick,
+                              address,
+                              $Update.Select(position))
+                              ,$Html$Attributes.title($Basics.toString(position))]),
+                 _L.fromArray([]));}
+            _U.badCase($moduleName,
+            "between lines 71 and 82");
+         }();
       }();
    });
-   var renderBoard = F2(function (address,
+   var renderBoard = F4(function (address,
+   turn,
+   state,
    board) {
       return function () {
+         var highlight = function () {
+            switch (state.ctor)
+            {case "Origin":
+               return A2($String.join,
+                 "-",
+                 _L.fromArray(["highlight"
+                              ,$String.toLower($Basics.toString(turn))
+                              ,"pieces"]));}
+            return "";
+         }();
+         var className = A2($String.join,
+         " ",
+         _L.fromArray(["chessboard"
+                      ,highlight]));
          var positions = $List.concat(A2($List.map,
          function (digit) {
             return A2($List.map,
@@ -13763,14 +14207,16 @@ Elm.View.make = function (_elm) {
          },
          _L.range(1,8)));
          var pieces = A2($List.map,
-         $Model.getSquareContent(board),
+         $Chess$Board.getSquareContent(board),
          positions);
          var squares = A3($List.map2,
-         renderBoardSquare(address),
+         A2(renderBoardSquare,
+         address,
+         state),
          positions,
          pieces);
          return A2($Html.div,
-         _L.fromArray([$Html$Attributes.$class("chessboard")]),
+         _L.fromArray([$Html$Attributes.$class(className)]),
          squares);
       }();
    });
@@ -13782,7 +14228,7 @@ Elm.View.make = function (_elm) {
                return getPieceClass(square._0);
                case "Nothing": return "";}
             _U.badCase($moduleName,
-            "between lines 97 and 101");
+            "between lines 123 and 127");
          }();
          return A2($Html.div,
          _L.fromArray([$Html$Attributes.$class(A2($Basics._op["++"],
@@ -13798,13 +14244,13 @@ Elm.View.make = function (_elm) {
             return function () {
                switch (figure.ctor)
                {case "Just":
-                  return renderGraveyardSquare($Maybe.Just(A2($Model.piece,
+                  return renderGraveyardSquare($Maybe.Just(A2($Chess$Piece.piece,
                     figure._0,
                     color)));
                   case "Nothing":
                   return renderGraveyardSquare($Maybe.Nothing);}
                _U.badCase($moduleName,
-               "between lines 110 and 115");
+               "between lines 136 and 141");
             }();
          };
          return A2($Html.div,
@@ -13847,8 +14293,8 @@ Elm.View.make = function (_elm) {
          "waiting for ",
          $Basics.toString(game.turn));
          var statusBar = function () {
-            var _v13 = game.state;
-            switch (_v13.ctor)
+            var _v17 = game.state;
+            switch (_v17.ctor)
             {case "Destination":
                return _L.fromArray([$Html.text(A2($Basics._op["++"],
                  prefix,
@@ -13857,7 +14303,7 @@ Elm.View.make = function (_elm) {
                return _L.fromArray([$Html.text(A2($Basics._op["++"],
                  "the game has ended, ",
                  A2($Basics._op["++"],
-                 $Basics.toString(_v13._0),
+                 $Basics.toString(_v17._0),
                  " has won!")))]);
                case "Origin":
                return _L.fromArray([$Html.text(A2($Basics._op["++"],
@@ -13865,16 +14311,16 @@ Elm.View.make = function (_elm) {
                  " to select a piece"))]);
                case "Promotion":
                return function () {
-                    var knight = A2($Model.piece,
-                    $Model.Knight,
+                    var knight = A2($Chess$Piece.piece,
+                    $Chess$Piece.Knight,
                     game.turn);
-                    var queen = A2($Model.piece,
-                    $Model.Queen,
+                    var queen = A2($Chess$Piece.piece,
+                    $Chess$Piece.Queen,
                     game.turn);
                     return _L.fromArray([$Html.text("promote to:")
                                         ,A2($Html.button,
                                         _L.fromArray([$Html$Events.onClick(address)(A2($Update.Promote,
-                                                     _v13._0,
+                                                     _v17._0,
                                                      queen.figure))
                                                      ,$Html$Attributes.$class(A2($Basics._op["++"],
                                                      "square ",
@@ -13882,7 +14328,7 @@ Elm.View.make = function (_elm) {
                                         _L.fromArray([]))
                                         ,A2($Html.button,
                                         _L.fromArray([$Html$Events.onClick(address)(A2($Update.Promote,
-                                                     _v13._0,
+                                                     _v17._0,
                                                      knight.figure))
                                                      ,$Html$Attributes.$class(A2($Basics._op["++"],
                                                      "square ",
@@ -13890,7 +14336,7 @@ Elm.View.make = function (_elm) {
                                         _L.fromArray([]))]);
                  }();}
             _U.badCase($moduleName,
-            "between lines 141 and 172");
+            "between lines 167 and 198");
          }();
          return A2($Html.div,
          _L.fromArray([$Html$Attributes.$class("status-bar")]),
@@ -13919,13 +14365,15 @@ Elm.View.make = function (_elm) {
                       _L.fromArray([$Html$Attributes.$class("board-and-graveyard")]),
                       _L.fromArray([A2(renderGraveyard,
                                    game.graveyard2,
-                                   $Model.Black)
-                                   ,A2(renderBoard,
+                                   $Chess$Color.Black)
+                                   ,A4(renderBoard,
                                    address,
+                                   game.turn,
+                                   game.state,
                                    game.board)
                                    ,A2(renderGraveyard,
                                    game.graveyard1,
-                                   $Model.White)]))]));
+                                   $Chess$Color.White)]))]));
       }();
    });
    _elm.View.values = {_op: _op

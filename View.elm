@@ -7,15 +7,18 @@ import Html            exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events     exposing (..)
 import Maybe           exposing ( Maybe(..) )
-import Maybe.Extra exposing (..)
+import Maybe.Extra     exposing (..)
 
 import Signal          exposing (..)
 import StartApp.Simple exposing (..)
 import String          exposing (..)
 import Text            exposing ( Text(..) )
 
-import Model exposing (..)
-import Update exposing (..)
+import Chess.Game      exposing (..)
+import Chess.Color     exposing (..)
+import Chess.Board     exposing (..)
+import Chess.Piece     exposing (..)
+import Update          exposing (..)
 
 {-------------------------- Piece -------------------------}
 
@@ -52,22 +55,35 @@ getPieceClass piece =
 
 {----------------------------- Board ----------------------------}
 
-renderBoardSquare : Address Action -> Position -> Square -> Html
-renderBoardSquare address position square =
-  case square of
-    Nothing ->
-      div [ class "square"
-          , onClick address (Select position)
-          ] []
+renderBoardSquare : Address Action -> GameState -> Position -> Square -> Html
+renderBoardSquare address state position square =
+  let
+    highlight =
+      (case state of
+        Destination _ validPositions ->
+          if List.member position validPositions
+          -- fix me: repetion of ""
+          then " valid-destination"
+          else ""
 
-    Just piece ->
-      div [ class <| "square " ++ (getPieceClass piece)
-          , onClick address (Select position)
-          ] []
+        _ -> "")
+  in
+    case square of
+      Nothing ->
+        div [ class <| "square" ++ highlight
+            , onClick address (Select position)
+            , title <| toString position
+            ] []
+
+      Just piece ->
+        div [ class <| "square " ++ (getPieceClass piece) ++ highlight
+            , onClick address (Select position)
+            , title <| toString position
+            ] []
 
 
-renderBoard : Address Action -> Board -> Html
-renderBoard address board =
+renderBoard : Address Action -> Color -> GameState -> Board -> Html
+renderBoard address turn state board =
   let
 --    positions = keys board
     positions =
@@ -82,10 +98,20 @@ renderBoard address board =
     pieces =
       List.map (getSquareContent board) positions
 
-    squares = List.map2 (renderBoardSquare address) positions pieces
+    squares = List.map2 (renderBoardSquare address state) positions pieces
+
+    highlight = case state of
+      Origin ->
+        String.join "-" ["highlight", toLower <| toString turn, "pieces"]
+
+
+      _ ->
+        ""
+
+    className = String.join " " ["chessboard", highlight]
 
   in
-    div [ class "chessboard" ] squares
+    div [ class className ] squares
 
 
 {----------------------------- Graveyard ----------------------------}
@@ -142,7 +168,7 @@ renderStatusBar address game =
         Origin ->
           [ text <| prefix ++ " to select a piece" ]
 
-        Destination _ ->
+        Destination _ _ ->
           [ text <| prefix ++ " to select a destination" ]
 
         Promotion position ->
@@ -185,9 +211,7 @@ renderGame address game =
         [ renderStatusBar address game
         , div [ class "board-and-graveyard" ]
               [ renderGraveyard game.graveyard2 Black
-              , renderBoard address game.board
+              , renderBoard address game.turn game.state game.board
               , renderGraveyard game.graveyard1 White
               ]
         ]
-
-
