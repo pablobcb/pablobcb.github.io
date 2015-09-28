@@ -16,7 +16,6 @@ Elm.Chess.Board.make = function (_elm) {
    $Chess$Piece = Elm.Chess.Piece.make(_elm),
    $Dict = Elm.Dict.make(_elm),
    $List = Elm.List.make(_elm),
-   $List$Extra = Elm.List.Extra.make(_elm),
    $Maybe = Elm.Maybe.make(_elm),
    $Maybe$Extra = Elm.Maybe.Extra.make(_elm),
    $Result = Elm.Result.make(_elm),
@@ -230,12 +229,12 @@ Elm.Chess.Board.make = function (_elm) {
             var rangeToSquare = function ($) {
                return getSquareContent(board)(shift(position)($));
             };
-            var takeWhileEmpty = function (ranges) {
-               return A2($List$Extra.takeWhile,
+            var takeWhileEmpty = function (rangesInclusive) {
+               return A2(takeWhileInclusive,
                function ($) {
                   return $Maybe$Extra.isNothing(rangeToSquare($));
                },
-               ranges);
+               rangesInclusive);
             };
             var oneToSeven = _L.range(1,7);
             var negativeOneToSeven = A2($List.map,
@@ -322,7 +321,7 @@ Elm.Chess.Board.make = function (_elm) {
                                                                            ,_0: 0
                                                                            ,_1: 2}]));}
                        _U.badCase($moduleName,
-                       "between lines 196 and 209");
+                       "between lines 189 and 202");
                     }();
                   case "Queen":
                   return A2($Basics._op["++"],
@@ -330,7 +329,7 @@ Elm.Chess.Board.make = function (_elm) {
                     rookMoves);
                   case "Rook": return rookMoves;}
                _U.badCase($moduleName,
-               "between lines 194 and 233");
+               "between lines 187 and 226");
             }();
          }();
          var filterPosition = function (pos) {
