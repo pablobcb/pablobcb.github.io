@@ -1,0 +1,148 @@
+Elm.Update = Elm.Update || {};
+Elm.Update.make = function (_elm) {
+   "use strict";
+   _elm.Update = _elm.Update || {};
+   if (_elm.Update.values)
+   return _elm.Update.values;
+   var _op = {},
+   _N = Elm.Native,
+   _U = _N.Utils.make(_elm),
+   _L = _N.List.make(_elm),
+   $moduleName = "Update",
+   $Basics = Elm.Basics.make(_elm),
+   $Chess$Board = Elm.Chess.Board.make(_elm),
+   $Chess$Color = Elm.Chess.Color.make(_elm),
+   $Chess$Game = Elm.Chess.Game.make(_elm),
+   $Chess$Piece = Elm.Chess.Piece.make(_elm),
+   $Dict = Elm.Dict.make(_elm),
+   $List = Elm.List.make(_elm),
+   $Maybe = Elm.Maybe.make(_elm),
+   $Result = Elm.Result.make(_elm),
+   $Signal = Elm.Signal.make(_elm);
+   var update = F2(function (action,
+   game) {
+      return function () {
+         var board = game.board;
+         var player = game.turn;
+         return function () {
+            switch (action.ctor)
+            {case "Promote":
+               return function () {
+                    var promotedTo = $Maybe.Just({_: {}
+                                                 ,color: player
+                                                 ,figure: action._1
+                                                 ,moved: true});
+                    var board$ = A3($Dict.insert,
+                    action._0,
+                    promotedTo,
+                    board);
+                    return _U.replace([["board"
+                                       ,board$]
+                                      ,["turn"
+                                       ,$Chess$Color.other(player)]
+                                      ,["state",$Chess$Game.Origin]
+                                      ,["turnInSeconds",0]],
+                    game);
+                 }();
+               case "Restart":
+               return $Chess$Game.makeInitialGame;
+               case "Select":
+               return function () {
+                    var _v4 = game.state;
+                    switch (_v4.ctor)
+                    {case "Destination":
+                       return A2($List.member,
+                         action._0,
+                         _v4._1) ? function () {
+                            var row = $Basics.snd(action._0);
+                            var game$ = A3($Chess$Game.move,
+                            game,
+                            _v4._0,
+                            action._0);
+                            var selectedDestination = A2($Chess$Board.getSquareContent,
+                            game$.board,
+                            action._0);
+                            var isPawn = function () {
+                               switch (selectedDestination.ctor)
+                               {case "Just":
+                                  return _U.eq(selectedDestination._0.figure,
+                                    $Chess$Piece.Pawn) ? true : false;
+                                  case "Nothing": return false;}
+                               _U.badCase($moduleName,
+                               "between lines 108 and 117");
+                            }();
+                            var promoted = (_U.eq(row,
+                            1) || _U.eq(row,8)) && isPawn;
+                            return promoted ? _U.replace([["turn"
+                                                          ,player]
+                                                         ,["state"
+                                                          ,$Chess$Game.Promotion(action._0)]],
+                            game$) : _U.replace([["turn"
+                                                 ,$Chess$Color.other(player)]
+                                                ,["turnInSeconds",0]
+                                                ,["state",$Chess$Game.Origin]],
+                            game$);
+                         }() : _U.replace([["turn"
+                                           ,player]
+                                          ,["state",$Chess$Game.Origin]],
+                         game);
+                       case "Origin":
+                       return function () {
+                            var selectedOrigin = A2($Chess$Board.getSquareContent,
+                            board,
+                            action._0);
+                            return function () {
+                               switch (selectedOrigin.ctor)
+                               {case "Just":
+                                  return function () {
+                                       var validDestinations = A3($Chess$Game.getValidDestinations,
+                                       action._0,
+                                       selectedOrigin._0,
+                                       game);
+                                       return !_U.eq(player,
+                                       selectedOrigin._0.color) ? game : _U.replace([["turn"
+                                                                                     ,player]
+                                                                                    ,["state"
+                                                                                     ,A2($Chess$Game.Destination,
+                                                                                     action._0,
+                                                                                     validDestinations)]],
+                                       game);
+                                    }();
+                                  case "Nothing": return game;}
+                               _U.badCase($moduleName,
+                               "between lines 69 and 96");
+                            }();
+                         }();
+                       case "Promotion": return game;}
+                    _U.badCase($moduleName,
+                    "between lines 57 and 136");
+                 }();
+               case "UpdateTimer":
+               return _U.replace([["turnInSeconds"
+                                  ,game.turnInSeconds + 1]],
+                 game);}
+            _U.badCase($moduleName,
+            "between lines 28 and 136");
+         }();
+      }();
+   });
+   var Restart = {ctor: "Restart"};
+   var Promote = F2(function (a,
+   b) {
+      return {ctor: "Promote"
+             ,_0: a
+             ,_1: b};
+   });
+   var Select = function (a) {
+      return {ctor: "Select"
+             ,_0: a};
+   };
+   var UpdateTimer = {ctor: "UpdateTimer"};
+   _elm.Update.values = {_op: _op
+                        ,UpdateTimer: UpdateTimer
+                        ,Select: Select
+                        ,Promote: Promote
+                        ,Restart: Restart
+                        ,update: update};
+   return _elm.Update.values;
+};
