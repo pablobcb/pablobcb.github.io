@@ -13,6 +13,7 @@ Elm.Chess.Piece.make = function (_elm) {
    $moduleName = "Chess.Piece",
    $Basics = Elm.Basics.make(_elm),
    $Chess$Color = Elm.Chess.Color.make(_elm),
+   $Debug = Elm.Debug.make(_elm),
    $List = Elm.List.make(_elm),
    $Maybe = Elm.Maybe.make(_elm),
    $Result = Elm.Result.make(_elm),
@@ -31,6 +32,12 @@ Elm.Chess.Piece.make = function (_elm) {
                                        ,{ctor: "_Tuple2"
                                         ,_0: -1
                                         ,_1: 1}]);
+         var oneToSeven = _L.range(1,7);
+         var negativeOneToSeven = A2($List.map,
+         F2(function (x,y) {
+            return x * y;
+         })(-1),
+         oneToSeven);
          var zeros = A2($List.repeat,
          7,
          0);
@@ -41,34 +48,36 @@ Elm.Chess.Piece.make = function (_elm) {
                    ,_1: v1};
          }));
          var rookRanges = A2($Basics._op["++"],
-         A2(zip,_L.range(1,7),zeros),
+         A2(zip,oneToSeven,zeros),
          A2($Basics._op["++"],
-         A2(zip,_L.range(-1,-7),zeros),
+         A2(zip,
+         negativeOneToSeven,
+         zeros),
          A2($Basics._op["++"],
-         A2(zip,zeros,_L.range(1,7)),
+         A2(zip,zeros,oneToSeven),
          A2(zip,
          zeros,
-         _L.range(-1,-7)))));
+         negativeOneToSeven))));
          var bishopRanges = A2($Basics._op["++"],
-         A2(zip,
-         _L.range(1,7),
-         _L.range(1,7)),
+         A2(zip,oneToSeven,oneToSeven),
          A2($Basics._op["++"],
          A2(zip,
-         _L.range(-1,-7),
-         _L.range(1,7)),
+         negativeOneToSeven,
+         oneToSeven),
          A2($Basics._op["++"],
          A2(zip,
-         _L.range(1,7),
-         _L.range(-1,-7)),
+         oneToSeven,
+         negativeOneToSeven),
          A2(zip,
-         _L.range(-1,-7),
-         _L.range(-1,-7)))));
+         negativeOneToSeven,
+         negativeOneToSeven))));
          return function () {
             var _v0 = piece.figure;
             switch (_v0.ctor)
             {case "Bishop":
-               return bishopRanges;
+               return A2($Debug.watch,
+                 "bishop Ranges",
+                 bishopRanges);
                case "King": return kingRanges;
                case "Knight":
                return _L.fromArray([{ctor: "_Tuple2"
@@ -104,7 +113,7 @@ Elm.Chess.Piece.make = function (_elm) {
                                                                         ,_0: 0
                                                                         ,_1: 2}]));}
                     _U.badCase($moduleName,
-                    "between lines 75 and 88");
+                    "between lines 84 and 97");
                  }();
                case "Queen":
                return A2($Basics._op["++"],
@@ -114,7 +123,7 @@ Elm.Chess.Piece.make = function (_elm) {
                  kingRanges));
                case "Rook": return rookRanges;}
             _U.badCase($moduleName,
-            "between lines 73 and 111");
+            "between lines 82 and 120");
          }();
       }();
    };
@@ -136,7 +145,7 @@ Elm.Chess.Piece.make = function (_elm) {
                                          ,_0: 1
                                          ,_1: 1}};}
          _U.badCase($moduleName,
-         "between lines 34 and 39");
+         "between lines 37 and 42");
       }();
    };
    var piece = F2(function (f,c) {

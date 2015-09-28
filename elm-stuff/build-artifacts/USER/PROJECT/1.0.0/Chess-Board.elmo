@@ -57,7 +57,7 @@ Elm.Chess.Board.make = function (_elm) {
                             {case "Just": return _v8._0;
                                case "Nothing": return -10000;}
                             _U.badCase($moduleName,
-                            "between lines 73 and 80");
+                            "between lines 75 and 82");
                          }();
                          var shiftedCharNumericalRepresentation = charNumericalRepresentation + _v1._0;
                          var shiftedChar = function () {
@@ -67,17 +67,31 @@ Elm.Chess.Board.make = function (_elm) {
                                case "Nothing":
                                return _U.chr("!");}
                             _U.badCase($moduleName,
-                            "between lines 84 and 91");
+                            "between lines 86 and 93");
                          }();
                          return {ctor: "_Tuple2"
                                 ,_0: shiftedChar
                                 ,_1: _v0._1 + _v1._1};
                       }();}
                  _U.badCase($moduleName,
-                 "between lines 71 and 92");
+                 "between lines 73 and 94");
               }();}
          _U.badCase($moduleName,
-         "between lines 71 and 92");
+         "between lines 73 and 94");
+      }();
+   });
+   var positionAhead = F2(function (color,
+   position) {
+      return function () {
+         switch (color.ctor)
+         {case "Black": return A2(shift,
+              position,
+              {ctor: "_Tuple2",_0: 0,_1: -1});
+            case "White": return A2(shift,
+              position,
+              {ctor: "_Tuple2",_0: 0,_1: 1});}
+         _U.badCase($moduleName,
+         "between lines 98 and 102");
       }();
    });
    var emptyRow = A2($List.repeat,
@@ -157,7 +171,7 @@ Elm.Chess.Board.make = function (_elm) {
       makeRow(1),
       makeFirstRow($Chess$Color.White))))))))));
    }();
-   var getValidPositions = F2(function (ranges,
+   var getRegularMoves = F2(function (ranges,
    position) {
       return function () {
          var filterPosition = function (pos) {
@@ -178,7 +192,8 @@ Elm.Chess.Board.make = function (_elm) {
                              ,emptyRow: emptyRow
                              ,makeInitialBoard: makeInitialBoard
                              ,shift: shift
-                             ,getValidPositions: getValidPositions
+                             ,positionAhead: positionAhead
+                             ,getRegularMoves: getRegularMoves
                              ,charToNum: charToNum
                              ,numToChar: numToChar};
    return _elm.Chess.Board.values;

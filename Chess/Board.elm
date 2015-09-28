@@ -1,5 +1,7 @@
 module Chess.Board where
 
+import Debug       exposing (..)
+
 import Dict        exposing (..)
 import Maybe       exposing (..)
 import Maybe.Extra exposing (..)
@@ -91,10 +93,19 @@ shift (char, number) (x, y) =
   in
     (shiftedChar, number + y)
 
-getValidPositions : List Range -> Position -> List Position
-getValidPositions ranges position =
+positionAhead : Color -> Position -> Position
+positionAhead color position =
+  case color of
+    White ->
+      shift position (0, 1)
+    Black ->
+      shift position (0, -1)
+
+getRegularMoves : List Range -> Position -> List Position
+getRegularMoves ranges position =
   let
     filterPosition pos =
+    -- excludes ranges with ! and negative values
       (List.member (fst pos) letters) &&
         (List.member (snd pos) [1..8])
   in

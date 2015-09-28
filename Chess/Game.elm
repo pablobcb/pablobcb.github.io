@@ -1,6 +1,10 @@
 module Chess.Game where
 
+import Debug       exposing (..)
+
 import Maybe       exposing (..)
+import Maybe.Extra exposing (..)
+
 import Dict        exposing (..)
 
 import Chess.Color exposing (..)
@@ -13,9 +17,10 @@ type alias Graveyard = List (Maybe Figure)
 type alias Winner = Color
 
 
-type State = Origin
-           | Destination Position
+type GameState = Origin
+           | Destination Position (List Position)
            | Promotion Position
+           | EnPassant Position
            | CheckMate
            | Finished Winner
 
@@ -25,7 +30,7 @@ type alias Game =
   , graveyard1    : Graveyard
   , graveyard2    : Graveyard
   , turn          : Color
-  , state         : State
+  , state         : GameState
   , turnInSeconds : Int
   }
 
@@ -87,78 +92,74 @@ move game origin destination =
       Nothing -> --just move
         game'
 
-validateMove : Position -> Position -> Game -> Bool
-validateMove origin destination game =
+remove : a -> List a -> List a
+remove x = List.filter ((/=) x)
+
+getValidDestinations : Position -> Piece -> Game -> List Position
+getValidDestinations origin piece game =
   let
-    board =  game.board
+    getSquareContent' = getSquareContent game.board
 
-    getSquareContent' = getSquareContent board
+    regularMoves  = watch "regular moves" <| getRegularMoves (ranges piece) origin
 
-    originSquare : Square
-    originSquare = getSquareContent' origin
-
-
-    destinationSquare : Square
-    destinationSquare = getSquareContent' destination
-
-
-    isDestinationValid : Bool
-    isDestinationValid =
-      case originSquare of
-        Just piece ->
+    allowedMoves =
+      case piece.figure of
+        Pawn ->
           let
-            validPositions : List Position
-            validPositions = getValidPositions(ranges piece) origin
+            pawnTakeRanges' =
+              pawnTakeRanges game.turn
 
-            specialPositions : List Position
-            specialPositions =
-              case piece.figure of
-                Pawn ->
-                  let
-                    pawnTakeRanges' = pawnTakeRanges game.turn
+            getSquareContent'' f =
+              getSquareContent' <| Board.shift origin <| f pawnTakeRanges'
 
-                    right =
-                      getSquareContent' <| Board.shift origin (.right pawnTakeRanges')
+            takeToRight =
+              case getSquareContent'' .right of
+                Just piece'->
+                  [ Board.shift origin (.right pawnTakeRanges') ]
+                Nothing ->
+                  []
 
-                    left =
-                      getSquareContent' <| Board.shift origin (.left pawnTakeRanges')
+            takeToLeft =
+              case getSquareContent'' .left of
+                 Just piece'->
+                   [ Board.shift origin (.left pawnTakeRanges') ]
+                 Nothing ->
+                   []
 
-                    right' =
-                      case right of
-                        Just piece'->
-                          [ Board.shift origin (.right pawnTakeRanges') ]
-                        Nothing ->
-                          []
-
-                    left' =
-                      case left of
-                         Just piece'->
-                           [ Board.shift origin (.left pawnTakeRanges') ]
-                         Nothing ->
-                           []
-                  in
-                    (++) right' left'
-
-
+            enPassant =
+              case game.state of
+                EnPassant passedPawnPosition ->
+                  []
                 _ -> []
 
+            positionAhead =
+              watch "positionAhead" <| Board.positionAhead game.turn origin
+
+            isPositionAheadBlocked =
+              watch "isPositionAheadBlocked" <| isJust <| getSquareContent game.board positionAhead
+
           in
-            List.member destination (validPositions ++ specialPositions )
+            takeToLeft
+            ++ takeToRight
+            ++  enPassant
+            ++ if isPositionAheadBlocked
+               then watch "after remove" <| remove positionAhead regularMoves
+               else regularMoves
 
+        _ -> regularMoves
 
-    otherColor : Bool
-    otherColor =
-      case destinationSquare of
+    -- a piece cant take an ally
+    destinationHasNoAlly destination =
+      case getSquareContent' destination of
         Just piece ->
-          (piece.color /= game.turn)
-
+          piece.color /= game.turn
         Nothing ->
           True
 
+    filterDestinations destination =
+      (destinationHasNoAlly destination)
+      && origin /= destination
+
   in
-     -- a piece cant move to the same place
-     (origin /= destination)
-     -- a piece cant move to a place out of range
-     && isDestinationValid
-     -- a piece cant take an ally
-     && otherColor
+    List.filter destinationHasNoAlly allowedMoves
+

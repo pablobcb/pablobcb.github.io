@@ -103,34 +103,67 @@ Elm.View.make = function (_elm) {
          className);
       }();
    };
-   var renderBoardSquare = F3(function (address,
+   var renderBoardSquare = F4(function (address,
+   state,
    position,
    square) {
       return function () {
-         switch (square.ctor)
-         {case "Just":
-            return A2($Html.div,
-              _L.fromArray([$Html$Attributes.$class(A2($Basics._op["++"],
-                           "square ",
-                           getPieceClass(square._0)))
-                           ,A2($Html$Events.onClick,
-                           address,
-                           $Update.Select(position))]),
-              _L.fromArray([]));
-            case "Nothing":
-            return A2($Html.div,
-              _L.fromArray([$Html$Attributes.$class("square")
-                           ,A2($Html$Events.onClick,
-                           address,
-                           $Update.Select(position))]),
-              _L.fromArray([]));}
-         _U.badCase($moduleName,
-         "between lines 60 and 69");
+         var highlight = function () {
+            switch (state.ctor)
+            {case "Destination":
+               return A2($List.member,
+                 position,
+                 state._1) ? " valid-destination" : "";}
+            return "";
+         }();
+         return function () {
+            switch (square.ctor)
+            {case "Just":
+               return A2($Html.div,
+                 _L.fromArray([$Html$Attributes.$class(A2($Basics._op["++"],
+                              "square ",
+                              A2($Basics._op["++"],
+                              getPieceClass(square._0),
+                              highlight)))
+                              ,A2($Html$Events.onClick,
+                              address,
+                              $Update.Select(position))
+                              ,$Html$Attributes.title($Basics.toString(position))]),
+                 _L.fromArray([]));
+               case "Nothing":
+               return A2($Html.div,
+                 _L.fromArray([$Html$Attributes.$class(A2($Basics._op["++"],
+                              "square",
+                              highlight))
+                              ,A2($Html$Events.onClick,
+                              address,
+                              $Update.Select(position))
+                              ,$Html$Attributes.title($Basics.toString(position))]),
+                 _L.fromArray([]));}
+            _U.badCase($moduleName,
+            "between lines 71 and 82");
+         }();
       }();
    });
-   var renderBoard = F2(function (address,
+   var renderBoard = F4(function (address,
+   turn,
+   state,
    board) {
       return function () {
+         var highlight = function () {
+            switch (state.ctor)
+            {case "Origin":
+               return A2($String.join,
+                 "-",
+                 _L.fromArray(["highlight"
+                              ,$String.toLower($Basics.toString(turn))
+                              ,"pieces"]));}
+            return "";
+         }();
+         var className = A2($String.join,
+         " ",
+         _L.fromArray(["chessboard"
+                      ,highlight]));
          var positions = $List.concat(A2($List.map,
          function (digit) {
             return A2($List.map,
@@ -153,11 +186,13 @@ Elm.View.make = function (_elm) {
          $Chess$Board.getSquareContent(board),
          positions);
          var squares = A3($List.map2,
-         renderBoardSquare(address),
+         A2(renderBoardSquare,
+         address,
+         state),
          positions,
          pieces);
          return A2($Html.div,
-         _L.fromArray([$Html$Attributes.$class("chessboard")]),
+         _L.fromArray([$Html$Attributes.$class(className)]),
          squares);
       }();
    });
@@ -169,7 +204,7 @@ Elm.View.make = function (_elm) {
                return getPieceClass(square._0);
                case "Nothing": return "";}
             _U.badCase($moduleName,
-            "between lines 100 and 104");
+            "between lines 123 and 127");
          }();
          return A2($Html.div,
          _L.fromArray([$Html$Attributes.$class(A2($Basics._op["++"],
@@ -191,7 +226,7 @@ Elm.View.make = function (_elm) {
                   case "Nothing":
                   return renderGraveyardSquare($Maybe.Nothing);}
                _U.badCase($moduleName,
-               "between lines 113 and 118");
+               "between lines 136 and 141");
             }();
          };
          return A2($Html.div,
@@ -234,8 +269,8 @@ Elm.View.make = function (_elm) {
          "waiting for ",
          $Basics.toString(game.turn));
          var statusBar = function () {
-            var _v13 = game.state;
-            switch (_v13.ctor)
+            var _v17 = game.state;
+            switch (_v17.ctor)
             {case "Destination":
                return _L.fromArray([$Html.text(A2($Basics._op["++"],
                  prefix,
@@ -244,7 +279,7 @@ Elm.View.make = function (_elm) {
                return _L.fromArray([$Html.text(A2($Basics._op["++"],
                  "the game has ended, ",
                  A2($Basics._op["++"],
-                 $Basics.toString(_v13._0),
+                 $Basics.toString(_v17._0),
                  " has won!")))]);
                case "Origin":
                return _L.fromArray([$Html.text(A2($Basics._op["++"],
@@ -261,7 +296,7 @@ Elm.View.make = function (_elm) {
                     return _L.fromArray([$Html.text("promote to:")
                                         ,A2($Html.button,
                                         _L.fromArray([$Html$Events.onClick(address)(A2($Update.Promote,
-                                                     _v13._0,
+                                                     _v17._0,
                                                      queen.figure))
                                                      ,$Html$Attributes.$class(A2($Basics._op["++"],
                                                      "square ",
@@ -269,7 +304,7 @@ Elm.View.make = function (_elm) {
                                         _L.fromArray([]))
                                         ,A2($Html.button,
                                         _L.fromArray([$Html$Events.onClick(address)(A2($Update.Promote,
-                                                     _v13._0,
+                                                     _v17._0,
                                                      knight.figure))
                                                      ,$Html$Attributes.$class(A2($Basics._op["++"],
                                                      "square ",
@@ -277,7 +312,7 @@ Elm.View.make = function (_elm) {
                                         _L.fromArray([]))]);
                  }();}
             _U.badCase($moduleName,
-            "between lines 144 and 175");
+            "between lines 167 and 198");
          }();
          return A2($Html.div,
          _L.fromArray([$Html$Attributes.$class("status-bar")]),
@@ -307,8 +342,10 @@ Elm.View.make = function (_elm) {
                       _L.fromArray([A2(renderGraveyard,
                                    game.graveyard2,
                                    $Chess$Color.Black)
-                                   ,A2(renderBoard,
+                                   ,A4(renderBoard,
                                    address,
+                                   game.turn,
+                                   game.state,
                                    game.board)
                                    ,A2(renderGraveyard,
                                    game.graveyard1,

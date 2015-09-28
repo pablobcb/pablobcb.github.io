@@ -51,10 +51,9 @@ Elm.Update.make = function (_elm) {
                     var _v4 = game.state;
                     switch (_v4.ctor)
                     {case "Destination":
-                       return A3($Chess$Game.validateMove,
-                         _v4._0,
+                       return A2($List.member,
                          action._0,
-                         game) ? function () {
+                         _v4._1) ? function () {
                             var row = $Basics.snd(action._0);
                             var game$ = A3($Chess$Game.move,
                             game,
@@ -70,7 +69,7 @@ Elm.Update.make = function (_elm) {
                                     $Chess$Piece.Pawn) ? true : false;
                                   case "Nothing": return false;}
                                _U.badCase($moduleName,
-                               "between lines 98 and 107");
+                               "between lines 108 and 117");
                             }();
                             var promoted = (_U.eq(row,
                             1) || _U.eq(row,8)) && isPawn;
@@ -95,27 +94,35 @@ Elm.Update.make = function (_elm) {
                             return function () {
                                switch (selectedOrigin.ctor)
                                {case "Just":
-                                  return !_U.eq(player,
-                                    selectedOrigin._0.color) ? game : _U.replace([["state"
-                                                                                  ,$Chess$Game.Destination(action._0)]
-                                                                                 ,["turn"
-                                                                                  ,player]],
-                                    game);
+                                  return function () {
+                                       var validDestinations = A3($Chess$Game.getValidDestinations,
+                                       action._0,
+                                       selectedOrigin._0,
+                                       game);
+                                       return !_U.eq(player,
+                                       selectedOrigin._0.color) ? game : _U.replace([["turn"
+                                                                                     ,player]
+                                                                                    ,["state"
+                                                                                     ,A2($Chess$Game.Destination,
+                                                                                     action._0,
+                                                                                     validDestinations)]],
+                                       game);
+                                    }();
                                   case "Nothing": return game;}
                                _U.badCase($moduleName,
-                               "between lines 69 and 86");
+                               "between lines 69 and 96");
                             }();
                          }();
                        case "Promotion": return game;}
                     _U.badCase($moduleName,
-                    "between lines 57 and 126");
+                    "between lines 57 and 136");
                  }();
                case "UpdateTimer":
                return _U.replace([["turnInSeconds"
                                   ,game.turnInSeconds + 1]],
                  game);}
             _U.badCase($moduleName,
-            "between lines 28 and 126");
+            "between lines 28 and 136");
          }();
       }();
    });

@@ -49,6 +49,21 @@ body {
   background: linear-gradient(to bottom, #ccc, #eee);
   box-shadow: inset 0 0 10px rgba(0,0,0,0.4);
 }
+.chessboard.highlight-black-pieces .square.piece.black:hover {
+  border: 4px solid #008000;
+}
+.chessboard.highlight-black-pieces .square.piece.black:hover::before {
+  transform: translateY(-4px);
+}
+.chessboard.highlight-white-pieces .square.piece.white:hover {
+  border: 4px solid #008000;
+}
+.chessboard.highlight-white-pieces .square.piece.white:hover::before {
+  transform: translateY(-4px);
+}
+.chessboard.highlight-destinations .square:not(.piece):hover {
+  border: 4px solid #008000;
+}
 .graveyard {
   height: 600px;
   width: 150px;
@@ -62,6 +77,14 @@ body {
   width: 75px;
   text-align: center;
   font-size: 50px;
+}
+.valid-destination {
+  box-sizing: border-box;
+  height: 75px;
+  width: 75px;
+  text-align: center;
+  font-size: 50px;
+  border: 4px solid #008000;
 }
 .piece {
   position: relative;

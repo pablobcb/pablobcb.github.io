@@ -1,5 +1,7 @@
 module Chess.Piece where
 
+import Debug exposing (..)
+
 import Chess.Color exposing (..)
 
 type Figure = Pawn
@@ -27,9 +29,10 @@ piece f c =
   , moved  = False
   }
 
+
 -- because pawns take pieces in a different
 -- way from how they move, this function is necessary
---pawnTakeRanges : Color -> List Range
+pawnTakeRanges : Color -> { left : Range, right : Range }
 pawnTakeRanges color =
   case color of
      White ->
@@ -37,6 +40,7 @@ pawnTakeRanges color =
 
      Black ->
        { right = (1, -1), left = (-1, -1) }
+
 
 -- movement ranges for each piece
 ranges : Piece -> List Range
@@ -46,17 +50,22 @@ ranges piece =
 
     zeros = List.repeat 7 0
 
+    oneToSeven = [ 1 .. 7 ]
+
+    negativeOneToSeven =
+      List.map ( (*) (-1)) oneToSeven
+
     rookRanges =
-      zip [ 1  .. 7 ] zeros ++
-      zip [-1 .. -7 ] zeros ++
-      zip zeros [ 1 ..  7 ] ++
-      zip zeros [-1 .. -7 ]
+      zip oneToSeven zeros ++
+      zip negativeOneToSeven zeros ++
+      zip zeros oneToSeven ++
+      zip zeros negativeOneToSeven
 
     bishopRanges =
-      zip [  1 ..  7 ][  1 ..  7 ] ++
-      zip [ -1 .. -7 ][  1 ..  7 ] ++
-      zip [  1 ..  7 ][ -1 .. -7 ] ++
-      zip [ -1 .. -7 ][ -1 .. -7 ]
+      zip oneToSeven oneToSeven ++
+      zip negativeOneToSeven oneToSeven ++
+      zip oneToSeven negativeOneToSeven ++
+      zip negativeOneToSeven negativeOneToSeven
 
     kingRanges =
       [ (  0,  1 )
@@ -89,7 +98,7 @@ ranges piece =
         rookRanges
 
       Bishop ->
-        bishopRanges
+        watch "bishop Ranges" bishopRanges
 
       Knight ->
         [ (  1,  2 )
