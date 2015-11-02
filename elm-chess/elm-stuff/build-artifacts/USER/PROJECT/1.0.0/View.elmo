@@ -24,125 +24,93 @@ Elm.View.make = function (_elm) {
    $Signal = Elm.Signal.make(_elm),
    $String = Elm.String.make(_elm),
    $Update = Elm.Update.make(_elm);
-   var getPieceClass = function (piece) {
+   var clock = function (game) {
       return function () {
-         var className = function () {
-            var _v0 = piece.figure;
-            switch (_v0.ctor)
-            {case "Bishop":
-               return function () {
-                    var _v1 = piece.color;
-                    switch (_v1.ctor)
-                    {case "Black":
-                       return "black bishop";
-                       case "White":
-                       return "white bishop";}
-                    _U.badCase($moduleName,
-                    "between lines 41 and 45");
-                 }();
-               case "King":
-               return function () {
-                    var _v2 = piece.color;
-                    switch (_v2.ctor)
-                    {case "Black":
-                       return "black king";
-                       case "White":
-                       return "white king";}
-                    _U.badCase($moduleName,
-                    "between lines 29 and 33");
-                 }();
-               case "Knight":
-               return function () {
-                    var _v3 = piece.color;
-                    switch (_v3.ctor)
-                    {case "Black":
-                       return "black knight";
-                       case "White":
-                       return "white knight";}
-                    _U.badCase($moduleName,
-                    "between lines 45 and 49");
-                 }();
-               case "Pawn":
-               return function () {
-                    var _v4 = piece.color;
-                    switch (_v4.ctor)
-                    {case "Black":
-                       return "black pawn";
-                       case "White":
-                       return "white pawn";}
-                    _U.badCase($moduleName,
-                    "between lines 49 and 53");
-                 }();
-               case "Queen":
-               return function () {
-                    var _v5 = piece.color;
-                    switch (_v5.ctor)
-                    {case "Black":
-                       return "black queen";
-                       case "White":
-                       return "white queen";}
-                    _U.badCase($moduleName,
-                    "between lines 33 and 37");
-                 }();
-               case "Rook":
-               return function () {
-                    var _v6 = piece.color;
-                    switch (_v6.ctor)
-                    {case "Black":
-                       return "black rook";
-                       case "White":
-                       return "white rook";}
-                    _U.badCase($moduleName,
-                    "between lines 37 and 41");
-                 }();}
-            _U.badCase($moduleName,
-            "between lines 28 and 53");
+         var clockIcon = A2($Html.span,
+         _L.fromArray([$Html$Attributes.$class("fa fa-clock-o status-bar__clock-icon")]),
+         _L.fromArray([]));
+         var turn = $String.toLower($Basics.toString(game.turn));
+         var clockClassName = A2($Basics._op["++"],
+         "status-bar__clock status-bar__clock--",
+         turn);
+         var clockMessage = function () {
+            var msg = A2($Basics._op["++"],
+            "waiting for ",
+            turn);
+            return A2($Html.span,
+            _L.fromArray([$Html$Attributes.$class("status-bar__clock-message")]),
+            _L.fromArray([$Html.text(msg)]));
          }();
-         return A2($Basics._op["++"],
-         "piece ",
-         className);
+         var time = function (f) {
+            return $Basics.toString(A2(f,
+            game.turnInSeconds,
+            60));
+         };
+         var minutes = time(F2(function (x,
+         y) {
+            return x / y | 0;
+         }));
+         var ensure2digits = function (str) {
+            return _U.eq($String.length(str),
+            1) ? A2($Basics._op["++"],
+            "0",
+            str) : str;
+         };
+         var seconds = ensure2digits(time($Basics.rem));
+         var parsedTime = A2($Basics._op["++"],
+         minutes,
+         A2($Basics._op["++"],
+         ":",
+         seconds));
+         return A2($Html.span,
+         _L.fromArray([$Html$Attributes.$class(clockClassName)]),
+         _L.fromArray([clockIcon
+                      ,$Html.text(parsedTime)
+                      ,clockMessage]));
       }();
+   };
+   var getPieceClass = function (piece) {
+      return $String.toLower(A2($String.join,
+      " ",
+      _L.fromArray(["piece"
+                   ,$Basics.toString(piece.figure)
+                   ,$Basics.toString(piece.color)])));
    };
    var renderBoardSquare = F4(function (address,
    state,
    position,
    square) {
       return function () {
+         var emitPosition = $Html$Events.onClick(address)($Update.Click(position));
+         var title$ = $Html$Attributes.title($Basics.toString(position));
          var highlight = function () {
             switch (state.ctor)
             {case "Destination":
                return A2($List.member,
                  position,
                  state._1) || _U.eq(position,
-                 state._0) ? " valid-destination" : "";}
+                 state._0) ? "valid-destination" : "";}
             return "";
          }();
+         var renderSquare = function (pieceStyle) {
+            return A2($Html.div,
+            _L.fromArray([$Html$Attributes.$class(A2($String.join,
+                         " ",
+                         _L.fromArray(["square"
+                                      ,highlight
+                                      ,pieceStyle])))
+                         ,emitPosition
+                         ,title$]),
+            _L.fromArray([]));
+         };
          return function () {
             switch (square.ctor)
             {case "Just":
-               return A2($Html.div,
-                 _L.fromArray([$Html$Attributes.$class(A2($Basics._op["++"],
-                              "square ",
-                              A2($Basics._op["++"],
-                              getPieceClass(square._0),
-                              highlight)))
-                              ,A2($Html$Events.onClick,
-                              address,
-                              $Update.Select(position))
-                              ,$Html$Attributes.title($Basics.toString(position))]),
-                 _L.fromArray([]));
+               return renderSquare(getPieceClass(square._0));
                case "Nothing":
-               return A2($Html.div,
-                 _L.fromArray([$Html$Attributes.$class(A2($Basics._op["++"],
-                              "square",
-                              highlight))
-                              ,A2($Html$Events.onClick,
-                              address,
-                              $Update.Select(position))
-                              ,$Html$Attributes.title($Basics.toString(position))]),
-                 _L.fromArray([]));}
+               return renderSquare("");}
             _U.badCase($moduleName,
-            "between lines 72 and 83");
+            "between lines 57 and 62");
          }();
       }();
    });
@@ -165,24 +133,7 @@ Elm.View.make = function (_elm) {
          " ",
          _L.fromArray(["chessboard"
                       ,highlight]));
-         var positions = $List.concat(A2($List.map,
-         function (digit) {
-            return A2($List.map,
-            function (letter) {
-               return {ctor: "_Tuple2"
-                      ,_0: letter
-                      ,_1: digit};
-            },
-            _L.fromArray([_U.chr("A")
-                         ,_U.chr("B")
-                         ,_U.chr("C")
-                         ,_U.chr("D")
-                         ,_U.chr("E")
-                         ,_U.chr("F")
-                         ,_U.chr("G")
-                         ,_U.chr("H")]));
-         },
-         _L.range(1,8)));
+         var positions = $Chess$Board.getPositions;
          var pieces = A2($List.map,
          $Chess$Board.getSquareContent(board),
          positions);
@@ -205,7 +156,7 @@ Elm.View.make = function (_elm) {
                return getPieceClass(square._0);
                case "Nothing": return "";}
             _U.badCase($moduleName,
-            "between lines 124 and 128");
+            "between lines 97 and 101");
          }();
          return A2($Html.div,
          _L.fromArray([$Html$Attributes.$class(A2($Basics._op["++"],
@@ -227,7 +178,7 @@ Elm.View.make = function (_elm) {
                   case "Nothing":
                   return renderGraveyardSquare($Maybe.Nothing);}
                _U.badCase($moduleName,
-               "between lines 137 and 142");
+               "between lines 110 and 115");
             }();
          };
          return A2($Html.div,
@@ -245,83 +196,50 @@ Elm.View.make = function (_elm) {
    var renderStatusBar = F2(function (address,
    game) {
       return function () {
-         var time = function (f) {
-            return $Basics.toString(A2(f,
-            game.turnInSeconds,
-            60));
-         };
-         var minutes = time(F2(function (x,
-         y) {
-            return x / y | 0;
-         }));
-         var assert2digits = function (str) {
-            return _U.eq($String.length(str),
-            1) ? A2($Basics._op["++"],
-            "0",
-            str) : str;
-         };
-         var seconds = assert2digits(time($Basics.rem));
-         var parsedTime = A2($Basics._op["++"],
-         minutes,
-         A2($Basics._op["++"],
-         ":",
-         seconds));
-         var prefix = A2($Basics._op["++"],
-         "waiting for ",
-         $Basics.toString(game.turn));
-         var statusBar = function () {
-            var _v17 = game.state;
-            switch (_v17.ctor)
+         var statusMsg = function () {
+            var _v12 = game.state;
+            switch (_v12.ctor)
             {case "Destination":
-               return _L.fromArray([$Html.text(A2($Basics._op["++"],
-                 prefix,
-                 " to select a destination"))]);
+               return _L.fromArray([$Html.text("to select a destination")]);
                case "Finished":
                return _L.fromArray([$Html.text(A2($Basics._op["++"],
                  "the game has ended, ",
                  A2($Basics._op["++"],
-                 $Basics.toString(_v17._0),
+                 $Basics.toString(_v12._0),
                  " has won!")))]);
                case "Origin":
-               return _L.fromArray([$Html.text(A2($Basics._op["++"],
-                 prefix,
-                 " to select a piece"))]);
-               case "Promotion":
+               return _L.fromArray([$Html.text("select a piece")]);
+               case "SelectPromotion":
                return function () {
-                    var knight = A2($Chess$Piece.piece,
-                    $Chess$Piece.Knight,
-                    game.turn);
-                    var queen = A2($Chess$Piece.piece,
-                    $Chess$Piece.Queen,
-                    game.turn);
+                    var renderPromotionBtn = function (piece) {
+                       return A2($Html.button,
+                       _L.fromArray([$Html$Events.onClick(address)(A2($Update.Promote,
+                                    _v12._0,
+                                    piece.figure))
+                                    ,$Html$Attributes.$class(A2($String.join,
+                                    " ",
+                                    _L.fromArray([getPieceClass(piece)
+                                                 ,"square"
+                                                 ,"status-bar__promotion-btn"])))]),
+                       _L.fromArray([]));
+                    };
                     return _L.fromArray([$Html.text("promote to:")
-                                        ,A2($Html.button,
-                                        _L.fromArray([$Html$Events.onClick(address)(A2($Update.Promote,
-                                                     _v17._0,
-                                                     queen.figure))
-                                                     ,$Html$Attributes.$class(A2($Basics._op["++"],
-                                                     "square ",
-                                                     getPieceClass(queen)))]),
-                                        _L.fromArray([]))
-                                        ,A2($Html.button,
-                                        _L.fromArray([$Html$Events.onClick(address)(A2($Update.Promote,
-                                                     _v17._0,
-                                                     knight.figure))
-                                                     ,$Html$Attributes.$class(A2($Basics._op["++"],
-                                                     "square ",
-                                                     getPieceClass(knight)))]),
-                                        _L.fromArray([]))]);
+                                        ,renderPromotionBtn(A2($Chess$Piece.piece,
+                                        $Chess$Piece.Queen,
+                                        game.turn))
+                                        ,renderPromotionBtn(A2($Chess$Piece.piece,
+                                        $Chess$Piece.Knight,
+                                        game.turn))]);
                  }();}
             _U.badCase($moduleName,
-            "between lines 168 and 199");
+            "between lines 157 and 188");
          }();
+         var statusBar = A2($Basics._op["++"],
+         _L.fromArray([clock(game)]),
+         statusMsg);
          return A2($Html.div,
          _L.fromArray([$Html$Attributes.$class("status-bar")]),
-         A2($Basics._op["++"],
-         statusBar,
-         _L.fromArray([$Html.text(A2($Basics._op["++"],
-         " ",
-         parsedTime))])));
+         statusBar);
       }();
    });
    var renderGame = F2(function (address,
@@ -359,6 +277,7 @@ Elm.View.make = function (_elm) {
                       ,renderBoard: renderBoard
                       ,renderGraveyardSquare: renderGraveyardSquare
                       ,renderGraveyard: renderGraveyard
+                      ,clock: clock
                       ,renderStatusBar: renderStatusBar
                       ,renderGame: renderGame};
    return _elm.View.values;

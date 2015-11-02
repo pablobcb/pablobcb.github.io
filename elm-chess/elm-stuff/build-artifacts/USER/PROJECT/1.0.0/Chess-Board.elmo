@@ -16,46 +16,159 @@ Elm.Chess.Board.make = function (_elm) {
    $Chess$Piece = Elm.Chess.Piece.make(_elm),
    $Dict = Elm.Dict.make(_elm),
    $List = Elm.List.make(_elm),
+   $List$Extra = Elm.List.Extra.make(_elm),
    $Maybe = Elm.Maybe.make(_elm),
    $Maybe$Extra = Elm.Maybe.Extra.make(_elm),
    $Result = Elm.Result.make(_elm),
    $Signal = Elm.Signal.make(_elm);
    var numToChar = function (num) {
-      return _U.eq(num,
-      1) ? $Maybe.Just(_U.chr("A")) : _U.eq(num,
-      2) ? $Maybe.Just(_U.chr("B")) : _U.eq(num,
-      3) ? $Maybe.Just(_U.chr("C")) : _U.eq(num,
-      4) ? $Maybe.Just(_U.chr("D")) : _U.eq(num,
-      5) ? $Maybe.Just(_U.chr("E")) : _U.eq(num,
-      6) ? $Maybe.Just(_U.chr("F")) : _U.eq(num,
-      7) ? $Maybe.Just(_U.chr("G")) : _U.eq(num,
-      8) ? $Maybe.Just(_U.chr("H")) : $Maybe.Nothing;
+      return $Maybe.map($Basics.snd)(A2($List$Extra.find,
+      function (_v0) {
+         return function () {
+            switch (_v0.ctor)
+            {case "_Tuple2":
+               return _U.eq(_v0._0,num);}
+            _U.badCase($moduleName,
+            "on line 303, column 28 to 39");
+         }();
+      },
+      _L.fromArray([{ctor: "_Tuple2"
+                    ,_0: 1
+                    ,_1: _U.chr("A")}
+                   ,{ctor: "_Tuple2"
+                    ,_0: 2
+                    ,_1: _U.chr("B")}
+                   ,{ctor: "_Tuple2"
+                    ,_0: 3
+                    ,_1: _U.chr("C")}
+                   ,{ctor: "_Tuple2"
+                    ,_0: 4
+                    ,_1: _U.chr("D")}
+                   ,{ctor: "_Tuple2"
+                    ,_0: 5
+                    ,_1: _U.chr("E")}
+                   ,{ctor: "_Tuple2"
+                    ,_0: 6
+                    ,_1: _U.chr("F")}
+                   ,{ctor: "_Tuple2"
+                    ,_0: 7
+                    ,_1: _U.chr("G")}
+                   ,{ctor: "_Tuple2"
+                    ,_0: 8
+                    ,_1: _U.chr("H")}])));
    };
    var charToNum = function ($char) {
-      return _U.eq($char,
-      _U.chr("A")) ? $Maybe.Just(1) : _U.eq($char,
-      _U.chr("B")) ? $Maybe.Just(2) : _U.eq($char,
-      _U.chr("C")) ? $Maybe.Just(3) : _U.eq($char,
-      _U.chr("D")) ? $Maybe.Just(4) : _U.eq($char,
-      _U.chr("E")) ? $Maybe.Just(5) : _U.eq($char,
-      _U.chr("F")) ? $Maybe.Just(6) : _U.eq($char,
-      _U.chr("G")) ? $Maybe.Just(7) : _U.eq($char,
-      _U.chr("H")) ? $Maybe.Just(8) : $Maybe.Nothing;
+      return $Maybe.map($Basics.snd)(A2($List$Extra.find,
+      function (_v4) {
+         return function () {
+            switch (_v4.ctor)
+            {case "_Tuple2":
+               return _U.eq(_v4._0,$char);}
+            _U.badCase($moduleName,
+            "on line 292, column 29 to 42");
+         }();
+      },
+      _L.fromArray([{ctor: "_Tuple2"
+                    ,_0: _U.chr("A")
+                    ,_1: 1}
+                   ,{ctor: "_Tuple2"
+                    ,_0: _U.chr("B")
+                    ,_1: 2}
+                   ,{ctor: "_Tuple2"
+                    ,_0: _U.chr("C")
+                    ,_1: 3}
+                   ,{ctor: "_Tuple2"
+                    ,_0: _U.chr("D")
+                    ,_1: 4}
+                   ,{ctor: "_Tuple2"
+                    ,_0: _U.chr("E")
+                    ,_1: 5}
+                   ,{ctor: "_Tuple2"
+                    ,_0: _U.chr("F")
+                    ,_1: 6}
+                   ,{ctor: "_Tuple2"
+                    ,_0: _U.chr("G")
+                    ,_1: 7}
+                   ,{ctor: "_Tuple2"
+                    ,_0: _U.chr("H")
+                    ,_1: 8}])));
    };
-   var takeWhileInclusive = F2(function (p,
+   var getCastlingIntermediatePositions = function (turn) {
+      return function () {
+         switch (turn.ctor)
+         {case "Black":
+            return {ctor: "_Tuple2"
+                   ,_0: {ctor: "_Tuple2"
+                        ,_0: {ctor: "_Tuple2"
+                             ,_0: _U.chr("B")
+                             ,_1: 8}
+                        ,_1: {ctor: "_Tuple2"
+                             ,_0: _U.chr("C")
+                             ,_1: 8}}
+                   ,_1: {ctor: "_Tuple2"
+                        ,_0: {ctor: "_Tuple2"
+                             ,_0: _U.chr("F")
+                             ,_1: 8}
+                        ,_1: {ctor: "_Tuple2"
+                             ,_0: _U.chr("G")
+                             ,_1: 8}}};
+            case "White":
+            return {ctor: "_Tuple2"
+                   ,_0: {ctor: "_Tuple2"
+                        ,_0: {ctor: "_Tuple2"
+                             ,_0: _U.chr("B")
+                             ,_1: 1}
+                        ,_1: {ctor: "_Tuple2"
+                             ,_0: _U.chr("C")
+                             ,_1: 1}}
+                   ,_1: {ctor: "_Tuple2"
+                        ,_0: {ctor: "_Tuple2"
+                             ,_0: _U.chr("F")
+                             ,_1: 1}
+                        ,_1: {ctor: "_Tuple2"
+                             ,_0: _U.chr("G")
+                             ,_1: 1}}};}
+         _U.badCase($moduleName,
+         "between lines 166 and 171");
+      }();
+   };
+   var getRookInitialPosition = function (turn) {
+      return function () {
+         switch (turn.ctor)
+         {case "Black":
+            return {ctor: "_Tuple2"
+                   ,_0: {ctor: "_Tuple2"
+                        ,_0: _U.chr("A")
+                        ,_1: 8}
+                   ,_1: {ctor: "_Tuple2"
+                        ,_0: _U.chr("H")
+                        ,_1: 8}};
+            case "White":
+            return {ctor: "_Tuple2"
+                   ,_0: {ctor: "_Tuple2"
+                        ,_0: _U.chr("A")
+                        ,_1: 1}
+                   ,_1: {ctor: "_Tuple2"
+                        ,_0: _U.chr("H")
+                        ,_1: 1}};}
+         _U.badCase($moduleName,
+         "between lines 156 and 161");
+      }();
+   };
+   var takeWhileInclusive = F2(function (predicate,
    xs) {
       return function () {
          switch (xs.ctor)
          {case "::":
             return A2($List._op["::"],
               xs._0,
-              p(xs._0) ? A2(takeWhileInclusive,
-              p,
+              predicate(xs._0) ? A2(takeWhileInclusive,
+              predicate,
               xs._1) : _L.fromArray([]));
             case "[]":
             return _L.fromArray([]);}
          _U.badCase($moduleName,
-         "between lines 122 and 127");
+         "between lines 147 and 152");
       }();
    });
    var pawnTakeRanges = function (color) {
@@ -76,47 +189,58 @@ Elm.Chess.Board.make = function (_elm) {
                                          ,_0: 1
                                          ,_1: 1}};}
          _U.badCase($moduleName,
-         "between lines 112 and 117");
+         "between lines 137 and 142");
       }();
    };
-   var shift = F2(function (_v4,
-   _v5) {
+   var shift = F2(function (_v14,
+   _v15) {
       return function () {
-         switch (_v5.ctor)
+         switch (_v15.ctor)
          {case "_Tuple2":
             return function () {
-                 switch (_v4.ctor)
+                 switch (_v14.ctor)
                  {case "_Tuple2":
                     return function () {
                          var charNumericalRepresentation = function () {
-                            var _v12 = charToNum(_v4._0);
-                            switch (_v12.ctor)
-                            {case "Just": return _v12._0;
+                            var _v22 = charToNum(_v14._0);
+                            switch (_v22.ctor)
+                            {case "Just": return _v22._0;
                                case "Nothing": return -10000;}
                             _U.badCase($moduleName,
-                            "between lines 77 and 84");
+                            "between lines 87 and 95");
                          }();
-                         var shiftedCharNumericalRepresentation = charNumericalRepresentation + _v5._0;
+                         var shiftedCharNumericalRepresentation = charNumericalRepresentation + _v15._0;
                          var shiftedChar = function () {
-                            var _v14 = numToChar(shiftedCharNumericalRepresentation);
-                            switch (_v14.ctor)
-                            {case "Just": return _v14._0;
+                            var _v24 = numToChar(shiftedCharNumericalRepresentation);
+                            switch (_v24.ctor)
+                            {case "Just": return _v24._0;
                                case "Nothing":
                                return _U.chr("!");}
                             _U.badCase($moduleName,
-                            "between lines 88 and 95");
+                            "between lines 99 and 106");
                          }();
                          return {ctor: "_Tuple2"
                                 ,_0: shiftedChar
-                                ,_1: _v4._1 + _v5._1};
+                                ,_1: _v14._1 + _v15._1};
                       }();}
                  _U.badCase($moduleName,
-                 "between lines 75 and 96");
+                 "between lines 85 and 107");
               }();}
          _U.badCase($moduleName,
-         "between lines 75 and 96");
+         "between lines 85 and 107");
       }();
    });
+   var getHorizontalAdjacentPositions = function (position) {
+      return {ctor: "_Tuple2"
+             ,_0: A2(shift,
+             position,
+             {ctor: "_Tuple2",_0: 1,_1: 0})
+             ,_1: A2(shift,
+             position,
+             {ctor: "_Tuple2"
+             ,_0: -1
+             ,_1: 0})};
+   };
    var positionAhead = F2(function (color,
    position) {
       return function () {
@@ -128,7 +252,23 @@ Elm.Chess.Board.make = function (_elm) {
               position,
               {ctor: "_Tuple2",_0: 0,_1: 1});}
          _U.badCase($moduleName,
-         "between lines 101 and 105");
+         "between lines 117 and 121");
+      }();
+   });
+   var positionBelow = F2(function (color,
+   position) {
+      return function () {
+         switch (color.ctor)
+         {case "Black": return A2(shift,
+              position,
+              {ctor: "_Tuple2",_0: 0,_1: 1});
+            case "White": return A2(shift,
+              position,
+              {ctor: "_Tuple2"
+              ,_0: 0
+              ,_1: -1});}
+         _U.badCase($moduleName,
+         "between lines 126 and 130");
       }();
    });
    var emptyRow = A2($List.repeat,
@@ -141,6 +281,20 @@ Elm.Chess.Board.make = function (_elm) {
          board)($));
       };
    };
+   var rangeToSquare = F2(function (position,
+   board) {
+      return function ($) {
+         return getSquareContent(board)(shift(position)($));
+      };
+   });
+   var isPopulated = F2(function (board,
+   position) {
+      return function ($) {
+         return $Maybe$Extra.isJust(A2(rangeToSquare,
+         position,
+         board)($));
+      };
+   });
    var letters = _L.fromArray([_U.chr("A")
                               ,_U.chr("B")
                               ,_U.chr("C")
@@ -149,27 +303,41 @@ Elm.Chess.Board.make = function (_elm) {
                               ,_U.chr("F")
                               ,_U.chr("G")
                               ,_U.chr("H")]);
-   var makeInitialBoard = function () {
-      var zip = $List.map2(F2(function (v0,
-      v1) {
+   var getPositions = $List.concat(A2($List.map,
+   function (digit) {
+      return A2($List.map,
+      function (letter) {
          return {ctor: "_Tuple2"
-                ,_0: v0
-                ,_1: v1};
-      }));
+                ,_0: letter
+                ,_1: digit};
+      },
+      letters);
+   },
+   _L.range(1,8)));
+   var makeInitialBoard = function () {
+      var zip$ = function (_v28) {
+         return function () {
+            switch (_v28.ctor)
+            {case "_Tuple2":
+               return A2($List$Extra.zip,
+                 _v28._0,
+                 _v28._1);}
+            _U.badCase($moduleName,
+            "on line 69, column 26 to 39");
+         }();
+      };
       var makeRow = function (number) {
-         return A2(zip,
+         return A2($List$Extra.zip,
          letters,
          A2($List.repeat,8,number));
       };
-      var makePiece = F2(function (pieceColor,
-      figure) {
-         return $Maybe.Just(A2($Chess$Piece.piece,
-         figure,
-         pieceColor));
-      });
       var makeFirstRow = function (color) {
          return A2($List.map,
-         makePiece(color),
+         function ($) {
+            return $Maybe.Just(A2($Basics.flip,
+            $Chess$Piece.piece,
+            color)($));
+         },
          _L.fromArray([$Chess$Piece.Rook
                       ,$Chess$Piece.Knight
                       ,$Chess$Piece.Bishop
@@ -184,154 +352,35 @@ Elm.Chess.Board.make = function (_elm) {
          $Chess$Piece.Pawn,
          pawnColor)));
       };
-      return $Dict.fromList(A2($Basics._op["++"],
-      A2(zip,
-      makeRow(8),
-      makeFirstRow($Chess$Color.Black)),
-      A2($Basics._op["++"],
-      A2(zip,
-      makeRow(7),
-      pawnRow($Chess$Color.Black)),
-      A2($Basics._op["++"],
-      A2(zip,makeRow(6),emptyRow),
-      A2($Basics._op["++"],
-      A2(zip,makeRow(5),emptyRow),
-      A2($Basics._op["++"],
-      A2(zip,makeRow(4),emptyRow),
-      A2($Basics._op["++"],
-      A2(zip,makeRow(3),emptyRow),
-      A2($Basics._op["++"],
-      A2(zip,
-      makeRow(2),
-      pawnRow($Chess$Color.White)),
-      A2(zip,
-      makeRow(1),
-      makeFirstRow($Chess$Color.White))))))))));
+      return $Dict.fromList($List.concat(A2($List.map,
+      zip$,
+      _L.fromArray([{ctor: "_Tuple2"
+                    ,_0: makeRow(8)
+                    ,_1: makeFirstRow($Chess$Color.Black)}
+                   ,{ctor: "_Tuple2"
+                    ,_0: makeRow(7)
+                    ,_1: pawnRow($Chess$Color.Black)}
+                   ,{ctor: "_Tuple2"
+                    ,_0: makeRow(6)
+                    ,_1: emptyRow}
+                   ,{ctor: "_Tuple2"
+                    ,_0: makeRow(5)
+                    ,_1: emptyRow}
+                   ,{ctor: "_Tuple2"
+                    ,_0: makeRow(4)
+                    ,_1: emptyRow}
+                   ,{ctor: "_Tuple2"
+                    ,_0: makeRow(3)
+                    ,_1: emptyRow}
+                   ,{ctor: "_Tuple2"
+                    ,_0: makeRow(2)
+                    ,_1: pawnRow($Chess$Color.White)}
+                   ,{ctor: "_Tuple2"
+                    ,_0: makeRow(1)
+                    ,_1: makeFirstRow($Chess$Color.White)}]))));
    }();
-   var getRegularMoves = F4(function (turn,
-   board,
-   piece,
-   position) {
+   var filterPositions = function (positions) {
       return function () {
-         var ranges = function () {
-            var kingMoves = _L.fromArray([{ctor: "_Tuple2"
-                                          ,_0: 0
-                                          ,_1: 1}
-                                         ,{ctor: "_Tuple2",_0: 1,_1: 1}
-                                         ,{ctor: "_Tuple2",_0: 1,_1: 0}
-                                         ,{ctor: "_Tuple2",_0: 1,_1: -1}
-                                         ,{ctor: "_Tuple2",_0: 0,_1: -1}
-                                         ,{ctor: "_Tuple2",_0: -1,_1: -1}
-                                         ,{ctor: "_Tuple2",_0: -1,_1: 0}
-                                         ,{ctor: "_Tuple2"
-                                          ,_0: -1
-                                          ,_1: 1}]);
-            var rangeToSquare = function ($) {
-               return getSquareContent(board)(shift(position)($));
-            };
-            var takeWhileEmpty = function (rangesInclusive) {
-               return A2(takeWhileInclusive,
-               function ($) {
-                  return $Maybe$Extra.isNothing(rangeToSquare($));
-               },
-               rangesInclusive);
-            };
-            var oneToSeven = _L.range(1,7);
-            var negativeOneToSeven = A2($List.map,
-            F2(function (x,y) {
-               return x * y;
-            })(-1),
-            oneToSeven);
-            var zeros = A2($List.repeat,
-            7,
-            0);
-            var zip = $List.map2(F2(function (v0,
-            v1) {
-               return {ctor: "_Tuple2"
-                      ,_0: v0
-                      ,_1: v1};
-            }));
-            var rookMoves = A2($Basics._op["++"],
-            takeWhileEmpty(A2(zip,
-            oneToSeven,
-            zeros)),
-            A2($Basics._op["++"],
-            takeWhileEmpty(A2(zip,
-            negativeOneToSeven,
-            zeros)),
-            A2($Basics._op["++"],
-            takeWhileEmpty(A2(zip,
-            zeros,
-            oneToSeven)),
-            takeWhileEmpty(A2(zip,
-            zeros,
-            negativeOneToSeven)))));
-            var bishopMoves = A2($Basics._op["++"],
-            takeWhileEmpty(A2(zip,
-            oneToSeven,
-            oneToSeven)),
-            A2($Basics._op["++"],
-            takeWhileEmpty(A2(zip,
-            negativeOneToSeven,
-            oneToSeven)),
-            A2($Basics._op["++"],
-            takeWhileEmpty(A2(zip,
-            oneToSeven,
-            negativeOneToSeven)),
-            takeWhileEmpty(A2(zip,
-            negativeOneToSeven,
-            negativeOneToSeven)))));
-            return function () {
-               var _v17 = piece.figure;
-               switch (_v17.ctor)
-               {case "Bishop":
-                  return bishopMoves;
-                  case "King": return kingMoves;
-                  case "Knight":
-                  return _L.fromArray([{ctor: "_Tuple2"
-                                       ,_0: 1
-                                       ,_1: 2}
-                                      ,{ctor: "_Tuple2",_0: -1,_1: 2}
-                                      ,{ctor: "_Tuple2",_0: 2,_1: 1}
-                                      ,{ctor: "_Tuple2",_0: 2,_1: -1}
-                                      ,{ctor: "_Tuple2",_0: 1,_1: -2}
-                                      ,{ctor: "_Tuple2",_0: -1,_1: -2}
-                                      ,{ctor: "_Tuple2",_0: -2,_1: 1}
-                                      ,{ctor: "_Tuple2"
-                                       ,_0: -2
-                                       ,_1: -1}]);
-                  case "Pawn":
-                  return function () {
-                       var _v18 = piece.color;
-                       switch (_v18.ctor)
-                       {case "Black":
-                          return A2($Basics._op["++"],
-                            _L.fromArray([{ctor: "_Tuple2"
-                                          ,_0: 0
-                                          ,_1: -1}]),
-                            piece.moved ? _L.fromArray([]) : _L.fromArray([{ctor: "_Tuple2"
-                                                                           ,_0: 0
-                                                                           ,_1: -2}]));
-                          case "White":
-                          return A2($Basics._op["++"],
-                            _L.fromArray([{ctor: "_Tuple2"
-                                          ,_0: 0
-                                          ,_1: 1}]),
-                            piece.moved ? _L.fromArray([]) : _L.fromArray([{ctor: "_Tuple2"
-                                                                           ,_0: 0
-                                                                           ,_1: 2}]));}
-                       _U.badCase($moduleName,
-                       "between lines 189 and 202");
-                    }();
-                  case "Queen":
-                  return A2($Basics._op["++"],
-                    bishopMoves,
-                    rookMoves);
-                  case "Rook": return rookMoves;}
-               _U.badCase($moduleName,
-               "between lines 187 and 226");
-            }();
-         }();
          var filterPosition = function (pos) {
             return A2($List.member,
             $Basics.fst(pos),
@@ -339,21 +388,156 @@ Elm.Chess.Board.make = function (_elm) {
             $Basics.snd(pos),
             _L.range(1,8));
          };
-         return $List.filter(filterPosition)(A2($List.map,
+         return $List.filter(filterPosition)(positions);
+      }();
+   };
+   var getRegularDestinations = F4(function (turn,
+   board,
+   piece,
+   position) {
+      return function () {
+         var kingMoves = _L.fromArray([{ctor: "_Tuple2"
+                                       ,_0: 0
+                                       ,_1: 1}
+                                      ,{ctor: "_Tuple2",_0: 1,_1: 1}
+                                      ,{ctor: "_Tuple2",_0: 1,_1: 0}
+                                      ,{ctor: "_Tuple2",_0: 1,_1: -1}
+                                      ,{ctor: "_Tuple2",_0: 0,_1: -1}
+                                      ,{ctor: "_Tuple2",_0: -1,_1: -1}
+                                      ,{ctor: "_Tuple2",_0: -1,_1: 0}
+                                      ,{ctor: "_Tuple2"
+                                       ,_0: -1
+                                       ,_1: 1}]);
+         var takeWhileEmpty = function (rangesInclusive) {
+            return A2(takeWhileInclusive,
+            function ($) {
+               return $Maybe$Extra.isNothing(A2(rangeToSquare,
+               position,
+               board)($));
+            },
+            rangesInclusive);
+         };
+         var takeWhileEmpty$ = function (_v32) {
+            return function () {
+               switch (_v32.ctor)
+               {case "_Tuple2":
+                  return takeWhileEmpty(A2($List$Extra.zip,
+                    _v32._0,
+                    _v32._1));}
+               _U.badCase($moduleName,
+               "on line 213, column 7 to 32");
+            }();
+         };
+         var getDirectionalMoves = function (directions) {
+            return $List.concat(A2($List.map,
+            takeWhileEmpty$,
+            directions));
+         };
+         var negativeOneToSeven = $List.reverse(_L.range(-7,
+         -1));
+         var oneToSeven = _L.range(1,7);
+         var bishopMoves = getDirectionalMoves(_L.fromArray([{ctor: "_Tuple2"
+                                                             ,_0: oneToSeven
+                                                             ,_1: oneToSeven}
+                                                            ,{ctor: "_Tuple2"
+                                                             ,_0: negativeOneToSeven
+                                                             ,_1: oneToSeven}
+                                                            ,{ctor: "_Tuple2"
+                                                             ,_0: oneToSeven
+                                                             ,_1: negativeOneToSeven}
+                                                            ,{ctor: "_Tuple2"
+                                                             ,_0: negativeOneToSeven
+                                                             ,_1: negativeOneToSeven}]));
+         var zeros = A2($List.repeat,
+         7,
+         0);
+         var rookMoves = getDirectionalMoves(_L.fromArray([{ctor: "_Tuple2"
+                                                           ,_0: oneToSeven
+                                                           ,_1: zeros}
+                                                          ,{ctor: "_Tuple2"
+                                                           ,_0: negativeOneToSeven
+                                                           ,_1: zeros}
+                                                          ,{ctor: "_Tuple2"
+                                                           ,_0: zeros
+                                                           ,_1: oneToSeven}
+                                                          ,{ctor: "_Tuple2"
+                                                           ,_0: zeros
+                                                           ,_1: negativeOneToSeven}]));
+         var ranges = function () {
+            var _v36 = piece.figure;
+            switch (_v36.ctor)
+            {case "Bishop":
+               return bishopMoves;
+               case "King": return kingMoves;
+               case "Knight":
+               return _L.fromArray([{ctor: "_Tuple2"
+                                    ,_0: 1
+                                    ,_1: 2}
+                                   ,{ctor: "_Tuple2",_0: -1,_1: 2}
+                                   ,{ctor: "_Tuple2",_0: 2,_1: 1}
+                                   ,{ctor: "_Tuple2",_0: 2,_1: -1}
+                                   ,{ctor: "_Tuple2",_0: 1,_1: -2}
+                                   ,{ctor: "_Tuple2",_0: -1,_1: -2}
+                                   ,{ctor: "_Tuple2",_0: -2,_1: 1}
+                                   ,{ctor: "_Tuple2"
+                                    ,_0: -2
+                                    ,_1: -1}]);
+               case "Pawn":
+               return function () {
+                    var isPopulated$ = A2(isPopulated,
+                    board,
+                    position);
+                    var verticalDestinations = F2(function (oneSquareAhead,
+                    twoSquaresAhead) {
+                       return isPopulated$(oneSquareAhead) ? _L.fromArray([]) : isPopulated$(twoSquaresAhead) ? _L.fromArray([oneSquareAhead]) : piece.moved ? _L.fromArray([oneSquareAhead]) : _L.fromArray([oneSquareAhead
+                                                                                                                                                                                                             ,twoSquaresAhead]);
+                    });
+                    return function () {
+                       var _v37 = piece.color;
+                       switch (_v37.ctor)
+                       {case "Black":
+                          return A2(verticalDestinations,
+                            {ctor: "_Tuple2",_0: 0,_1: -1},
+                            {ctor: "_Tuple2",_0: 0,_1: -2});
+                          case "White":
+                          return A2(verticalDestinations,
+                            {ctor: "_Tuple2",_0: 0,_1: 1},
+                            {ctor: "_Tuple2",_0: 0,_1: 2});}
+                       _U.badCase($moduleName,
+                       "between lines 275 and 284");
+                    }();
+                 }();
+               case "Queen":
+               return A2($Basics._op["++"],
+                 bishopMoves,
+                 rookMoves);
+               case "Rook": return rookMoves;}
+            _U.badCase($moduleName,
+            "between lines 241 and 284");
+         }();
+         return filterPositions(A2($List.map,
          shift(position),
          ranges));
       }();
    });
    _elm.Chess.Board.values = {_op: _op
                              ,letters: letters
+                             ,getPositions: getPositions
                              ,getSquareContent: getSquareContent
                              ,emptyRow: emptyRow
                              ,makeInitialBoard: makeInitialBoard
                              ,shift: shift
+                             ,getHorizontalAdjacentPositions: getHorizontalAdjacentPositions
                              ,positionAhead: positionAhead
+                             ,positionBelow: positionBelow
                              ,pawnTakeRanges: pawnTakeRanges
                              ,takeWhileInclusive: takeWhileInclusive
-                             ,getRegularMoves: getRegularMoves
+                             ,getRookInitialPosition: getRookInitialPosition
+                             ,getCastlingIntermediatePositions: getCastlingIntermediatePositions
+                             ,filterPositions: filterPositions
+                             ,rangeToSquare: rangeToSquare
+                             ,isPopulated: isPopulated
+                             ,getRegularDestinations: getRegularDestinations
                              ,charToNum: charToNum
                              ,numToChar: numToChar};
    return _elm.Chess.Board.values;
