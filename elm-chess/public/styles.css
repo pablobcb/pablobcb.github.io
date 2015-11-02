@@ -1,0 +1,172 @@
+body {
+  margin: 0;
+/* Avoid user selection */
+/* http://caniuse.com/#feat=user-select-none */
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  font-family: 'Helvetica Neue', Helvetica, sans-serif;
+  font-size: 18px;
+}
+.game {
+  margin-left: auto;
+  margin-right: auto;
+  position: relative;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.board-and-graveyard {
+  margin-left: auto;
+  margin-right: auto;
+}
+.board-and-graveyard .graveyard,
+.board-and-graveyard .chessboard {
+  float: left;
+}
+.chessboard {
+  height: 600px;
+  width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+  border: 3px solid #333;
+  font-size: 0;
+}
+.chessboard .square {
+  display: inline-block;
+  line-height: 75px;
+}
+.chessboard .square:nth-of-type(16n + 16),
+.chessboard .square:nth-of-type(16n + 14),
+.chessboard .square:nth-of-type(16n + 12),
+.chessboard .square:nth-of-type(16n + 10),
+.chessboard .square:nth-of-type(16n + 7),
+.chessboard .square:nth-of-type(16n + 5),
+.chessboard .square:nth-of-type(16n + 3),
+.chessboard .square:nth-of-type(16n + 1) {
+  background: #ccc;
+  background: linear-gradient(to bottom, #ccc, #eee);
+  box-shadow: inset 0 0 10px rgba(0,0,0,0.4);
+}
+.chessboard.highlight-black-pieces .square.piece.black:hover {
+  border: 3.75px solid #008000;
+}
+.chessboard.highlight-black-pieces .square.piece.black:hover::before {
+  transform: translateY(-3.75px);
+}
+.chessboard.highlight-white-pieces .square.piece.white:hover {
+  border: 3.75px solid #008000;
+}
+.chessboard.highlight-white-pieces .square.piece.white:hover::before {
+  transform: translateY(-3.75px);
+}
+.chessboard.highlight-destinations .square:not(.piece):hover {
+  border: 3.75px solid #008000;
+}
+.graveyard {
+  height: 600px;
+  width: 150px;
+}
+.graveyard .square {
+  display: inline-block;
+}
+.square {
+  box-sizing: border-box;
+  height: 75px;
+  width: 75px;
+  text-align: center;
+  font-size: 50px;
+}
+.square.valid-destination {
+  border: 3.75px solid #008000;
+}
+.square.valid-destination::before {
+  transform: translateY(-3.75px);
+}
+.piece {
+  position: relative;
+}
+.piece::before {
+  position: absolute;
+  display: block;
+  left: 0;
+  width: 100%;
+}
+.piece.white.king::before {
+  content: "♔";
+}
+.piece.white.queen::before {
+  content: "♕";
+}
+.piece.white.rook::before {
+  content: "♖";
+}
+.piece.white.bishop::before {
+  content: "♗";
+}
+.piece.white.knight::before {
+  content: "♘";
+}
+.piece.white.pawn::before {
+  content: "♙";
+}
+.piece.black.king::before {
+  content: "♚";
+}
+.piece.black.queen::before {
+  content: "♛";
+}
+.piece.black.rook::before {
+  content: "♜";
+}
+.piece.black.bishop::before {
+  content: "♝";
+}
+.piece.black.knight::before {
+  content: "♞";
+}
+.piece.black.pawn::before {
+  content: "♟";
+}
+.status-bar {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 50px;
+  line-height: 50px;
+  font-size: 25px;
+  text-align: center;
+  border-style: solid;
+  border-width: 3px;
+  border-color: #000;
+  padding: 0px;
+  margin: 0px;
+}
+.status-bar__clock {
+  float: left;
+  padding-left: 30px;
+  padding-right: 30px;
+  border-right: 3px solid #000;
+}
+.status-bar__clock-icon {
+  margin-right: 10px;
+}
+.status-bar__clock-message {
+  margin-left: 10px;
+}
+.status-bar--white {
+  background: #fff;
+  color: #000;
+}
+.status-bar--black {
+  background: #000;
+  color: #fff;
+}
+.status-bar__promotion-btn {
+  padding: 0;
+  border: none;
+  background: none;
+  position: relative;
+}
