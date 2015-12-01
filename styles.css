@@ -1,0 +1,262 @@
+body {
+  margin: 0;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  font-family: 'Helvetica Neue', Helvetica, sans-serif;
+  font-size: 18px;
+}
+.board-and-graveyard {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  height: 72.8vmin;
+  width: 104.8vmin;
+  transform: translate(-50%, -50%);
+}
+.board-and-graveyard .graveyard,
+.board-and-graveyard .chessboard {
+  position: absolute;
+}
+.board-and-graveyard .chessboard {
+  top: 0;
+  left: 16vmin;
+}
+.promotion.active {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 40vmin;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+  background-color: rgba(0,0,0,0.7);
+  text-align: center;
+}
+.promotion.active .promotion__label,
+.promotion.active .promotion__pieces {
+  text-align: center;
+  height: 16vmin;
+}
+.promotion.active .promotion__label {
+  color: #fff;
+  line-height: 16vmin;
+}
+.promotion.active .square {
+  display: inline-block;
+}
+.promotion.active .square:nth-of-type(1) {
+  margin-right: 4vmin;
+  background-color: #fff;
+}
+.promotion.active .square:nth-of-type(2) {
+  margin-left: 4vmin;
+  background: #ccc;
+  background: linear-gradient(to bottom, #ccc, #eee);
+  box-shadow: inset 0 0 10px rgba(0,0,0,0.4);
+}
+.chessboard {
+  width: 72.8vmin;
+  font-size: 0;
+}
+.chessboard .chessboard__grid {
+  position: absolute;
+  top: 4vmin;
+  left: 4vmin;
+  height: 64vmin;
+  width: 64vmin;
+  border: 0.4vmin solid #333;
+}
+.chessboard .chessboard__gutter {
+  position: absolute;
+  font-size: 2.5vmin;
+}
+.chessboard .chessboard__gutter.top {
+  top: 0;
+  left: 4vmin;
+  width: 64.8vmin;
+  height: 4vmin;
+}
+.chessboard .chessboard__gutter.right {
+  right: 0;
+  top: 4vmin;
+  height: 64.8vmin;
+  width: 4vmin;
+}
+.chessboard .chessboard__gutter.left {
+  left: 0;
+  top: 4vmin;
+  height: 64.8vmin;
+  width: 4vmin;
+}
+.chessboard .chessboard__gutter.bottom {
+  top: 68.8vmin;
+  left: 4vmin;
+  width: 64.8vmin;
+  height: 4vmin;
+}
+.chessboard .chessboard__gutter.top .chessboard__gutter__item,
+.chessboard .chessboard__gutter.bottom .chessboard__gutter__item {
+  display: inline-block;
+  width: 8vmin;
+  height: 4vmin;
+  text-align: center;
+  line-height: 4vmin;
+}
+.chessboard .chessboard__gutter.right .chessboard__gutter__item,
+.chessboard .chessboard__gutter.left .chessboard__gutter__item {
+  display: inline-block;
+  width: 4vmin;
+  height: 8vmin;
+  text-align: center;
+  line-height: 8vmin;
+}
+.chessboard .square {
+  display: inline-block;
+  line-height: 8vmin;
+}
+.chessboard .square:nth-of-type(16n + 16),
+.chessboard .square:nth-of-type(16n + 14),
+.chessboard .square:nth-of-type(16n + 12),
+.chessboard .square:nth-of-type(16n + 10),
+.chessboard .square:nth-of-type(16n + 7),
+.chessboard .square:nth-of-type(16n + 5),
+.chessboard .square:nth-of-type(16n + 3),
+.chessboard .square:nth-of-type(16n + 1) {
+  background: #ccc;
+  background: linear-gradient(to bottom, #ccc, #eee);
+  box-shadow: inset 0 0 10px rgba(0,0,0,0.4);
+}
+.chessboard.highlight-black-pieces .square.piece.black:hover {
+  border: 0.4vmin solid #008000;
+}
+.chessboard.highlight-black-pieces .square.piece.black:hover::before {
+  transform: translateY(-0.4vmin);
+}
+.chessboard.highlight-white-pieces .square.piece.white:hover {
+  border: 0.4vmin solid #008000;
+}
+.chessboard.highlight-white-pieces .square.piece.white:hover::before {
+  transform: translateY(-0.4vmin);
+}
+.chessboard.highlight-destinations .square:not(.piece):hover {
+  border: 0.4vmin solid #008000;
+}
+.graveyard {
+  height: 72.8vmin;
+  width: 16vmin;
+}
+.graveyard.white {
+  right: 0;
+}
+.graveyard.black {
+  left: 0;
+}
+.graveyard .square {
+  position: relative;
+  display: inline-block;
+}
+.square {
+  box-sizing: border-box;
+  height: 8vmin;
+  width: 8vmin;
+  text-align: center;
+  font-size: 50px;
+}
+.square.valid-destination {
+  border: 0.4vmin solid #008000;
+}
+.square.valid-destination::before {
+  transform: translateY(-0.4vmin);
+}
+.piece {
+  position: relative;
+}
+.piece::before {
+  position: absolute;
+  display: block;
+  left: 0;
+  width: 100%;
+  cursor: default;
+  font-size: 5vmin;
+}
+.piece.white.king::before {
+  content: "♔";
+}
+.piece.white.queen::before {
+  content: "♕";
+}
+.piece.white.rook::before {
+  content: "♖";
+}
+.piece.white.bishop::before {
+  content: "♗";
+}
+.piece.white.knight::before {
+  content: "♘";
+}
+.piece.white.pawn::before {
+  content: "♙";
+}
+.piece.black.king::before {
+  content: "♚";
+}
+.piece.black.queen::before {
+  content: "♛";
+}
+.piece.black.rook::before {
+  content: "♜";
+}
+.piece.black.bishop::before {
+  content: "♝";
+}
+.piece.black.knight::before {
+  content: "♞";
+}
+.piece.black.pawn::before {
+  content: "♟";
+}
+.status-bar {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 50px;
+  line-height: 50px;
+  font-size: 25px;
+  text-align: left;
+  border-style: solid;
+  border-width: 3px;
+  border-color: transparent;
+}
+.status-bar.status-bar--white {
+  background: #fff;
+  color: #000;
+}
+.status-bar.status-bar--black {
+  background: #000;
+  color: #fff;
+}
+.status-bar__clock,
+.status-bar__turn,
+.status-bar__message {
+  display: inline-block;
+  box-sizing: border-box;
+  width: 33.333333333333336vw;
+  padding-left: 30px;
+  padding-right: 30px;
+}
+.status-bar__message {
+  text-align: center;
+}
+.status-bar__turn {
+  text-align: right;
+}
+.status-bar__clock-icon {
+  margin-right: 10px;
+}
+.status-bar__promotion-button {
+  position: relative;
+  background: none;
+  padding: 0;
+  border: none;
+}
