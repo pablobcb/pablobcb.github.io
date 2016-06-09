@@ -89,12 +89,9 @@
 
 			_classCallCheck(this, Application);
 
-			this.onMIDISuccess = function (midiAccess) {
-				if (!(midiAccess instanceof MIDIAccess)) {
-					throw new TypeError('Value of argument "midiAccess" violates contract.\n\nExpected:\nMIDIAccess\n\nGot:\n' + _inspect(midiAccess));
-				}
+			this.initializeAudioEngine = function () {
 
-				_this.audioEngine = new _AudioEngine2.default(midiAccess);
+				_this.audioEngine = new _AudioEngine2.default(_this.midiAccess);
 
 				_this.app.ports.midiPort.subscribe(function (midiData) {
 					if (!(Array.isArray(midiData) && midiData.every(function (item) {
@@ -145,15 +142,7 @@
 						throw new TypeError('Value of argument "fmAmount" violates contract.\n\nExpected:\nnumber\n\nGot:\n' + _inspect(fmAmount));
 					}
 
-					_this.audioEngine.setFmAmount(fmAmount);
-				});
-
-				_this.app.ports.pulseWidthPort.subscribe(function (pulseWidth) {
-					if (!(typeof pulseWidth === 'number')) {
-						throw new TypeError('Value of argument "pulseWidth" violates contract.\n\nExpected:\nnumber\n\nGot:\n' + _inspect(pulseWidth));
-					}
-
-					_this.audioEngine.setPulseWidth(pulseWidth);
+					_this.audioEngine.setSetFmAmount(fmAmount);
 				});
 
 				_this.app.ports.oscillator1WaveformPort.subscribe(function (waveform) {
@@ -169,26 +158,28 @@
 				};
 			};
 
-			this.app = _Main2.default.Main.fullscreen();
+			this.onMIDISuccess = function (midiAccess) {
+				if (!(midiAccess instanceof MIDIAccess)) {
+					throw new TypeError('Value of argument "midiAccess" violates contract.\n\nExpected:\nMIDIAccess\n\nGot:\n' + _inspect(midiAccess));
+				}
 
+				_this.midiAccess = midiAccess;
+			};
+
+			this.app = _Main2.default.Main.fullscreen();
+			this.midiAcess = null;
 			if (navigator.requestMIDIAccess) {
-				navigator.requestMIDIAccess().then(this.onMIDISuccess.bind(this), this.onMIDIFailure);
+				navigator.requestMIDIAccess().then(this.onMIDISuccess.bind(this), this.onMIDIFailure).then(this.initializeAudioEngine.bind(this));
 			} else {
-				alert('No MIDI support in your browser.');
+				this.onMIDIFailure({});
 			}
 		}
 
-		// this is our raw MIDI data, inputs, outputs, and sysex status
-
-
 		_createClass(Application, [{
 			key: 'onMIDIFailure',
-			value: function onMIDIFailure(e) {
-				if (!(e instanceof Error)) {
-					throw new TypeError('Value of argument "e" violates contract.\n\nExpected:\nError\n\nGot:\n' + _inspect(e));
-				}
-
-				console.log('No access to MIDI devices or your browser doesn\'t \t\t\tsupport WebMIDI API. Please use WebMIDIAPIShim ' + e);
+			value: function onMIDIFailure() {
+				alert('No access to MIDI devices or your browser doesnt \
+				support WebMIDI API. Please use WebMIDIAPIShim');
 			}
 		}]);
 
@@ -9496,15 +9487,7 @@
 		function (v) {
 			return v;
 		});
-	var _pablobcb$elm_osiris$Ports$pulseWidthPort = _elm_lang$core$Native_Platform.outgoingPort(
-		'pulseWidthPort',
-		function (v) {
-			return v;
-		});
 
-	var _pablobcb$elm_osiris$Msg$PulseWidthChange = function (a) {
-		return {ctor: 'PulseWidthChange', _0: a};
-	};
 	var _pablobcb$elm_osiris$Msg$FMAmountChange = function (a) {
 		return {ctor: 'FMAmountChange', _0: a};
 	};
@@ -9758,12 +9741,6 @@
 						_1: _pablobcb$elm_osiris$Ports$oscillator2DetunePort(_p0._0)
 					};
 				case 'FMAmountChange':
-					return {
-						ctor: '_Tuple2',
-						_0: model,
-						_1: _pablobcb$elm_osiris$Ports$fmAmountPort(_p0._0)
-					};
-				case 'PulseWidthChange':
 					return {
 						ctor: '_Tuple2',
 						_0: model,
@@ -10084,38 +10061,6 @@
 				_elm_lang$core$Native_List.fromArray(
 					[]))
 			]));
-	var _pablobcb$elm_osiris$View_SynthPanel$pulseWidth = A2(
-		_elm_lang$html$Html$div,
-		_elm_lang$core$Native_List.fromArray(
-			[]),
-		_elm_lang$core$Native_List.fromArray(
-			[
-				A2(
-				_elm_lang$html$Html$span,
-				_elm_lang$core$Native_List.fromArray(
-					[]),
-				_elm_lang$core$Native_List.fromArray(
-					[
-						_elm_lang$html$Html$text('PW')
-					])),
-				A2(
-				_elm_lang$html$Html$input,
-				_elm_lang$core$Native_List.fromArray(
-					[
-						_elm_lang$html$Html_Attributes$type$('range'),
-						_elm_lang$html$Html_Attributes$min('50'),
-						_elm_lang$html$Html_Attributes$max('99'),
-						_elm_lang$html$Html_Attributes$value('50'),
-						_elm_lang$html$Html_Attributes$step('1'),
-						_elm_lang$html$Html_Events$onInput(
-						function (_p8) {
-							return _pablobcb$elm_osiris$Msg$PulseWidthChange(
-								_pablobcb$elm_osiris$View_SynthPanel$unsafeToFloat(_p8));
-						})
-					]),
-				_elm_lang$core$Native_List.fromArray(
-					[]))
-			]));
 	var _pablobcb$elm_osiris$View_SynthPanel$oscillator2WaveformRadio = F3(
 		function (waveform, name, model) {
 			var isSelected = _elm_lang$core$Native_Utils.eq(model.oscillator2Waveform, waveform);
@@ -10132,7 +10077,7 @@
 								_elm_lang$html$Html_Attributes$type$('radio'),
 								_elm_lang$html$Html_Attributes$checked(isSelected),
 								_elm_lang$html$Html_Events$onCheck(
-								function (_p9) {
+								function (_p8) {
 									return _pablobcb$elm_osiris$Msg$Oscillator2WaveformChange(waveform);
 								})
 							]),
@@ -10177,7 +10122,7 @@
 								_elm_lang$html$Html_Attributes$type$('radio'),
 								_elm_lang$html$Html_Attributes$checked(isSelected),
 								_elm_lang$html$Html_Events$onCheck(
-								function (_p10) {
+								function (_p9) {
 									return _pablobcb$elm_osiris$Msg$Oscillator1WaveformChange(waveform);
 								})
 							]),
@@ -10221,8 +10166,7 @@
 					_pablobcb$elm_osiris$View_SynthPanel$oscillator2Waveform(model),
 					_pablobcb$elm_osiris$View_SynthPanel$oscillator2Semitone,
 					_pablobcb$elm_osiris$View_SynthPanel$oscillator2Detune,
-					_pablobcb$elm_osiris$View_SynthPanel$fmAmount,
-					_pablobcb$elm_osiris$View_SynthPanel$pulseWidth
+					_pablobcb$elm_osiris$View_SynthPanel$fmAmount
 				]));
 	};
 	var _pablobcb$elm_osiris$View_SynthPanel$panelMiddleSection = function (model) {
@@ -10528,14 +10472,10 @@
 				return node;
 			};
 
-			if (!(midiAccess instanceof MIDIAccess)) {
-				throw new TypeError('Value of argument "midiAccess" violates contract.\n\nExpected:\nMIDIAccess\n\nGot:\n' + _inspect(midiAccess));
-			}
-
 			this.context = new AudioContext();
-			this.oscillators = {};
+			this.oscillators = [];
 
-			this.initializeMidiAccess(midiAccess);
+			if (midiAccess) this.initializeMidiAccess(midiAccess);
 
 			this.initializeMasterVolume();
 
@@ -10545,9 +10485,7 @@
 			this.oscillator2Waveform = 'sawtooth';
 			this.oscillator2Semitone = 0;
 			this.oscillator2Detune = 0;
-
-			this.initializeFMGain();
-			this.pulseWith = 0.5;
+			this.fmAmount = 0;
 		}
 
 		_createClass(AudioEngine, [{
@@ -10610,12 +10548,6 @@
 				this.oscillator2Gain.connect(this.masterVolume);
 			}
 		}, {
-			key: 'initializeFMGain',
-			value: function initializeFMGain() {
-				this.fmGain = this.context.createGain();
-				this.fmGain.gain.value = 0;
-			}
-		}, {
 			key: 'onMIDIMessage',
 			value: function onMIDIMessage(event) {
 				if (!(event instanceof Event)) {
@@ -10623,7 +10555,7 @@
 				}
 
 				var data = event.data;
-				console.log(event);
+				//console.log(event)
 				// var cmd = data[0] >> 4
 				// var channel = data[0] & 0xf
 
@@ -10674,36 +10606,38 @@
 
 				//if(this.oscillators[midiNote])
 				//return
-				var osc1 = this.oscillator1Waveform == 'square' ? this.createPulseOscillator() : this.context.createOscillator();
+
+				var osc1 = this.context.createOscillator();
 				var osc2 = this.context.createOscillator();
 
-				if (this.oscillator1Waveform == 'square') osc1.width.value = this.pulseWith;
-
-				// OSC1
 				osc1.type = this.oscillator1Waveform;
 				osc1.frequency.value = this.frequencyFromNoteNumber(midiNote);
 
-				osc1.connect(this.oscillator1Gain);
-
-				// OSC2
 				osc2.type = this.oscillator2Waveform;
 				osc2.frequency.value = this.frequencyFromNoteNumber(midiNote);
 				osc2.detune.value = this.oscillator2Detune + this.oscillator2Semitone;
 
 				osc2.connect(this.oscillator2Gain);
 
-				// FM
-				osc2.connect(this.fmGain);
-				this.fmGain.connect(osc1.frequency);
+				this.modGain = this.context.createGain();
+				this.modGain.gain.value = this.fmAmount;
+
+				osc2.connect(this.modGain);
+
+				this.modGain.connect(osc1.frequency);
+
+				osc1.connect(this.oscillator1Gain);
 
 				osc1.start(this.context.currentTime);
 				osc2.start(this.context.currentTime);
 
-				this.oscillators[midiNote.toString()] = [osc1, osc2];
+				this.oscillators[midiNote] = [osc1, osc2];
 			}
 		}, {
 			key: 'noteOff',
 			value: function noteOff(midiNote, velocity) {
+				var _this2 = this;
+
 				if (!(typeof midiNote === 'number')) {
 					throw new TypeError('Value of argument "midiNote" violates contract.\n\nExpected:\nnumber\n\nGot:\n' + _inspect(midiNote));
 				}
@@ -10714,35 +10648,26 @@
 
 				if (!this.oscillators[midiNote]) return;
 
-				var oscillator = this.oscillators[midiNote];
-
-				oscillator[0].stop(this.context.currentTime);
-				oscillator[1].stop(this.context.currentTime);
-
-				this.fmGain.disconnect(oscillator[0].frequency);
-				oscillator[0].disconnect(this.oscillator1Gain);
-				//oscillator[0] = null
-
-				oscillator[1].disconnect(this.fmGain);
-				oscillator[1].disconnect(this.oscillator2Gain);
-				//oscillator[1] = null
-
-				delete this.oscillators[midiNote];
-
-				//this.oscillators[midiNote].forEach(oscillator => {
-				//
-				//})		
+				this.oscillators[midiNote].forEach(function (oscillator) {
+					oscillator.stop(_this2.context.currentTime);
+					oscillator = null;
+				});
 			}
 		}, {
 			key: 'panic',
 			value: function panic() {
-				for (var midiNote in this.oscillators) {
-					if (this.oscillators.hasOwnProperty(midiNote)) {
-						this.oscillators[midiNote][0].stop(this.context.currentTime);
-						this.oscillators[midiNote][1].stop(this.context.currentTime);
+				var _this3 = this;
+
+				this.oscillators.forEach(function (oscillator) {
+					if (oscillator) {
+						oscillator.forEach(function (osc) {
+							osc.stop(_this3.context.currentTime);
+							osc = null;
+						});
+						oscillator = null;
 					}
-					delete this.oscillators[midiNote];
-				}
+				});
+				this.oscillators = [];
 			}
 		}, {
 			key: 'setMasterVolumeGain',
@@ -10776,115 +10701,72 @@
 		}, {
 			key: 'setOscillator2Semitone',
 			value: function setOscillator2Semitone(oscillatorSemitone) {
+				var _this4 = this;
+
 				if (!(typeof oscillatorSemitone === 'number')) {
 					throw new TypeError('Value of argument "oscillatorSemitone" violates contract.\n\nExpected:\nnumber\n\nGot:\n' + _inspect(oscillatorSemitone));
 				}
 
 				this.oscillator2Semitone = oscillatorSemitone * 100;
-				for (var midiNote in this.oscillators) {
-					if (this.oscillators.hasOwnProperty(midiNote)) {
-						this.oscillators[midiNote][1].detune.value = this.oscillator2Detune + this.oscillator2Semitone;
-					}
-				}
+				this.oscillators.forEach(function (oscillator) {
+					if (oscillator) oscillator[1].detune.value = _this4.oscillator2Detune + _this4.oscillator2Semitone;
+				});
 			}
 		}, {
 			key: 'setOscillator2Detune',
 			value: function setOscillator2Detune(oscillatorDetune) {
+				var _this5 = this;
+
 				if (!(typeof oscillatorDetune === 'number')) {
 					throw new TypeError('Value of argument "oscillatorDetune" violates contract.\n\nExpected:\nnumber\n\nGot:\n' + _inspect(oscillatorDetune));
 				}
 
 				this.oscillator2Detune = oscillatorDetune;
-				for (var midiNote in this.oscillators) {
-					if (this.oscillators.hasOwnProperty(midiNote)) {
-						this.oscillators[midiNote][1].detune.value = this.oscillator2Detune + this.oscillator2Semitone;
-					}
-				}
+				this.oscillators.forEach(function (oscillator) {
+					if (oscillator) oscillator[1].detune.value = _this5.oscillator2Detune + _this5.oscillator2Semitone;
+				});
 			}
 		}, {
-			key: 'setFmAmount',
-			value: function setFmAmount(fmAmount) {
+			key: 'setSetFmAmount',
+			value: function setSetFmAmount(fmAmount) {
+				var _this6 = this;
+
 				if (!(typeof fmAmount === 'number')) {
 					throw new TypeError('Value of argument "fmAmount" violates contract.\n\nExpected:\nnumber\n\nGot:\n' + _inspect(fmAmount));
 				}
 
-				this.fmGain.gain.value = fmAmount * 10;
-			}
-		}, {
-			key: 'setPulseWidth',
-			value: function setPulseWidth(pulseWith) {
-				if (!(typeof pulseWith === 'number')) {
-					throw new TypeError('Value of argument "pulseWith" violates contract.\n\nExpected:\nnumber\n\nGot:\n' + _inspect(pulseWith));
-				}
-
-				this.pulseWith = pulseWith / 100;
-				/*this.oscillators.forEach(oscillator => {
-	   	if(oscillator) {
-	   		if(oscillator[0].type == 'square')
-	   			oscillator[0].width = this.pulseWith
-	   	}
-	   })*/
+				this.fmAmount = fmAmount * 10;
+				this.oscillators.forEach(function (oscillator) {
+					if (oscillator) _this6.modGain.gain.value = _this6.fmAmount;
+				});
 			}
 		}, {
 			key: 'setOscillator1Waveform',
-			value: function setOscillator1Waveform(waveform_) {
+			value: function setOscillator1Waveform(waveform) {
+				var _this7 = this;
+
 				var validWaveforms = ['sine', 'triangle', 'sawtooth', 'square'];
-				var waveform = waveform_.toLowerCase();
-				var lastWaveform = this.oscillator1Waveform;
 
-				if (validWaveforms.indexOf(waveform) == -1) throw new Error('Invalid Waveform Type');
+				if (validWaveforms.indexOf(waveform.toLowerCase()) == -1) throw new Error('Invalid Waveform Type');
 
-				this.oscillator1Waveform = waveform;
-				//this.oscillator1Waveform = waveform.toLowerCase()
-				for (var midiNote in this.oscillators) {
-					if (this.oscillators.hasOwnProperty(midiNote)) {
-						/*if(lastWaveform == 'square') {
-	     	console.log("ERA SQUARE")
-	     	
-	     	const osc1 = this.context.createOscillator()
-	     	osc1.type = this.oscillator1Waveform
-	     	osc1.frequency.value = oscillator[0].frequency.value
-	     	
-	     	this.modGain.disconnect(oscillator[0].frequency)
-	     	this.modGain.connect(osc1.frequency)
-	     		oscillator[0].disconnect(this.oscillator1Gain)
-	     	osc1.connect(this.oscillator1Gain)
-	     		osc1.start(this.context.currentTime)
-	     		oscillator[0] = osc1
-	     }*/
-
-						//console.log("VIROU " + this.oscillator1Waveform)
-						this.oscillators[midiNote][0].type = this.oscillator1Waveform;
-
-						/*if(waveform == 'square') {
-	     	console.log("VIROU SQUARE")
-	     	const pulseOsc = this.createPulseOscillator()
-	     	pulseOsc.frequency.value = oscillator[0].frequency.value
-	     	pulseOsc.type = waveform
-	     	pulseOsc.width = this.pulseWith
-	     		this.modGain.disconnect(oscillator[0].frequency)
-	     	this.modGain.connect(pulseOsc.frequency)
-	     		oscillator[0].disconnect(this.oscillator1Gain)
-	     	pulseOsc.connect(this.oscillator1Gain)
-	     		pulseOsc.start(this.context.currentTime)
-	     		oscillator[0] = pulseOsc
-	     }*/
-					}
-				}
+				this.oscillator1Waveform = waveform.toLowerCase();
+				this.oscillators.forEach(function (oscillator) {
+					if (oscillator) oscillator[0].type = _this7.oscillator1Waveform;
+				});
 			}
 		}, {
 			key: 'setOscillator2Waveform',
 			value: function setOscillator2Waveform(waveform) {
+				var _this8 = this;
+
 				var validWaveforms = ['triangle', 'sawtooth', 'square'];
 
 				if (validWaveforms.indexOf(waveform.toLowerCase()) == -1) throw new Error('Invalid Waveform Type');
 
 				this.oscillator2Waveform = waveform.toLowerCase();
-				for (var midiNote in this.oscillators) {
-					if (this.oscillators.hasOwnProperty(midiNote)) {
-						this.oscillators[midiNote][1].type = this.oscillator2Waveform;
-					}
-				}
+				this.oscillators.forEach(function (oscillator) {
+					if (oscillator) oscillator[1].type = _this8.oscillator2Waveform;
+				});
 			}
 		}]);
 
