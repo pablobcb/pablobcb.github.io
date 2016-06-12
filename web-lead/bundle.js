@@ -3733,199 +3733,6 @@
 		});
 	var _elm_lang$core$Array$Array = {ctor: 'Array'};
 
-	var _elm_community$maybe_extra$Maybe_Extra$filter = F2(
-		function (f, m) {
-			var _p0 = A2(_elm_lang$core$Maybe$map, f, m);
-			if ((_p0.ctor === 'Just') && (_p0._0 === true)) {
-				return m;
-			} else {
-				return _elm_lang$core$Maybe$Nothing;
-			}
-		});
-	var _elm_community$maybe_extra$Maybe_Extra$traverseArray = function (f) {
-		var step = F2(
-			function (e, acc) {
-				var _p1 = f(e);
-				if (_p1.ctor === 'Nothing') {
-					return _elm_lang$core$Maybe$Nothing;
-				} else {
-					return A2(
-						_elm_lang$core$Maybe$map,
-						_elm_lang$core$Array$push(_p1._0),
-						acc);
-				}
-			});
-		return A2(
-			_elm_lang$core$Array$foldl,
-			step,
-			_elm_lang$core$Maybe$Just(_elm_lang$core$Array$empty));
-	};
-	var _elm_community$maybe_extra$Maybe_Extra$combineArray = _elm_community$maybe_extra$Maybe_Extra$traverseArray(_elm_lang$core$Basics$identity);
-	var _elm_community$maybe_extra$Maybe_Extra$traverse = function (f) {
-		var step = F2(
-			function (e, acc) {
-				var _p2 = f(e);
-				if (_p2.ctor === 'Nothing') {
-					return _elm_lang$core$Maybe$Nothing;
-				} else {
-					return A2(
-						_elm_lang$core$Maybe$map,
-						F2(
-							function (x, y) {
-								return A2(_elm_lang$core$List_ops['::'], x, y);
-							})(_p2._0),
-						acc);
-				}
-			});
-		return A2(
-			_elm_lang$core$List$foldr,
-			step,
-			_elm_lang$core$Maybe$Just(
-				_elm_lang$core$Native_List.fromArray(
-					[])));
-	};
-	var _elm_community$maybe_extra$Maybe_Extra$combine = _elm_community$maybe_extra$Maybe_Extra$traverse(_elm_lang$core$Basics$identity);
-	var _elm_community$maybe_extra$Maybe_Extra$maybeToArray = function (m) {
-		var _p3 = m;
-		if (_p3.ctor === 'Nothing') {
-			return _elm_lang$core$Array$empty;
-		} else {
-			return A2(_elm_lang$core$Array$repeat, 1, _p3._0);
-		}
-	};
-	var _elm_community$maybe_extra$Maybe_Extra$maybeToList = function (m) {
-		var _p4 = m;
-		if (_p4.ctor === 'Nothing') {
-			return _elm_lang$core$Native_List.fromArray(
-				[]);
-		} else {
-			return _elm_lang$core$Native_List.fromArray(
-				[_p4._0]);
-		}
-	};
-	var _elm_community$maybe_extra$Maybe_Extra$or = F2(
-		function (ma, mb) {
-			var _p5 = ma;
-			if (_p5.ctor === 'Nothing') {
-				return mb;
-			} else {
-				return ma;
-			}
-		});
-	var _elm_community$maybe_extra$Maybe_Extra$prev = _elm_lang$core$Maybe$map2(_elm_lang$core$Basics$always);
-	var _elm_community$maybe_extra$Maybe_Extra$next = _elm_lang$core$Maybe$map2(
-		_elm_lang$core$Basics$flip(_elm_lang$core$Basics$always));
-	var _elm_community$maybe_extra$Maybe_Extra$andMap = F2(
-		function (f, x) {
-			return A2(
-				_elm_lang$core$Maybe$andThen,
-				x,
-				function (x$) {
-					return A2(
-						_elm_lang$core$Maybe$andThen,
-						f,
-						function (f$) {
-							return _elm_lang$core$Maybe$Just(
-								f$(x$));
-						});
-				});
-		});
-	var _elm_community$maybe_extra$Maybe_Extra$mapDefault = F3(
-		function (d, f, m) {
-			var _p6 = m;
-			if (_p6.ctor === 'Nothing') {
-				return d;
-			} else {
-				return f(_p6._0);
-			}
-		});
-	var _elm_community$maybe_extra$Maybe_Extra$isJust = function (m) {
-		var _p7 = m;
-		if (_p7.ctor === 'Nothing') {
-			return false;
-		} else {
-			return true;
-		}
-	};
-	var _elm_community$maybe_extra$Maybe_Extra$isNothing = function (m) {
-		var _p8 = m;
-		if (_p8.ctor === 'Nothing') {
-			return true;
-		} else {
-			return false;
-		}
-	};
-	var _elm_community$maybe_extra$Maybe_Extra$join = function (mx) {
-		var _p9 = mx;
-		if (_p9.ctor === 'Just') {
-			return _p9._0;
-		} else {
-			return _elm_lang$core$Maybe$Nothing;
-		}
-	};
-	var _elm_community$maybe_extra$Maybe_Extra_ops = _elm_community$maybe_extra$Maybe_Extra_ops || {};
-	_elm_community$maybe_extra$Maybe_Extra_ops['?'] = F2(
-		function (mx, x) {
-			return A2(_elm_lang$core$Maybe$withDefault, x, mx);
-		});
-
-	//import Native.Utils //
-
-	var _elm_lang$core$Native_Char = function() {
-
-	return {
-		fromCode: function(c) { return _elm_lang$core$Native_Utils.chr(String.fromCharCode(c)); },
-		toCode: function(c) { return c.charCodeAt(0); },
-		toUpper: function(c) { return _elm_lang$core$Native_Utils.chr(c.toUpperCase()); },
-		toLower: function(c) { return _elm_lang$core$Native_Utils.chr(c.toLowerCase()); },
-		toLocaleUpper: function(c) { return _elm_lang$core$Native_Utils.chr(c.toLocaleUpperCase()); },
-		toLocaleLower: function(c) { return _elm_lang$core$Native_Utils.chr(c.toLocaleLowerCase()); }
-	};
-
-	}();
-	var _elm_lang$core$Char$fromCode = _elm_lang$core$Native_Char.fromCode;
-	var _elm_lang$core$Char$toCode = _elm_lang$core$Native_Char.toCode;
-	var _elm_lang$core$Char$toLocaleLower = _elm_lang$core$Native_Char.toLocaleLower;
-	var _elm_lang$core$Char$toLocaleUpper = _elm_lang$core$Native_Char.toLocaleUpper;
-	var _elm_lang$core$Char$toLower = _elm_lang$core$Native_Char.toLower;
-	var _elm_lang$core$Char$toUpper = _elm_lang$core$Native_Char.toUpper;
-	var _elm_lang$core$Char$isBetween = F3(
-		function (low, high, $char) {
-			var code = _elm_lang$core$Char$toCode($char);
-			return (_elm_lang$core$Native_Utils.cmp(
-				code,
-				_elm_lang$core$Char$toCode(low)) > -1) && (_elm_lang$core$Native_Utils.cmp(
-				code,
-				_elm_lang$core$Char$toCode(high)) < 1);
-		});
-	var _elm_lang$core$Char$isUpper = A2(
-		_elm_lang$core$Char$isBetween,
-		_elm_lang$core$Native_Utils.chr('A'),
-		_elm_lang$core$Native_Utils.chr('Z'));
-	var _elm_lang$core$Char$isLower = A2(
-		_elm_lang$core$Char$isBetween,
-		_elm_lang$core$Native_Utils.chr('a'),
-		_elm_lang$core$Native_Utils.chr('z'));
-	var _elm_lang$core$Char$isDigit = A2(
-		_elm_lang$core$Char$isBetween,
-		_elm_lang$core$Native_Utils.chr('0'),
-		_elm_lang$core$Native_Utils.chr('9'));
-	var _elm_lang$core$Char$isOctDigit = A2(
-		_elm_lang$core$Char$isBetween,
-		_elm_lang$core$Native_Utils.chr('0'),
-		_elm_lang$core$Native_Utils.chr('7'));
-	var _elm_lang$core$Char$isHexDigit = function ($char) {
-		return _elm_lang$core$Char$isDigit($char) || (A3(
-			_elm_lang$core$Char$isBetween,
-			_elm_lang$core$Native_Utils.chr('a'),
-			_elm_lang$core$Native_Utils.chr('f'),
-			$char) || A3(
-			_elm_lang$core$Char$isBetween,
-			_elm_lang$core$Native_Utils.chr('A'),
-			_elm_lang$core$Native_Utils.chr('F'),
-			$char));
-	};
-
 	var _elm_lang$core$Task$onError = _elm_lang$core$Native_Scheduler.onError;
 	var _elm_lang$core$Task$andThen = _elm_lang$core$Native_Scheduler.andThen;
 	var _elm_lang$core$Task$spawnCmd = F2(
@@ -4486,6 +4293,63 @@
 	};
 
 	}();
+	//import Native.Utils //
+
+	var _elm_lang$core$Native_Char = function() {
+
+	return {
+		fromCode: function(c) { return _elm_lang$core$Native_Utils.chr(String.fromCharCode(c)); },
+		toCode: function(c) { return c.charCodeAt(0); },
+		toUpper: function(c) { return _elm_lang$core$Native_Utils.chr(c.toUpperCase()); },
+		toLower: function(c) { return _elm_lang$core$Native_Utils.chr(c.toLowerCase()); },
+		toLocaleUpper: function(c) { return _elm_lang$core$Native_Utils.chr(c.toLocaleUpperCase()); },
+		toLocaleLower: function(c) { return _elm_lang$core$Native_Utils.chr(c.toLocaleLowerCase()); }
+	};
+
+	}();
+	var _elm_lang$core$Char$fromCode = _elm_lang$core$Native_Char.fromCode;
+	var _elm_lang$core$Char$toCode = _elm_lang$core$Native_Char.toCode;
+	var _elm_lang$core$Char$toLocaleLower = _elm_lang$core$Native_Char.toLocaleLower;
+	var _elm_lang$core$Char$toLocaleUpper = _elm_lang$core$Native_Char.toLocaleUpper;
+	var _elm_lang$core$Char$toLower = _elm_lang$core$Native_Char.toLower;
+	var _elm_lang$core$Char$toUpper = _elm_lang$core$Native_Char.toUpper;
+	var _elm_lang$core$Char$isBetween = F3(
+		function (low, high, $char) {
+			var code = _elm_lang$core$Char$toCode($char);
+			return (_elm_lang$core$Native_Utils.cmp(
+				code,
+				_elm_lang$core$Char$toCode(low)) > -1) && (_elm_lang$core$Native_Utils.cmp(
+				code,
+				_elm_lang$core$Char$toCode(high)) < 1);
+		});
+	var _elm_lang$core$Char$isUpper = A2(
+		_elm_lang$core$Char$isBetween,
+		_elm_lang$core$Native_Utils.chr('A'),
+		_elm_lang$core$Native_Utils.chr('Z'));
+	var _elm_lang$core$Char$isLower = A2(
+		_elm_lang$core$Char$isBetween,
+		_elm_lang$core$Native_Utils.chr('a'),
+		_elm_lang$core$Native_Utils.chr('z'));
+	var _elm_lang$core$Char$isDigit = A2(
+		_elm_lang$core$Char$isBetween,
+		_elm_lang$core$Native_Utils.chr('0'),
+		_elm_lang$core$Native_Utils.chr('9'));
+	var _elm_lang$core$Char$isOctDigit = A2(
+		_elm_lang$core$Char$isBetween,
+		_elm_lang$core$Native_Utils.chr('0'),
+		_elm_lang$core$Native_Utils.chr('7'));
+	var _elm_lang$core$Char$isHexDigit = function ($char) {
+		return _elm_lang$core$Char$isDigit($char) || (A3(
+			_elm_lang$core$Char$isBetween,
+			_elm_lang$core$Native_Utils.chr('a'),
+			_elm_lang$core$Native_Utils.chr('f'),
+			$char) || A3(
+			_elm_lang$core$Char$isBetween,
+			_elm_lang$core$Native_Utils.chr('A'),
+			_elm_lang$core$Native_Utils.chr('F'),
+			$char));
+	};
+
 	var _elm_lang$core$String$fromList = _elm_lang$core$Native_String.fromList;
 	var _elm_lang$core$String$toList = _elm_lang$core$Native_String.toList;
 	var _elm_lang$core$String$toFloat = _elm_lang$core$Native_String.toFloat;
@@ -5622,6 +5486,142 @@
 				});
 		});
 	_elm_lang$core$Native_Platform.effectManagers['Time'] = {pkg: 'elm-lang/core', init: _elm_lang$core$Time$init, onEffects: _elm_lang$core$Time$onEffects, onSelfMsg: _elm_lang$core$Time$onSelfMsg, tag: 'sub', subMap: _elm_lang$core$Time$subMap};
+
+	var _elm_community$maybe_extra$Maybe_Extra$filter = F2(
+		function (f, m) {
+			var _p0 = A2(_elm_lang$core$Maybe$map, f, m);
+			if ((_p0.ctor === 'Just') && (_p0._0 === true)) {
+				return m;
+			} else {
+				return _elm_lang$core$Maybe$Nothing;
+			}
+		});
+	var _elm_community$maybe_extra$Maybe_Extra$traverseArray = function (f) {
+		var step = F2(
+			function (e, acc) {
+				var _p1 = f(e);
+				if (_p1.ctor === 'Nothing') {
+					return _elm_lang$core$Maybe$Nothing;
+				} else {
+					return A2(
+						_elm_lang$core$Maybe$map,
+						_elm_lang$core$Array$push(_p1._0),
+						acc);
+				}
+			});
+		return A2(
+			_elm_lang$core$Array$foldl,
+			step,
+			_elm_lang$core$Maybe$Just(_elm_lang$core$Array$empty));
+	};
+	var _elm_community$maybe_extra$Maybe_Extra$combineArray = _elm_community$maybe_extra$Maybe_Extra$traverseArray(_elm_lang$core$Basics$identity);
+	var _elm_community$maybe_extra$Maybe_Extra$traverse = function (f) {
+		var step = F2(
+			function (e, acc) {
+				var _p2 = f(e);
+				if (_p2.ctor === 'Nothing') {
+					return _elm_lang$core$Maybe$Nothing;
+				} else {
+					return A2(
+						_elm_lang$core$Maybe$map,
+						F2(
+							function (x, y) {
+								return A2(_elm_lang$core$List_ops['::'], x, y);
+							})(_p2._0),
+						acc);
+				}
+			});
+		return A2(
+			_elm_lang$core$List$foldr,
+			step,
+			_elm_lang$core$Maybe$Just(
+				_elm_lang$core$Native_List.fromArray(
+					[])));
+	};
+	var _elm_community$maybe_extra$Maybe_Extra$combine = _elm_community$maybe_extra$Maybe_Extra$traverse(_elm_lang$core$Basics$identity);
+	var _elm_community$maybe_extra$Maybe_Extra$maybeToArray = function (m) {
+		var _p3 = m;
+		if (_p3.ctor === 'Nothing') {
+			return _elm_lang$core$Array$empty;
+		} else {
+			return A2(_elm_lang$core$Array$repeat, 1, _p3._0);
+		}
+	};
+	var _elm_community$maybe_extra$Maybe_Extra$maybeToList = function (m) {
+		var _p4 = m;
+		if (_p4.ctor === 'Nothing') {
+			return _elm_lang$core$Native_List.fromArray(
+				[]);
+		} else {
+			return _elm_lang$core$Native_List.fromArray(
+				[_p4._0]);
+		}
+	};
+	var _elm_community$maybe_extra$Maybe_Extra$or = F2(
+		function (ma, mb) {
+			var _p5 = ma;
+			if (_p5.ctor === 'Nothing') {
+				return mb;
+			} else {
+				return ma;
+			}
+		});
+	var _elm_community$maybe_extra$Maybe_Extra$prev = _elm_lang$core$Maybe$map2(_elm_lang$core$Basics$always);
+	var _elm_community$maybe_extra$Maybe_Extra$next = _elm_lang$core$Maybe$map2(
+		_elm_lang$core$Basics$flip(_elm_lang$core$Basics$always));
+	var _elm_community$maybe_extra$Maybe_Extra$andMap = F2(
+		function (f, x) {
+			return A2(
+				_elm_lang$core$Maybe$andThen,
+				x,
+				function (x$) {
+					return A2(
+						_elm_lang$core$Maybe$andThen,
+						f,
+						function (f$) {
+							return _elm_lang$core$Maybe$Just(
+								f$(x$));
+						});
+				});
+		});
+	var _elm_community$maybe_extra$Maybe_Extra$mapDefault = F3(
+		function (d, f, m) {
+			var _p6 = m;
+			if (_p6.ctor === 'Nothing') {
+				return d;
+			} else {
+				return f(_p6._0);
+			}
+		});
+	var _elm_community$maybe_extra$Maybe_Extra$isJust = function (m) {
+		var _p7 = m;
+		if (_p7.ctor === 'Nothing') {
+			return false;
+		} else {
+			return true;
+		}
+	};
+	var _elm_community$maybe_extra$Maybe_Extra$isNothing = function (m) {
+		var _p8 = m;
+		if (_p8.ctor === 'Nothing') {
+			return true;
+		} else {
+			return false;
+		}
+	};
+	var _elm_community$maybe_extra$Maybe_Extra$join = function (mx) {
+		var _p9 = mx;
+		if (_p9.ctor === 'Just') {
+			return _p9._0;
+		} else {
+			return _elm_lang$core$Maybe$Nothing;
+		}
+	};
+	var _elm_community$maybe_extra$Maybe_Extra_ops = _elm_community$maybe_extra$Maybe_Extra_ops || {};
+	_elm_community$maybe_extra$Maybe_Extra_ops['?'] = F2(
+		function (mx, x) {
+			return A2(_elm_lang$core$Maybe$withDefault, x, mx);
+		});
 
 	//import Maybe, Native.Array, Native.List, Native.Utils, Result //
 
@@ -8451,7 +8451,8 @@
 						_elm_lang$html$Html_Events$on,
 						'dragstart',
 						positionMap(_pablobcb$elm_lead$Knob$MouseDragStart)),
-						_elm_lang$html$Html_Attributes$style(_pablobcb$elm_lead$Knob$knobStyle)
+						_elm_lang$html$Html_Attributes$style(_pablobcb$elm_lead$Knob$knobStyle),
+						_elm_lang$html$Html_Attributes$class('knob-dialer')
 					]),
 				_elm_lang$core$Native_List.fromArray(
 					[
@@ -9444,6 +9445,15 @@
 		function (_) {
 			return _.oscillator2Waveform;
 		});
+	var _pablobcb$elm_lead$View_Panel$column = function (content) {
+		return A2(
+			_elm_lang$html$Html$div,
+			_elm_lang$core$Native_List.fromArray(
+				[
+					_elm_lang$html$Html_Attributes$class('panel__column')
+				]),
+			content);
+	};
 	var _pablobcb$elm_lead$View_Panel$section = F2(
 		function (title, content) {
 			return A2(
@@ -9470,8 +9480,7 @@
 							[
 								_elm_lang$html$Html_Attributes$class('section__content')
 							]),
-						_elm_lang$core$Native_List.fromArray(
-							[content]))
+						content)
 					]));
 		});
 	var _pablobcb$elm_lead$View_Panel$nordKnob = F4(
@@ -9498,92 +9507,51 @@
 					]));
 		});
 	var _pablobcb$elm_lead$View_Panel$amplifier = function (model) {
+		var knob = A2(
+			_pablobcb$elm_lead$View_Panel$nordKnob,
+			_elm_lang$core$Basics$always(_pablobcb$elm_lead$Msg$NoOp),
+			_elm_lang$core$Basics$always(_elm_lang$core$Platform_Cmd$none));
 		return A2(
-			_elm_lang$html$Html$div,
+			_pablobcb$elm_lead$View_Panel$section,
+			'amplifier',
 			_elm_lang$core$Native_List.fromArray(
 				[
-					_elm_lang$html$Html_Attributes$class('amplifier')
-				]),
-			_elm_lang$core$Native_List.fromArray(
-				[
-					A4(
-					_pablobcb$elm_lead$View_Panel$nordKnob,
-					_elm_lang$core$Basics$always(_pablobcb$elm_lead$Msg$NoOp),
-					_elm_lang$core$Basics$always(_elm_lang$core$Platform_Cmd$none),
-					model.ampAttackKnob,
-					'attack'),
-					A4(
-					_pablobcb$elm_lead$View_Panel$nordKnob,
-					_elm_lang$core$Basics$always(_pablobcb$elm_lead$Msg$NoOp),
-					_elm_lang$core$Basics$always(_elm_lang$core$Platform_Cmd$none),
-					model.ampDecayKnob,
-					'decay'),
-					A4(
-					_pablobcb$elm_lead$View_Panel$nordKnob,
-					_elm_lang$core$Basics$always(_pablobcb$elm_lead$Msg$NoOp),
-					_elm_lang$core$Basics$always(_elm_lang$core$Platform_Cmd$none),
-					model.ampSustainKnob,
-					'sustain'),
-					A4(
-					_pablobcb$elm_lead$View_Panel$nordKnob,
-					_elm_lang$core$Basics$always(_pablobcb$elm_lead$Msg$NoOp),
-					_elm_lang$core$Basics$always(_elm_lang$core$Platform_Cmd$none),
-					model.ampReleaseKnob,
-					'release'),
+					A2(knob, model.ampAttackKnob, 'attack'),
+					A2(knob, model.ampDecayKnob, 'decay'),
+					A2(knob, model.ampSustainKnob, 'sustain'),
+					A2(knob, model.ampReleaseKnob, 'release'),
 					A4(_pablobcb$elm_lead$View_Panel$nordKnob, _pablobcb$elm_lead$Msg$MasterVolumeChange, _pablobcb$elm_lead$Ports$masterVolumePort, model.masterVolumeKnob, 'gain')
 				]));
 	};
 	var _pablobcb$elm_lead$View_Panel$filter = function (model) {
+		var knob = A2(
+			_pablobcb$elm_lead$View_Panel$nordKnob,
+			_elm_lang$core$Basics$always(_pablobcb$elm_lead$Msg$NoOp),
+			_elm_lang$core$Basics$always(_elm_lang$core$Platform_Cmd$none));
 		return A2(
-			_elm_lang$html$Html$div,
+			_pablobcb$elm_lead$View_Panel$section,
+			'filter',
 			_elm_lang$core$Native_List.fromArray(
 				[
-					_elm_lang$html$Html_Attributes$class('filter')
-				]),
-			_elm_lang$core$Native_List.fromArray(
-				[
-					A4(
-					_pablobcb$elm_lead$View_Panel$nordKnob,
-					_elm_lang$core$Basics$always(_pablobcb$elm_lead$Msg$NoOp),
-					_elm_lang$core$Basics$always(_elm_lang$core$Platform_Cmd$none),
-					model.filterAttackKnob,
-					'attack'),
-					A4(
-					_pablobcb$elm_lead$View_Panel$nordKnob,
-					_elm_lang$core$Basics$always(_pablobcb$elm_lead$Msg$NoOp),
-					_elm_lang$core$Basics$always(_elm_lang$core$Platform_Cmd$none),
-					model.filterDecayKnob,
-					'decay'),
-					A4(
-					_pablobcb$elm_lead$View_Panel$nordKnob,
-					_elm_lang$core$Basics$always(_pablobcb$elm_lead$Msg$NoOp),
-					_elm_lang$core$Basics$always(_elm_lang$core$Platform_Cmd$none),
-					model.filterSustainKnob,
-					'sustain'),
-					A4(
-					_pablobcb$elm_lead$View_Panel$nordKnob,
-					_elm_lang$core$Basics$always(_pablobcb$elm_lead$Msg$NoOp),
-					_elm_lang$core$Basics$always(_elm_lang$core$Platform_Cmd$none),
-					model.filterReleaseKnob,
-					'release')
+					A2(knob, model.filterAttackKnob, 'attack'),
+					A2(knob, model.filterDecayKnob, 'decay'),
+					A2(knob, model.filterSustainKnob, 'sustain'),
+					A2(knob, model.filterReleaseKnob, 'release')
 				]));
 	};
 	var _pablobcb$elm_lead$View_Panel$oscillators = function (model) {
 		return A2(
-			_elm_lang$html$Html$div,
+			_pablobcb$elm_lead$View_Panel$section,
+			'oscillators',
 			_elm_lang$core$Native_List.fromArray(
 				[
-					_elm_lang$html$Html_Attributes$class('oscillators')
-				]),
-			_elm_lang$core$Native_List.fromArray(
-				[
+					A2(_pablobcb$elm_lead$View_Panel$oscillator1Waveform, model, _pablobcb$elm_lead$Msg$Oscillator1WaveformChange),
+					A2(_pablobcb$elm_lead$View_Panel$oscillator2Waveform, model, _pablobcb$elm_lead$Msg$Oscillator2WaveformChange),
 					A4(_pablobcb$elm_lead$View_Panel$nordKnob, _pablobcb$elm_lead$Msg$OscillatorsMixChange, _pablobcb$elm_lead$Ports$oscillatorsBalancePort, model.oscillatorsMixKnob, 'mix'),
 					A4(_pablobcb$elm_lead$View_Panel$nordKnob, _pablobcb$elm_lead$Msg$Oscillator2SemitoneChange, _pablobcb$elm_lead$Ports$oscillator2SemitonePort, model.oscillator2SemitoneKnob, 'semitone'),
 					A4(_pablobcb$elm_lead$View_Panel$nordKnob, _pablobcb$elm_lead$Msg$Oscillator2DetuneChange, _pablobcb$elm_lead$Ports$oscillator2DetunePort, model.oscillator2DetuneKnob, 'detune'),
 					A4(_pablobcb$elm_lead$View_Panel$nordKnob, _pablobcb$elm_lead$Msg$FMAmountChange, _pablobcb$elm_lead$Ports$fmAmountPort, model.fmAmountKnob, 'FM'),
-					A4(_pablobcb$elm_lead$View_Panel$nordKnob, _pablobcb$elm_lead$Msg$PulseWidthChange, _pablobcb$elm_lead$Ports$pulseWidthPort, model.pulseWidthKnob, 'PW'),
-					A2(_pablobcb$elm_lead$View_Panel$oscillator1Waveform, model, _pablobcb$elm_lead$Msg$Oscillator1WaveformChange),
-					A2(_pablobcb$elm_lead$View_Panel$oscillator2Waveform, model, _pablobcb$elm_lead$Msg$Oscillator2WaveformChange)
+					A4(_pablobcb$elm_lead$View_Panel$nordKnob, _pablobcb$elm_lead$Msg$PulseWidthChange, _pablobcb$elm_lead$Ports$pulseWidthPort, model.pulseWidthKnob, 'PW')
 				]));
 	};
 	var _pablobcb$elm_lead$View_Panel$panel = function (model) {
@@ -9595,47 +9563,41 @@
 				]),
 			_elm_lang$core$Native_List.fromArray(
 				[
-					A2(
-					_elm_lang$html$Html$div,
-					_elm_lang$core$Native_List.fromArray(
-						[
-							_elm_lang$html$Html_Attributes$class('modulators')
-						]),
+					_pablobcb$elm_lead$View_Panel$column(
 					_elm_lang$core$Native_List.fromArray(
 						[
 							A2(
 							_pablobcb$elm_lead$View_Panel$section,
 							'lfo1',
-							_elm_lang$html$Html$text('breno')),
+							_elm_lang$core$Native_List.fromArray(
+								[
+									_elm_lang$html$Html$text('breno')
+								])),
 							A2(
 							_pablobcb$elm_lead$View_Panel$section,
 							'lfo2',
-							_elm_lang$html$Html$text('magro')),
+							_elm_lang$core$Native_List.fromArray(
+								[
+									_elm_lang$html$Html$text('magro')
+								])),
 							A2(
 							_pablobcb$elm_lead$View_Panel$section,
 							'mod env',
-							_elm_lang$html$Html$text('forest psy'))
+							_elm_lang$core$Native_List.fromArray(
+								[
+									_elm_lang$html$Html$text('forest psy')
+								]))
 						])),
-					A2(
-					_pablobcb$elm_lead$View_Panel$section,
-					'oscillators',
-					_pablobcb$elm_lead$View_Panel$oscillators(model)),
-					A2(
-					_elm_lang$html$Html$div,
+					_pablobcb$elm_lead$View_Panel$column(
 					_elm_lang$core$Native_List.fromArray(
 						[
-							_elm_lang$html$Html_Attributes$class('ampAndFilter')
-						]),
+							_pablobcb$elm_lead$View_Panel$oscillators(model)
+						])),
+					_pablobcb$elm_lead$View_Panel$column(
 					_elm_lang$core$Native_List.fromArray(
 						[
-							A2(
-							_pablobcb$elm_lead$View_Panel$section,
-							'amplifier',
-							_pablobcb$elm_lead$View_Panel$amplifier(model)),
-							A2(
-							_pablobcb$elm_lead$View_Panel$section,
-							'filter',
-							_pablobcb$elm_lead$View_Panel$filter(model))
+							_pablobcb$elm_lead$View_Panel$amplifier(model),
+							_pablobcb$elm_lead$View_Panel$filter(model)
 						]))
 				]));
 	};
@@ -10545,7 +10507,7 @@
 
 
 	// module
-	exports.push([module.id, "body {\n  margin: 0;\n  height: 100vh;\n  -webkit-user-select: none;\n     -moz-user-select: none;\n      -ms-user-select: none;\n          user-select: none;\n  background: #222;\n  cursor: default;\n  font-family: 'Helvetica Neue', Helvetica, sans-serif;\n  background: #ad131d;\n}\n.dashboard {\n  height: 100vh;\n  width: 100vw;\n  display: -webkit-box;\n  display: -ms-flexbox;\n  display: flex;\n  -webkit-box-orient: vertical;\n  -webkit-box-direction: normal;\n      -ms-flex-direction: column;\n          flex-direction: column;\n}\n.keyboard {\n  margin: 1rem;\n  padding: 0;\n  -webkit-box-flex: 2;\n      -ms-flex-positive: 2;\n          flex-grow: 2;\n  display: -webkit-box;\n  display: -ms-flexbox;\n  display: flex;\n  -webkit-box-align: end;\n      -ms-flex-align: end;\n          align-items: flex-end;\n  -webkit-box-pack: center;\n      -ms-flex-pack: center;\n          justify-content: center;\n}\n.keyboard .key {\n  margin: 0;\n  padding: 0;\n  list-style: none;\n  position: relative;\n  float: left;\n}\n.keyboard .key.lower {\n  height: 3rem;\n  width: 1rem;\n  z-index: 1;\n  border-left: 0.03125rem solid;\n  border-bottom: 0.03125rem solid #bbb;\n  background: -webkit-linear-gradient(top, #eee 0, #fff 100%);\n  background: linear-gradient(to bottom, #eee 0, #fff 100%);\n}\n.keyboard .key.lower:active {\n  border-top: 0.03125rem solid #777;\n  border-left: 0.03125rem solid #999;\n  border-bottom: 0.03125rem solid #999;\n  background: -webkit-linear-gradient(top, #fff 0, #e9e9e9 100%);\n  background: linear-gradient(to bottom, #fff 0, #e9e9e9 100%);\n  box-shadow: 2px 0 3px rgba(0,0,0,0.1) inset, -5px 5px 20px rgba(0,0,0,0.2) inset, 0 0 3px rgba(0,0,0,0.2);\n}\n.keyboard .key.lower.pressed {\n  background: -webkit-linear-gradient(top, #fff 0, #e9e9e9 100%);\n  background: linear-gradient(to bottom, #fff 0, #e9e9e9 100%);\n  box-shadow: 2px 0 3px rgba(0,0,0,0.1) inset, -5px 5px 20px rgba(0,0,0,0.2) inset, 0 0 3px rgba(0,0,0,0.2);\n}\n.keyboard .key.higher {\n  height: 1.5rem;\n  width: 0.5rem;\n  margin: 0;\n  margin-bottom: 1.5rem;\n  margin-left: -0.25rem;\n  z-index: 2;\n  border: 1px solid #000;\n  background: -webkit-linear-gradient(45deg, #222 0, #555 100%);\n  background: linear-gradient(45deg, #222 0, #555 100%);\n}\n.keyboard .key.higher.pressed {\n  background: -webkit-linear-gradient(left, #444 0, #222 100%);\n  background: linear-gradient(to right, #444 0, #222 100%);\n  box-shadow: -1px -1px 2px rgba(255,255,255,0.2) inset, 0 -2px 2px 3px rgba(0,0,0,0.6) inset, 0 1px 2px rgba(0,0,0,0.5);\n}\n.keyboard .key.higher:active {\n  background: -webkit-linear-gradient(left, #444 0, #222 100%);\n  background: linear-gradient(to right, #444 0, #222 100%);\n  box-shadow: -1px -1px 2px rgba(255,255,255,0.2) inset, 0 -2px 2px 3px rgba(0,0,0,0.6) inset, 0 1px 2px rgba(0,0,0,0.5);\n}\n.keyboard .key.a,\n.keyboard .key.b,\n.keyboard .key.e,\n.keyboard .key.g,\n.keyboard .key.f,\n.keyboard .key.d,\n.keyboard .key.c {\n  margin: 0;\n  margin-left: -0.25rem;\n}\n.keyboard .key.e,\n.keyboard .key.b {\n  margin-right: 0.25rem;\n}\n.keyboard .key.c3 {\n  background: #6b77a1;\n}\n.master-volume {\n  display: -webkit-box;\n  display: -ms-flexbox;\n  display: flex;\n  -webkit-box-orient: vertical;\n  -webkit-box-direction: normal;\n      -ms-flex-direction: column;\n          flex-direction: column;\n  color: #fff;\n}\n.master-volume .span {\n  -webkit-box-pack: center;\n      -ms-flex-pack: center;\n          justify-content: center;\n}\n.information-bar {\n  display: -webkit-box;\n  display: -ms-flexbox;\n  display: flex;\n  height: 2rem;\n  width: 100vw;\n  background-color: rgba(0,0,0,0.2);\n  color: #fff;\n  -ms-flex-pack: distribute;\n      justify-content: space-around;\n}\n.information-bar__item {\n  line-height: 2rem;\n  padding-right: 1rem;\n  padding-left: 1rem;\n}\n.panel {\n  display: -webkit-box;\n  display: -ms-flexbox;\n  display: flex;\n  color: #fff;\n  background-color: #291c2d;\n  border-radius: 1rem;\n  margin: 1rem;\n  padding: 1rem;\n}\n.panel.panel-left-section {\n  background-color: #b1b3cc;\n  width: 100%;\n}\n.panel.panel-middle-section {\n  margin-left: 0px;\n  margin-right: 0px;\n  background-color: #b1b3cc;\n  width: 100%;\n}\n.panel.panel-right-section {\n  background-color: #b1b3cc;\n  width: 100%;\n}\n.panel .section {\n  margin-right: 1rem;\n}\n.knob {\n  display: -webkit-box;\n  display: -ms-flexbox;\n  display: flex;\n  width: 100%;\n  -webkit-box-orient: vertical;\n  -webkit-box-direction: normal;\n      -ms-flex-direction: column;\n          flex-direction: column;\n  -webkit-box-pack: center;\n      -ms-flex-pack: center;\n          justify-content: center;\n}\n.knob__label {\n  font-size: 70%;\n  background-color: #708090;\n  border-radius: 1rem;\n}\n.section {\n  background-color: #a9a9a9;\n  color: #fff;\n  border-radius: 1rem;\n}\n.section__title,\n.section__content {\n  padding-left: 1rem;\n  padding-right: 1rem;\n}\n.section__title {\n  height: 1.333333333333333rem;\n  background-color: #708090;\n  border-top-left-radius: inherit;\n  border-top-right-radius: inherit;\n  padding-bottom: 1rem;\n}\n.amplifier {\n  display: -webkit-box;\n  display: -ms-flexbox;\n  display: flex;\n  -webkit-box-orient: horizontal;\n  -webkit-box-direction: normal;\n      -ms-flex-direction: row;\n          flex-direction: row;\n  -webkit-box-pack: justify;\n      -ms-flex-pack: justify;\n          justify-content: space-between;\n}\n.filter {\n  display: -webkit-box;\n  display: -ms-flexbox;\n  display: flex;\n  -webkit-box-orient: horizontal;\n  -webkit-box-direction: normal;\n      -ms-flex-direction: row;\n          flex-direction: row;\n  -webkit-box-pack: justify;\n      -ms-flex-pack: justify;\n          justify-content: space-between;\n}\n* {\n  box-sizing: border-box;\n}\n", ""]);
+	exports.push([module.id, "body {\n  margin: 0;\n  height: 100vh;\n  -webkit-user-select: none;\n     -moz-user-select: none;\n      -ms-user-select: none;\n          user-select: none;\n  background: #222;\n  cursor: default;\n  font-family: 'Helvetica Neue', Helvetica, sans-serif;\n  background: #ad131d;\n}\n.dashboard {\n  height: 100vh;\n  width: 100vw;\n  display: -webkit-box;\n  display: -ms-flexbox;\n  display: flex;\n  -webkit-box-orient: vertical;\n  -webkit-box-direction: normal;\n      -ms-flex-direction: column;\n          flex-direction: column;\n}\n.keyboard {\n  margin: 1rem;\n  padding: 0;\n  -webkit-box-flex: 2;\n      -ms-flex-positive: 2;\n          flex-grow: 2;\n  display: -webkit-box;\n  display: -ms-flexbox;\n  display: flex;\n  -webkit-box-align: end;\n      -ms-flex-align: end;\n          align-items: flex-end;\n  -webkit-box-pack: center;\n      -ms-flex-pack: center;\n          justify-content: center;\n}\n.keyboard .key {\n  margin: 0;\n  padding: 0;\n  list-style: none;\n  position: relative;\n  float: left;\n}\n.keyboard .key.lower {\n  height: 3rem;\n  width: 1rem;\n  z-index: 1;\n  border-left: 0.03125rem solid;\n  border-bottom: 0.03125rem solid #bbb;\n  background: -webkit-linear-gradient(top, #eee 0, #fff 100%);\n  background: linear-gradient(to bottom, #eee 0, #fff 100%);\n}\n.keyboard .key.lower:active {\n  border-top: 0.03125rem solid #777;\n  border-left: 0.03125rem solid #999;\n  border-bottom: 0.03125rem solid #999;\n  background: -webkit-linear-gradient(top, #fff 0, #e9e9e9 100%);\n  background: linear-gradient(to bottom, #fff 0, #e9e9e9 100%);\n  box-shadow: 2px 0 3px rgba(0,0,0,0.1) inset, -5px 5px 20px rgba(0,0,0,0.2) inset, 0 0 3px rgba(0,0,0,0.2);\n}\n.keyboard .key.lower.pressed {\n  background: -webkit-linear-gradient(top, #fff 0, #e9e9e9 100%);\n  background: linear-gradient(to bottom, #fff 0, #e9e9e9 100%);\n  box-shadow: 2px 0 3px rgba(0,0,0,0.1) inset, -5px 5px 20px rgba(0,0,0,0.2) inset, 0 0 3px rgba(0,0,0,0.2);\n}\n.keyboard .key.higher {\n  height: 1.5rem;\n  width: 0.5rem;\n  margin: 0;\n  margin-bottom: 1.5rem;\n  margin-left: -0.25rem;\n  z-index: 2;\n  border: 1px solid #000;\n  background: -webkit-linear-gradient(45deg, #222 0, #555 100%);\n  background: linear-gradient(45deg, #222 0, #555 100%);\n}\n.keyboard .key.higher.pressed {\n  background: -webkit-linear-gradient(left, #444 0, #222 100%);\n  background: linear-gradient(to right, #444 0, #222 100%);\n  box-shadow: -1px -1px 2px rgba(255,255,255,0.2) inset, 0 -2px 2px 3px rgba(0,0,0,0.6) inset, 0 1px 2px rgba(0,0,0,0.5);\n}\n.keyboard .key.higher:active {\n  background: -webkit-linear-gradient(left, #444 0, #222 100%);\n  background: linear-gradient(to right, #444 0, #222 100%);\n  box-shadow: -1px -1px 2px rgba(255,255,255,0.2) inset, 0 -2px 2px 3px rgba(0,0,0,0.6) inset, 0 1px 2px rgba(0,0,0,0.5);\n}\n.keyboard .key.a,\n.keyboard .key.b,\n.keyboard .key.e,\n.keyboard .key.g,\n.keyboard .key.f,\n.keyboard .key.d,\n.keyboard .key.c {\n  margin: 0;\n  margin-left: -0.25rem;\n}\n.keyboard .key.e,\n.keyboard .key.b {\n  margin-right: 0.25rem;\n}\n.keyboard .key.c3 {\n  background: #6b77a1;\n}\n.master-volume {\n  display: -webkit-box;\n  display: -ms-flexbox;\n  display: flex;\n  -webkit-box-orient: vertical;\n  -webkit-box-direction: normal;\n      -ms-flex-direction: column;\n          flex-direction: column;\n  color: #fff;\n}\n.master-volume .span {\n  -webkit-box-pack: center;\n      -ms-flex-pack: center;\n          justify-content: center;\n}\n.information-bar {\n  display: -webkit-box;\n  display: -ms-flexbox;\n  display: flex;\n  height: 2rem;\n  width: 100vw;\n  background-color: rgba(0,0,0,0.2);\n  color: #fff;\n  -ms-flex-pack: distribute;\n      justify-content: space-around;\n  font-family: monospace;\n}\n.information-bar__item {\n  line-height: 2rem;\n  padding-right: 1rem;\n  padding-left: 1rem;\n}\n.panel {\n  display: -webkit-box;\n  display: -ms-flexbox;\n  display: flex;\n  -ms-flex-pack: distribute;\n      justify-content: space-around;\n  color: #fff;\n  background-color: #291c2d;\n  border-radius: 0.5rem;\n  margin: 1rem;\n  padding: 1rem;\n}\n.panel__column {\n  -webkit-box-flex: 1;\n      -ms-flex-positive: 1;\n          flex-grow: 1;\n  margin-right: 1rem;\n}\n.panel__column:last-of-type {\n  margin-right: 0;\n}\n.panel__column .section {\n  margin-bottom: 1rem;\n}\n.panel__column .section:last-of-type {\n  margin-bottom: 0;\n}\n.knob {\n  text-align: center;\n  width: 100%;\n}\n.knob__label {\n  font-size: 70%;\n  background-color: #708090;\n  border-radius: 0.5rem;\n}\n.section {\n  background-color: #a9a9a9;\n  color: #fff;\n  border-radius: 0.5rem;\n}\n.section__content {\n  padding: 0.5rem 1rem;\n}\n.section__title {\n  height: 1rem;\n  background-color: #708090;\n  border-top-left-radius: inherit;\n  border-top-right-radius: inherit;\n  padding-bottom: 1rem;\n  font-family: monospace;\n  padding-left: 0.4rem;\n}\n.amplifier {\n  display: -webkit-box;\n  display: -ms-flexbox;\n  display: flex;\n  -webkit-box-orient: horizontal;\n  -webkit-box-direction: normal;\n      -ms-flex-direction: row;\n          flex-direction: row;\n  -webkit-box-pack: justify;\n      -ms-flex-pack: justify;\n          justify-content: space-between;\n}\n.filter {\n  display: -webkit-box;\n  display: -ms-flexbox;\n  display: flex;\n  -webkit-box-orient: horizontal;\n  -webkit-box-direction: normal;\n      -ms-flex-direction: row;\n          flex-direction: row;\n  -webkit-box-pack: justify;\n      -ms-flex-pack: justify;\n          justify-content: space-between;\n}\n* {\n  box-sizing: border-box;\n}\n", ""]);
 
 	// exports
 
