@@ -45,9 +45,9 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	__webpack_require__(13);
 	__webpack_require__(14);
-	const Application_1 = __webpack_require__(27);
+	__webpack_require__(15);
+	const Application_1 = __webpack_require__(28);
 	new Application_1.default();
 
 
@@ -508,6 +508,7 @@
 	            return valueAtTime;
 	        };
 	        this.on = (startAmount, endAmount) => (target) => {
+	            console.log("range", startAmount, endAmount);
 	            const now = this.context.currentTime;
 	            this.startedAt = now;
 	            this.decayFrom = this.startedAt + this.state.attack;
@@ -516,7 +517,6 @@
 	            this.endAmount = endAmount;
 	            this.sustainAmount = this.state.sustain *
 	                (this.endAmount - this.startAmount) + this.startAmount;
-	            //debugger
 	            target.cancelScheduledValues(now);
 	            target.setValueAtTime(this.startAmount, now);
 	            target.linearRampToValueAtTime(this.endAmount, this.decayFrom);
@@ -526,7 +526,7 @@
 	            const now = this.context.currentTime;
 	            const valueAtTime = this.getValueAtTime(now);
 	            target.cancelScheduledValues(now);
-	            target.setValueAtTime(valueAtTime, now);
+	            target.setValueAtTime(target.value, now);
 	            target.linearRampToValueAtTime(this.startAmount, now + this.state.release);
 	            return now + this.state.release;
 	        };
@@ -568,14 +568,53 @@
 /* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
-	exports = module.exports = __webpack_require__(3)();
-	// imports
-	
-	
-	// module
-	exports.push([module.id, "/*! normalize.css v4.1.1 | MIT License | github.com/necolas/normalize.css */html{font-family:sans-serif;line-height:1.15;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%}body{margin:0}article,aside,details,figcaption,figure,footer,header,main,menu,nav,section,summary{display:block}audio,canvas,progress,video{display:inline-block}audio:not([controls]){display:none;height:0}progress{vertical-align:baseline}[hidden],template{display:none}a{background-color:transparent;-webkit-text-decoration-skip:objects}a:active,a:hover{outline-width:0}abbr[title]{border-bottom:none;text-decoration:underline;text-decoration:underline dotted}b,strong{font-weight:inherit;font-weight:bolder}dfn{font-style:italic}h1{font-size:2em;margin:.67em 0}mark{background-color:#ff0;color:#000}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}img{border-style:none}svg:not(:root){overflow:hidden}code,kbd,pre,samp{font-family:monospace,monospace;font-size:1em}figure{margin:1em 40px}hr{box-sizing:content-box;height:0;overflow:visible}button,input,optgroup,select,textarea{font:inherit;margin:0}optgroup{font-weight:700}button,input{overflow:visible}button,select{text-transform:none}[type=reset],[type=submit],button,html [type=button]{-webkit-appearance:button}[type=button]::-moz-focus-inner,[type=reset]::-moz-focus-inner,[type=submit]::-moz-focus-inner,button::-moz-focus-inner{border-style:none;padding:0}[type=button]:-moz-focusring,[type=reset]:-moz-focusring,[type=submit]:-moz-focusring,button:-moz-focusring{outline:1px dotted ButtonText}fieldset{border:1px solid silver;margin:0 2px;padding:.35em .625em .75em}legend{box-sizing:border-box;color:inherit;display:table;max-width:100%;padding:0;white-space:normal}textarea{overflow:auto}[type=checkbox],[type=radio]{box-sizing:border-box;padding:0}[type=number]::-webkit-inner-spin-button,[type=number]::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}[type=search]::-webkit-search-cancel-button,[type=search]::-webkit-search-decoration{-webkit-appearance:none}::-webkit-input-placeholder{color:inherit;opacity:.54}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}", ""]);
-	
-	// exports
+	"use strict";
+	const Constants_1 = __webpack_require__(1);
+	class BaseOscillator {
+	    constructor(context) {
+	        this.vcos = [];
+	        this.outputs = [];
+	        this.midiToFreq = (midiValue) => {
+	            return 440 * Math.pow(2, (midiValue - 69) / 12);
+	        };
+	        this.noteOff = (midiNote, releaseTime) => {
+	            const midiNoteKey = midiNote.toString();
+	            const vco = this.vcos[midiNote];
+	            if (!vco) {
+	                return;
+	            }
+	            vco.stop(releaseTime);
+	        };
+	        this.panic = () => {
+	            for (let i = 0; i < Constants_1.default.MAX_VOICES; i++) {
+	                if (this.vcos[i] !== null) {
+	                    this.vcos[i].stop();
+	                }
+	            }
+	        };
+	        this.connect = (nodes) => {
+	            for (let i = 0; i < Constants_1.default.MAX_VOICES; i++) {
+	                if (this.outputs[i] !== null) {
+	                    this.outputs[i].connect(nodes[i]);
+	                }
+	            }
+	        };
+	        this.disconnect = (nodes) => {
+	            for (let i = 0; i < Constants_1.default.MAX_VOICES; i++) {
+	                if (this.outputs[i] !== null) {
+	                    this.outputs[i].disconnect(nodes[i]);
+	                }
+	            }
+	        };
+	        this.context = context;
+	        for (let i = 0; i < Constants_1.default.MAX_NOTES; i++) {
+	            this.vcos[i] = null;
+	            this.outputs[i] = this.context.createGain();
+	        }
+	    }
+	}
+	Object.defineProperty(exports, "__esModule", { value: true });
+	exports.default = BaseOscillator;
 
 
 /***/ },
@@ -587,13 +626,27 @@
 	
 	
 	// module
-	exports.push([module.id, "@font-face{font-family:Audiowide;font-style:normal;font-weight:400;src:local('Audiowide'),local('Audiowide-Regular'),url(\"https://fonts.gstatic.com/s/audiowide/v4/8XtYtNKEyyZh481XVWfVOpBw1xU1rKptJj_0jans920.woff2\") format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2074,U+20AC,U+2212,U+2215,U+E0FF,U+EFFD,U+F000}@font-face{font-family:Poiret One;font-style:normal;font-weight:400;src:local('Poiret One'),local('PoiretOne-Regular'),url(\"https://fonts.gstatic.com/s/poiretone/v4/HrI4ZJpJ3Fh0wa5ofYMK8QzyDMXhdD8sAj6OAJTFsBI.woff2\") format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2074,U+20AC,U+2212,U+2215,U+E0FF,U+EFFD,U+F000}@font-face{font-family:Maven Pro;font-style:normal;font-weight:400;src:local('Maven Pro Regular'),local('MavenProRegular'),url(\"https://fonts.gstatic.com/s/mavenpro/v7/MG9KbUZFchDs94Tbv9U-pZBw1xU1rKptJj_0jans920.woff2\") format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2074,U+20AC,U+2212,U+2215,U+E0FF,U+EFFD,U+F000}@font-face{font-family:Digital-7 Mono;src:url(" + __webpack_require__(4) + ");src:url(" + __webpack_require__(4) + "?#iefix) format(\"embedded-opentype\"),url(" + __webpack_require__(11) + ") format(\"woff\"),url(" + __webpack_require__(10) + ") format(\"truetype\");font-weight:400;font-style:normal}body{margin:0;height:100vh;background-color:#ad131d;cursor:default;font-family:Helvetica Neue,Helvetica,sans-serif;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}.dashboard{height:100vh;width:100vw;display:-webkit-box;display:-ms-flexbox;display:flex;-webkit-box-orient:vertical;-webkit-box-direction:normal;-ms-flex-direction:column;flex-direction:column;box-shadow:inset 3px 3px 10px 1px #450202;-webkit-box-pack:justify;-ms-flex-pack:justify;justify-content:space-between;-webkit-box-align:center;-ms-flex-align:center;align-items:center}.dashboard .virtual-keyboard{margin-top:auto}.keyboard{margin:1rem;padding:0;-webkit-box-flex:2;-ms-flex-positive:2;flex-grow:2;display:-webkit-box;display:-ms-flexbox;display:flex;-webkit-box-align:end;-ms-flex-align:end;align-items:flex-end;-webkit-box-pack:center;-ms-flex-pack:center;justify-content:center}.keyboard .keyboard__key{margin:0;padding:0;list-style:none;position:relative;float:left}.keyboard .keyboard__key.keyboard__key--lower{height:3rem;width:1rem;border-left:.03125rem solid;border-bottom:.03125rem solid #999;background:-webkit-linear-gradient(top,#eee,#fff);background:linear-gradient(180deg,#eee 0,#fff)}.keyboard .keyboard__key.keyboard__key--current-octave{background:#d3cdff}.keyboard .keyboard__key.keyboard__key--pressed{background:-webkit-linear-gradient(top,#fff,#e9e9e9);background:linear-gradient(180deg,#fff 0,#e9e9e9);box-shadow:inset 2px 0 3px rgba(0,0,0,.1),inset -5px 5px 20px rgba(0,0,0,.4),0 0 3px rgba(0,0,0,.4);background:#d3cdff}.keyboard .keyboard__key.keyboard__key--higher{height:1.5rem;width:.5rem;margin:0;margin-bottom:1.5rem;margin-left:-.25rem;z-index:2;border:1px solid #000;background:-webkit-linear-gradient(45deg,#222,#9e9e9e);background:linear-gradient(45deg,#222,#9e9e9e)}.keyboard .keyboard__key.keyboard__key--a,.keyboard .keyboard__key.keyboard__key--b,.keyboard .keyboard__key.keyboard__key--c,.keyboard .keyboard__key.keyboard__key--d,.keyboard .keyboard__key.keyboard__key--e,.keyboard .keyboard__key.keyboard__key--f,.keyboard .keyboard__key.keyboard__key--g{margin:0;margin-left:-.25rem}.keyboard .keyboard__key.keyboard__key--b,.keyboard .keyboard__key.keyboard__key--e{margin-right:.25rem}@media only screen and (max-width:1280px){.keyboard .keyboard__key.keyboard__key--full{display:none}}@media only screen and (max-width:1080px){.keyboard .keyboard__key.keyboard__key--big{display:none}}@media only screen and (max-width:898px){.keyboard .keyboard__key.keyboard__key--medium{display:none}}.information-bar{display:-webkit-box;display:-ms-flexbox;display:flex;-ms-flex-pack:distribute;justify-content:space-around;-webkit-box-align:center;-ms-flex-align:center;align-items:center;width:100vw;background-color:rgba(0,0,0,.2);color:#fff;font-family:monospace;padding:.5rem}.information-bar__gh-link,.information-bar__item,.midi-indicator{padding-right:1rem;padding-left:1rem}.information-bar__gh-link{height:1.6rem;padding-top:7px;background-image:url(" + __webpack_require__(17) + ");background-repeat:no-repeat;margin-top:3px;background-size:20px;background-position:50%}.panel-controls{display:-webkit-box;display:-ms-flexbox;display:flex;-ms-flex-pack:distribute;justify-content:space-around;color:#fff;background-color:#291c2d;border-radius:.5rem;margin:1rem;padding:1rem}.panel-controls__column{-webkit-box-flex:1;-ms-flex-positive:1;flex-grow:1;margin-right:1rem}.panel-controls__column:last-of-type{margin-right:0}.panel-controls__column:nth-of-type(2) .knob,.panel-controls__column:nth-of-type(2) .option-picker{width:20%}.panel-controls__column:nth-of-type(2) .knob:last-of-type{margin-top:1rem}.panel-controls__column:nth-of-type(2) .switch{width:40%}.panel-controls__column:nth-of-type(2) .section__content{padding-top:0}.panel-controls__column .section{margin-bottom:1rem}.panel-controls__column .section:last-of-type{margin-bottom:0}@media only screen and (max-width:930px){.panel-controls__column:last-of-class{margin-right:0}.panel-controls__instructions{display:none}}.panel__brand{display:-webkit-box;display:-ms-flexbox;display:flex;-ms-flex-pack:distribute;justify-content:space-around;margin:1rem;margin-top:0;padding:1rem;padding-top:0;color:#fff;margin-left:auto;font-size:3rem;line-height:2.6rem;overflow:auto}.panel__brand :nth-of-type(1){font-family:Poiret One,cursive;font-size:1.5em;font-weight:700}.panel__brand :nth-of-type(2){font-family:Audiowide,cursive;color:#291c2d}.panel__brand :nth-of-type(3){font-family:Maven Pro,sans-serif;display:block;font-size:30px;letter-spacing:22px;margin-right:-20px}.panel__brand :nth-of-type(3):after{display:inline-block;width:100%;content:''}.switch{margin:0 auto;text-align:center}.switch__list{list-style-type:none;display:-webkit-box;display:-ms-flexbox;display:flex;-webkit-box-orient:vertical;-webkit-box-direction:normal;-ms-flex-direction:column;flex-direction:column;margin-top:0;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}.switch__item,.switch__list{padding-left:4.5px;margin-bottom:4px}.switch__item--active,.switch__item--inactive,.switch__label{display:inline-block}.switch__item--active{box-shadow:0 0 1px 0 #000,inset -.6px -1.2px 3.6px 2px #6eb300,0 0 3px 0 #6eb300}.switch__item--active,.switch__item--inactive{width:6px;height:6px;background-color:#c5c5c5;border-radius:50%}.switch__item--inactive{box-shadow:0 0 1px 0 #000,inset -.6px -1.2px 3.6px 2px rgba(40,40,40,.75),0 0 3px 0 rgba(40,40,40,.75)}.switch__label{font-size:10px;margin-left:5px}.switch__btn{background-color:#4b4b4b;cursor:pointer;outline:0;width:45px;height:20.454545454545453px;border-radius:2px;border:6px solid #363636}.switch__btn:active{border-color:#000;background-color:#363636}.knob{text-align:center}.knob__scale{height:48px;width:48px;margin-left:auto;margin-right:auto;margin-bottom:2px;background:url(" + __webpack_require__(18) + ");background-size:48px;background-repeat:no-repeat;background-position:50%}.knob__dial{background:url(" + __webpack_require__(19) + ");background-position:50%;background-repeat:no-repeat;background-size:100%;width:100%;height:100%}.knob__dial,.knob__label{-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}.knob__label{display:inline;font-size:70%;background-color:#787e9f;border-radius:.5rem;padding-right:.5rem;padding-left:.5rem;margin-left:auto;margin-right:auto;white-space:nowrap}.knob__adsr-label--attack{background:url(" + __webpack_require__(15) + ")}.knob__adsr-label--decay{background:url(" + __webpack_require__(16) + ")}.knob__adsr-label--sustain{background:url(" + __webpack_require__(25) + ")}.knob__adsr-label--release{background:url(" + __webpack_require__(21) + ")}.knob__adsr-label--attack,.knob__adsr-label--decay,.knob__adsr-label--release,.knob__adsr-label--sustain{width:2rem;height:1.34rem;margin-left:auto;margin-right:auto;margin-bottom:-.4rem;background-position:50%;background-repeat:no-repeat;background-size:100%}.section{background-color:#a9a9a9;color:#fff;border-radius:.5rem}.section--with-bevel .section__content{padding:0;-webkit-box-align:stretch;-ms-flex-align:stretch;-ms-grid-row-align:stretch;align-items:stretch}.section__content{display:-webkit-box;display:-ms-flexbox;display:flex;-ms-flex-wrap:wrap;flex-wrap:wrap;-webkit-box-pack:justify;-ms-flex-pack:justify;justify-content:space-between;-webkit-box-align:center;-ms-flex-align:center;align-items:center;padding:.5rem 1rem}.section__content--beveled{padding:0}.section__title{height:1rem;letter-spacing:1px;background-color:#787e9f;border-top-left-radius:inherit;border-top-right-radius:inherit;padding-bottom:1rem;font-family:monospace;padding-left:.4rem;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}.amplifier,.filter{display:-webkit-box;display:-ms-flexbox;display:flex;-webkit-box-orient:horizontal;-webkit-box-direction:normal;-ms-flex-direction:row;flex-direction:row;-webkit-box-pack:justify;-ms-flex-pack:justify;justify-content:space-between}.oscillators__extra,.oscillators__osc1,.oscillators__osc2{display:-webkit-box;display:-ms-flexbox;display:flex;text-align:center;padding-top:.5rem;padding-bottom:.5rem}.oscillators__osc1,.oscillators__osc2{-ms-flex-pack:distribute;justify-content:space-around}.oscillators__osc1{-webkit-box-orient:vertical;-webkit-box-direction:normal;-ms-flex-direction:column;flex-direction:column;width:35%;border-right:2px solid #787e9f}.oscillators__osc2{-webkit-box-orient:horizontal;-webkit-box-direction:normal;-ms-flex-direction:row;flex-direction:row;-ms-flex-wrap:wrap;flex-wrap:wrap;width:65%}.oscillators__osc2 .knob,.oscillators__osc2 .option-picker{width:50%}.oscillators__osc2 .oscillators__label{width:100%}.oscillators__extra{-webkit-box-flex:2;-ms-flex-positive:2;flex-grow:2;-ms-flex-pack:distribute;justify-content:space-around;border-top:2px solid #787e9f}.oscillators__label{font-weight:700;text-align:center;color:#787e9f;font-size:140%;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;bottom:0}.option-picker{margin:0 auto;text-align:center}.option-picker__label{display:inline;font-size:70%;background-color:#787e9f;border-radius:.5rem;padding-right:.5rem;padding-left:.5rem;white-space:nowrap}.option-picker__label,.option-picker__list{-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}.option-picker__list{list-style-type:none;padding-left:4.5px;width:3rem;margin:0 auto 4px}.option-picker__id--noise:before{content:'noise';font-size:10px;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;margin-left:5px}.option-picker__id--pulse{background:url(" + __webpack_require__(20) + ")}.option-picker__id--tri{background:url(" + __webpack_require__(26) + ")}.option-picker__id--sin{background:url(" + __webpack_require__(23) + ")}.option-picker__id--saw{background:url(" + __webpack_require__(22) + ")}.option-picker__id--sqr{background:url(" + __webpack_require__(24) + ")}.option-picker__id--pulse,.option-picker__id--saw,.option-picker__id--sin,.option-picker__id--sqr,.option-picker__id--tri,user-select none{margin-left:5px;background-position:50%;background-repeat:no-repeat;background-size:100%;width:20px;height:20px}.option-picker__item{display:-webkit-box;display:-ms-flexbox;display:flex;-webkit-box-align:center;-ms-flex-align:center;align-items:center}.option-picker__item--active{box-shadow:0 0 1px 0 #000,inset -.6px -1.2px 3.6px 2px #6eb300,0 0 3px 0 #6eb300}.option-picker__item--active,.option-picker__item--inactive{width:6px;height:6px;background-color:#c5c5c5;border-radius:50%}.option-picker__item--inactive{box-shadow:0 0 1px 0 #000,inset -.6px -1.2px 3.6px 2px rgba(40,40,40,.75),0 0 3px 0 rgba(40,40,40,.75)}.option-picker__item-id{margin-left:5px;font-size:10px}.option-picker__btn{background-color:#4b4b4b;cursor:pointer;outline:0;width:45px;height:20.454545454545453px;border-radius:2px;border:6px solid #363636}.option-picker__btn:active{border-color:#000;background-color:#363636}.option-picker__id--BP,.option-picker__id--HP,.option-picker__id--LP,.option-picker__id--notch{font-size:10px;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;margin-left:5px}.option-picker__id--HP:before{content:'HP'}.option-picker__id--BP:before{content:'BP'}.option-picker__id--LP:before{content:'LP'}.option-picker__id--notch:before{content:'notch'}.instructions{padding:0;font-size:70%}.instructions,.instructions__title{-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}.instructions__title{text-align:center;width:100%}.instructions__label{padding-left:20px}.incrementer{-webkit-box-orient:horizontal;-ms-flex-direction:row;flex-direction:row;text-align:center;-webkit-box-align:center;-ms-flex-align:center;align-items:center}.incrementer,.incrementer__info{display:-webkit-box;display:-ms-flexbox;display:flex;-webkit-box-direction:normal}.incrementer__info{-webkit-box-orient:vertical;-ms-flex-direction:column;flex-direction:column;margin-right:.5rem}.incrementer__label{height:20.454545454545453px;line-height:20.454545454545453px;margin-bottom:.25rem}.incrementer__display{padding-left:.5rem;padding-right:.5rem;font-family:Digital-7 Mono,monospace;background:#510b0b;color:#bc2121;border-radius:6px;font-size:1.3em}.incrementer__display--patch{width:200px}.incrementer__buttons{width:45px}.incrementer__button{background-color:#4b4b4b;cursor:pointer;outline:0;width:45px;height:20.454545454545453px;border-radius:2px;border:6px solid #363636;margin-bottom:.25rem}.incrementer__button:active{border-color:#000;background-color:#363636}.incrementer__button:last-of-type{margin-bottom:0}.midi-indicator{display:-webkit-box;display:-ms-flexbox;display:flex;-webkit-box-orient:vertical;-webkit-box-direction:normal;-ms-flex-direction:column;flex-direction:column;text-align:center;padding-right:1rem;padding-left:1rem}.midi-indicator__blinker:before{content:\"MIDI\"}.midi-indicator__blinker--active{color:#34c945}.midi-indicator__status{padding-left:.5rem}.midi-indicator__status--active{color:#34c945}.midi-indicator__status--active:before{content:\"connected\"}.midi-indicator__status--inactive{color:#a8a8a8}.midi-indicator__status--inactive:before{content:\"not connected\"}.midi-indicator__status--not-supported{color:#ff4f4f}.midi-indicator__status--not-supported:before{content:\"not supported\"}.midi-indicator__status--scanning{color:#a8a8a8}.midi-indicator__status--scanning:before{content:\"scanning devices\"}*{box-sizing:border-box}", ""]);
+	exports.push([module.id, "/*! normalize.css v4.1.1 | MIT License | github.com/necolas/normalize.css */html{font-family:sans-serif;line-height:1.15;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%}body{margin:0}article,aside,details,figcaption,figure,footer,header,main,menu,nav,section,summary{display:block}audio,canvas,progress,video{display:inline-block}audio:not([controls]){display:none;height:0}progress{vertical-align:baseline}[hidden],template{display:none}a{background-color:transparent;-webkit-text-decoration-skip:objects}a:active,a:hover{outline-width:0}abbr[title]{border-bottom:none;text-decoration:underline;text-decoration:underline dotted}b,strong{font-weight:inherit;font-weight:bolder}dfn{font-style:italic}h1{font-size:2em;margin:.67em 0}mark{background-color:#ff0;color:#000}small{font-size:80%}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}img{border-style:none}svg:not(:root){overflow:hidden}code,kbd,pre,samp{font-family:monospace,monospace;font-size:1em}figure{margin:1em 40px}hr{box-sizing:content-box;height:0;overflow:visible}button,input,optgroup,select,textarea{font:inherit;margin:0}optgroup{font-weight:700}button,input{overflow:visible}button,select{text-transform:none}[type=reset],[type=submit],button,html [type=button]{-webkit-appearance:button}[type=button]::-moz-focus-inner,[type=reset]::-moz-focus-inner,[type=submit]::-moz-focus-inner,button::-moz-focus-inner{border-style:none;padding:0}[type=button]:-moz-focusring,[type=reset]:-moz-focusring,[type=submit]:-moz-focusring,button:-moz-focusring{outline:1px dotted ButtonText}fieldset{border:1px solid silver;margin:0 2px;padding:.35em .625em .75em}legend{box-sizing:border-box;color:inherit;display:table;max-width:100%;padding:0;white-space:normal}textarea{overflow:auto}[type=checkbox],[type=radio]{box-sizing:border-box;padding:0}[type=number]::-webkit-inner-spin-button,[type=number]::-webkit-outer-spin-button{height:auto}[type=search]{-webkit-appearance:textfield;outline-offset:-2px}[type=search]::-webkit-search-cancel-button,[type=search]::-webkit-search-decoration{-webkit-appearance:none}::-webkit-input-placeholder{color:inherit;opacity:.54}::-webkit-file-upload-button{-webkit-appearance:button;font:inherit}", ""]);
 	
 	// exports
 
 
 /***/ },
 /* 9 */
+/***/ function(module, exports, __webpack_require__) {
+
+	exports = module.exports = __webpack_require__(3)();
+	// imports
+	
+	
+	// module
+	exports.push([module.id, "@font-face{font-family:Audiowide;font-style:normal;font-weight:400;src:local('Audiowide'),local('Audiowide-Regular'),url(\"https://fonts.gstatic.com/s/audiowide/v4/8XtYtNKEyyZh481XVWfVOpBw1xU1rKptJj_0jans920.woff2\") format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2074,U+20AC,U+2212,U+2215,U+E0FF,U+EFFD,U+F000}@font-face{font-family:Poiret One;font-style:normal;font-weight:400;src:local('Poiret One'),local('PoiretOne-Regular'),url(\"https://fonts.gstatic.com/s/poiretone/v4/HrI4ZJpJ3Fh0wa5ofYMK8QzyDMXhdD8sAj6OAJTFsBI.woff2\") format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2074,U+20AC,U+2212,U+2215,U+E0FF,U+EFFD,U+F000}@font-face{font-family:Maven Pro;font-style:normal;font-weight:400;src:local('Maven Pro Regular'),local('MavenProRegular'),url(\"https://fonts.gstatic.com/s/mavenpro/v7/MG9KbUZFchDs94Tbv9U-pZBw1xU1rKptJj_0jans920.woff2\") format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02C6,U+02DA,U+02DC,U+2000-206F,U+2074,U+20AC,U+2212,U+2215,U+E0FF,U+EFFD,U+F000}@font-face{font-family:Digital-7 Mono;src:url(" + __webpack_require__(4) + ");src:url(" + __webpack_require__(4) + "?#iefix) format(\"embedded-opentype\"),url(" + __webpack_require__(12) + ") format(\"woff\"),url(" + __webpack_require__(11) + ") format(\"truetype\");font-weight:400;font-style:normal}body{margin:0;height:100vh;background-color:#ad131d;cursor:default;font-family:Helvetica Neue,Helvetica,sans-serif;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}.dashboard{height:100vh;width:100vw;display:-webkit-box;display:-ms-flexbox;display:flex;-webkit-box-orient:vertical;-webkit-box-direction:normal;-ms-flex-direction:column;flex-direction:column;box-shadow:inset 3px 3px 10px 1px #450202;-webkit-box-pack:justify;-ms-flex-pack:justify;justify-content:space-between;-webkit-box-align:center;-ms-flex-align:center;align-items:center}.dashboard .virtual-keyboard{margin-top:auto}.keyboard{margin:1rem;padding:0;-webkit-box-flex:2;-ms-flex-positive:2;flex-grow:2;display:-webkit-box;display:-ms-flexbox;display:flex;-webkit-box-align:end;-ms-flex-align:end;align-items:flex-end;-webkit-box-pack:center;-ms-flex-pack:center;justify-content:center}.keyboard .keyboard__key{margin:0;padding:0;list-style:none;position:relative;float:left}.keyboard .keyboard__key.keyboard__key--lower{height:3rem;width:1rem;border-left:.03125rem solid;border-bottom:.03125rem solid #999;background:-webkit-linear-gradient(top,#eee,#fff);background:linear-gradient(180deg,#eee 0,#fff)}.keyboard .keyboard__key.keyboard__key--current-octave{background:#d3cdff}.keyboard .keyboard__key.keyboard__key--pressed{background:-webkit-linear-gradient(top,#fff,#e9e9e9);background:linear-gradient(180deg,#fff 0,#e9e9e9);box-shadow:inset 2px 0 3px rgba(0,0,0,.1),inset -5px 5px 20px rgba(0,0,0,.4),0 0 3px rgba(0,0,0,.4);background:#d3cdff}.keyboard .keyboard__key.keyboard__key--higher{height:1.5rem;width:.5rem;margin:0;margin-bottom:1.5rem;margin-left:-.25rem;z-index:2;border:1px solid #000;background:-webkit-linear-gradient(45deg,#222,#9e9e9e);background:linear-gradient(45deg,#222,#9e9e9e)}.keyboard .keyboard__key.keyboard__key--a,.keyboard .keyboard__key.keyboard__key--b,.keyboard .keyboard__key.keyboard__key--c,.keyboard .keyboard__key.keyboard__key--d,.keyboard .keyboard__key.keyboard__key--e,.keyboard .keyboard__key.keyboard__key--f,.keyboard .keyboard__key.keyboard__key--g{margin:0;margin-left:-.25rem}.keyboard .keyboard__key.keyboard__key--b,.keyboard .keyboard__key.keyboard__key--e{margin-right:.25rem}@media only screen and (max-width:1280px){.keyboard .keyboard__key.keyboard__key--full{display:none}}@media only screen and (max-width:1080px){.keyboard .keyboard__key.keyboard__key--big{display:none}}@media only screen and (max-width:898px){.keyboard .keyboard__key.keyboard__key--medium{display:none}}.information-bar{display:-webkit-box;display:-ms-flexbox;display:flex;-ms-flex-pack:distribute;justify-content:space-around;-webkit-box-align:center;-ms-flex-align:center;align-items:center;width:100vw;background-color:rgba(0,0,0,.2);color:#fff;font-family:monospace;padding:.5rem}.information-bar__gh-link,.information-bar__item,.midi-indicator{padding-right:1rem;padding-left:1rem}.information-bar__gh-link{height:1.6rem;padding-top:7px;background-image:url(" + __webpack_require__(18) + ");background-repeat:no-repeat;margin-top:3px;background-size:20px;background-position:50%}.panel-controls{display:-webkit-box;display:-ms-flexbox;display:flex;-ms-flex-pack:distribute;justify-content:space-around;color:#fff;background-color:#291c2d;border-radius:.5rem;margin:1rem;padding:1rem}.panel-controls__column{-webkit-box-flex:1;-ms-flex-positive:1;flex-grow:1;margin-right:1rem}.panel-controls__column:last-of-type{margin-right:0}.panel-controls__column:nth-of-type(2) .knob,.panel-controls__column:nth-of-type(2) .option-picker{width:20%}.panel-controls__column:nth-of-type(2) .knob:last-of-type{margin-top:1rem}.panel-controls__column:nth-of-type(2) .switch{width:40%}.panel-controls__column:nth-of-type(2) .section__content{padding-top:0}.panel-controls__column .section{margin-bottom:1rem}.panel-controls__column .section:last-of-type{margin-bottom:0}@media only screen and (max-width:930px){.panel-controls__column:last-of-class{margin-right:0}.panel-controls__instructions{display:none}}.panel__brand{display:-webkit-box;display:-ms-flexbox;display:flex;-ms-flex-pack:distribute;justify-content:space-around;margin:1rem;margin-top:0;padding:1rem;padding-top:0;color:#fff;margin-left:auto;font-size:3rem;line-height:2.6rem;overflow:auto}.panel__brand :nth-of-type(1){font-family:Poiret One,cursive;font-size:1.5em;font-weight:700}.panel__brand :nth-of-type(2){font-family:Audiowide,cursive;color:#291c2d}.panel__brand :nth-of-type(3){font-family:Maven Pro,sans-serif;display:block;font-size:30px;letter-spacing:22px;margin-right:-20px}.panel__brand :nth-of-type(3):after{display:inline-block;width:100%;content:''}.switch{margin:0 auto;text-align:center}.switch__list{list-style-type:none;display:-webkit-box;display:-ms-flexbox;display:flex;-webkit-box-orient:vertical;-webkit-box-direction:normal;-ms-flex-direction:column;flex-direction:column;margin-top:0;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}.switch__item,.switch__list{padding-left:4.5px;margin-bottom:4px}.switch__item--active,.switch__item--inactive,.switch__label{display:inline-block}.switch__item--active{box-shadow:0 0 1px 0 #000,inset -.6px -1.2px 3.6px 2px #6eb300,0 0 3px 0 #6eb300}.switch__item--active,.switch__item--inactive{width:6px;height:6px;background-color:#c5c5c5;border-radius:50%}.switch__item--inactive{box-shadow:0 0 1px 0 #000,inset -.6px -1.2px 3.6px 2px rgba(40,40,40,.75),0 0 3px 0 rgba(40,40,40,.75)}.switch__label{font-size:10px;margin-left:5px}.switch__btn{background-color:#4b4b4b;cursor:pointer;outline:0;width:45px;height:20.454545454545453px;border-radius:2px;border:6px solid #363636}.switch__btn:active{border-color:#000;background-color:#363636}.knob{text-align:center}.knob__scale{height:48px;width:48px;margin-left:auto;margin-right:auto;margin-bottom:2px;background:url(" + __webpack_require__(19) + ");background-size:48px;background-repeat:no-repeat;background-position:50%}.knob__dial{background:url(" + __webpack_require__(20) + ");background-position:50%;background-repeat:no-repeat;background-size:100%;width:100%;height:100%}.knob__dial,.knob__label{-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}.knob__label{display:inline;font-size:70%;background-color:#787e9f;border-radius:.5rem;padding-right:.5rem;padding-left:.5rem;margin-left:auto;margin-right:auto;white-space:nowrap}.knob__adsr-label--attack{background:url(" + __webpack_require__(16) + ")}.knob__adsr-label--decay{background:url(" + __webpack_require__(17) + ")}.knob__adsr-label--sustain{background:url(" + __webpack_require__(26) + ")}.knob__adsr-label--release{background:url(" + __webpack_require__(22) + ")}.knob__adsr-label--attack,.knob__adsr-label--decay,.knob__adsr-label--release,.knob__adsr-label--sustain{width:2rem;height:1.34rem;margin-left:auto;margin-right:auto;margin-bottom:-.4rem;background-position:50%;background-repeat:no-repeat;background-size:100%}.section{background-color:#a9a9a9;color:#fff;border-radius:.5rem}.section--with-bevel .section__content{padding:0;-webkit-box-align:stretch;-ms-flex-align:stretch;-ms-grid-row-align:stretch;align-items:stretch}.section__content{display:-webkit-box;display:-ms-flexbox;display:flex;-ms-flex-wrap:wrap;flex-wrap:wrap;-webkit-box-pack:justify;-ms-flex-pack:justify;justify-content:space-between;-webkit-box-align:center;-ms-flex-align:center;align-items:center;padding:.5rem 1rem}.section__content--beveled{padding:0}.section__title{height:1rem;letter-spacing:1px;background-color:#787e9f;border-top-left-radius:inherit;border-top-right-radius:inherit;padding-bottom:1rem;font-family:monospace;padding-left:.4rem;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}.amplifier,.filter{display:-webkit-box;display:-ms-flexbox;display:flex;-webkit-box-orient:horizontal;-webkit-box-direction:normal;-ms-flex-direction:row;flex-direction:row;-webkit-box-pack:justify;-ms-flex-pack:justify;justify-content:space-between}.oscillators__extra,.oscillators__osc1,.oscillators__osc2{display:-webkit-box;display:-ms-flexbox;display:flex;text-align:center;padding-top:.5rem;padding-bottom:.5rem}.oscillators__osc1,.oscillators__osc2{-ms-flex-pack:distribute;justify-content:space-around}.oscillators__osc1{-webkit-box-orient:vertical;-webkit-box-direction:normal;-ms-flex-direction:column;flex-direction:column;width:35%;border-right:2px solid #787e9f}.oscillators__osc2{-webkit-box-orient:horizontal;-webkit-box-direction:normal;-ms-flex-direction:row;flex-direction:row;-ms-flex-wrap:wrap;flex-wrap:wrap;width:65%}.oscillators__osc2 .knob,.oscillators__osc2 .option-picker{width:50%}.oscillators__osc2 .oscillators__label{width:100%}.oscillators__extra{-webkit-box-flex:2;-ms-flex-positive:2;flex-grow:2;-ms-flex-pack:distribute;justify-content:space-around;border-top:2px solid #787e9f}.oscillators__label{font-weight:700;text-align:center;color:#787e9f;font-size:140%;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;bottom:0}.option-picker{margin:0 auto;text-align:center}.option-picker__label{display:inline;font-size:70%;background-color:#787e9f;border-radius:.5rem;padding-right:.5rem;padding-left:.5rem;white-space:nowrap}.option-picker__label,.option-picker__list{-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}.option-picker__list{list-style-type:none;padding-left:4.5px;width:3rem;margin:0 auto 4px}.option-picker__id--noise:before{content:'noise';font-size:10px;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;margin-left:5px}.option-picker__id--pulse{background:url(" + __webpack_require__(21) + ")}.option-picker__id--tri{background:url(" + __webpack_require__(27) + ")}.option-picker__id--sin{background:url(" + __webpack_require__(24) + ")}.option-picker__id--saw{background:url(" + __webpack_require__(23) + ")}.option-picker__id--sqr{background:url(" + __webpack_require__(25) + ")}.option-picker__id--pulse,.option-picker__id--saw,.option-picker__id--sin,.option-picker__id--sqr,.option-picker__id--tri,user-select none{margin-left:5px;background-position:50%;background-repeat:no-repeat;background-size:100%;width:20px;height:20px}.option-picker__item{display:-webkit-box;display:-ms-flexbox;display:flex;-webkit-box-align:center;-ms-flex-align:center;align-items:center}.option-picker__item--active{box-shadow:0 0 1px 0 #000,inset -.6px -1.2px 3.6px 2px #6eb300,0 0 3px 0 #6eb300}.option-picker__item--active,.option-picker__item--inactive{width:6px;height:6px;background-color:#c5c5c5;border-radius:50%}.option-picker__item--inactive{box-shadow:0 0 1px 0 #000,inset -.6px -1.2px 3.6px 2px rgba(40,40,40,.75),0 0 3px 0 rgba(40,40,40,.75)}.option-picker__item-id{margin-left:5px;font-size:10px}.option-picker__btn{background-color:#4b4b4b;cursor:pointer;outline:0;width:45px;height:20.454545454545453px;border-radius:2px;border:6px solid #363636}.option-picker__btn:active{border-color:#000;background-color:#363636}.option-picker__id--BP,.option-picker__id--HP,.option-picker__id--LP,.option-picker__id--notch{font-size:10px;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;margin-left:5px}.option-picker__id--HP:before{content:'HP'}.option-picker__id--BP:before{content:'BP'}.option-picker__id--LP:before{content:'LP'}.option-picker__id--notch:before{content:'notch'}.instructions{padding:0;font-size:70%}.instructions,.instructions__title{-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}.instructions__title{text-align:center;width:100%}.instructions__label{padding-left:20px}.incrementer{-webkit-box-orient:horizontal;-ms-flex-direction:row;flex-direction:row;text-align:center;-webkit-box-align:center;-ms-flex-align:center;align-items:center}.incrementer,.incrementer__info{display:-webkit-box;display:-ms-flexbox;display:flex;-webkit-box-direction:normal}.incrementer__info{-webkit-box-orient:vertical;-ms-flex-direction:column;flex-direction:column;margin-right:.5rem}.incrementer__label{height:20.454545454545453px;line-height:20.454545454545453px;margin-bottom:.25rem}.incrementer__display{padding-left:.5rem;padding-right:.5rem;font-family:Digital-7 Mono,monospace;background:#510b0b;color:#bc2121;border-radius:6px;font-size:1.3em}.incrementer__display--patch{width:200px}.incrementer__buttons{width:45px}.incrementer__button{background-color:#4b4b4b;cursor:pointer;outline:0;width:45px;height:20.454545454545453px;border-radius:2px;border:6px solid #363636;margin-bottom:.25rem}.incrementer__button:active{border-color:#000;background-color:#363636}.incrementer__button:last-of-type{margin-bottom:0}.midi-indicator{display:-webkit-box;display:-ms-flexbox;display:flex;-webkit-box-orient:vertical;-webkit-box-direction:normal;-ms-flex-direction:column;flex-direction:column;text-align:center;padding-right:1rem;padding-left:1rem}.midi-indicator__blinker:before{content:\"MIDI\"}.midi-indicator__blinker--active{color:#34c945}.midi-indicator__status{padding-left:.5rem}.midi-indicator__status--active{color:#34c945}.midi-indicator__status--active:before{content:\"connected\"}.midi-indicator__status--inactive{color:#a8a8a8}.midi-indicator__status--inactive:before{content:\"not connected\"}.midi-indicator__status--not-supported{color:#ff4f4f}.midi-indicator__status--not-supported:before{content:\"not supported\"}.midi-indicator__status--scanning{color:#a8a8a8}.midi-indicator__status--scanning:before{content:\"scanning devices\"}*{box-sizing:border-box}", ""]);
+	
+	// exports
+
+
+/***/ },
+/* 10 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(module) {
@@ -11390,8 +11443,8 @@
 				return _elm_lang$core$Native_Utils.crashCase(
 					'Component.OptionPicker',
 					{
-						start: {line: 99, column: 13},
-						end: {line: 104, column: 53}
+						start: {line: 100, column: 13},
+						end: {line: 105, column: 53}
 					},
 					_p0)('no values provided');
 			}
@@ -11417,7 +11470,8 @@
 				ctor: '_Tuple2',
 				_0: model$,
 				_1: model.cmdEmmiter(
-					_elm_lang$core$Basics$toString(nextElem))
+					_elm_lang$core$String$toLower(
+						_elm_lang$core$Basics$toString(nextElem)))
 			};
 		});
 	var _pablobcb$elm_lead$Component_OptionPicker$option = F3(
@@ -11482,8 +11536,8 @@
 						return _elm_lang$core$Native_Utils.crashCase(
 							'Component.OptionPicker',
 							{
-								start: {line: 38, column: 20},
-								end: {line: 43, column: 69}
+								start: {line: 39, column: 20},
+								end: {line: 44, column: 69}
 							},
 							_p7)('empty list on button creation!');
 					}
@@ -12996,7 +13050,7 @@
 	Elm['Main'] = Elm['Main'] || {};
 	_elm_lang$core$Native_Platform.addPublicModule(Elm['Main'], 'Main', typeof _pablobcb$elm_lead$Main$main === 'undefined' ? null : _pablobcb$elm_lead$Main$main);
 	
-	if ("function" === "function" && __webpack_require__(39)['amd'])
+	if ("function" === "function" && __webpack_require__(40)['amd'])
 	{
 	  !(__WEBPACK_AMD_DEFINE_ARRAY__ = [], __WEBPACK_AMD_DEFINE_RESULT__ = function() { return Elm; }.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
 	  return;
@@ -13027,22 +13081,22 @@
 	}).call(this);
 	
 	
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(40)(module)))
-
-/***/ },
-/* 10 */
-/***/ function(module, exports, __webpack_require__) {
-
-	module.exports = __webpack_require__.p + "58045dabdc3a361cb9bb9faf2f1dd1f3.ttf";
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(41)(module)))
 
 /***/ },
 /* 11 */
 /***/ function(module, exports, __webpack_require__) {
 
-	module.exports = __webpack_require__.p + "b8aa4dce3ad085de94f02cae44777c6e.woff";
+	module.exports = __webpack_require__.p + "58045dabdc3a361cb9bb9faf2f1dd1f3.ttf";
 
 /***/ },
 /* 12 */
+/***/ function(module, exports, __webpack_require__) {
+
+	module.exports = __webpack_require__.p + "b8aa4dce3ad085de94f02cae44777c6e.woff";
+
+/***/ },
+/* 13 */
 /***/ function(module, exports) {
 
 	module.exports = [
@@ -13169,13 +13223,13 @@
 	];
 
 /***/ },
-/* 13 */
+/* 14 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 	
 	// load the styles
-	var content = __webpack_require__(7);
+	var content = __webpack_require__(8);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
 	var update = __webpack_require__(5)(content, {});
@@ -13195,13 +13249,13 @@
 	}
 
 /***/ },
-/* 14 */
+/* 15 */
 /***/ function(module, exports, __webpack_require__) {
 
 	// style-loader: Adds some css to the DOM by adding a <style> tag
 	
 	// load the styles
-	var content = __webpack_require__(8);
+	var content = __webpack_require__(9);
 	if(typeof content === 'string') content = [[module.id, content, '']];
 	// add the styles to the DOM
 	var update = __webpack_require__(5)(content, {});
@@ -13221,87 +13275,87 @@
 	}
 
 /***/ },
-/* 15 */
+/* 16 */
 /***/ function(module, exports) {
 
 	module.exports = "\"data:image/svg+xml;charset=utf8,%3C?xml version='1.0' encoding='UTF-8' standalone='no'?%3E %3C!-- Created with Inkscape (http://www.inkscape.org/) --%3E %3Csvg xmlns:dc='http://purl.org/dc/elements/1.1/' xmlns:cc='http://creativecommons.org/ns%23' xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns%23' xmlns:svg='http://www.w3.org/2000/svg' xmlns='http://www.w3.org/2000/svg' xmlns:sodipodi='http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd' xmlns:inkscape='http://www.inkscape.org/namespaces/inkscape' width='25.578321' height='12.02346' viewBox='0 0 25.578321 12.02346' id='svg2' version='1.1' inkscape:version='0.91 r13725' sodipodi:docname='attack.svg'%3E %3Cdefs id='defs4' /%3E %3Csodipodi:namedview id='base' pagecolor='%23767676' bordercolor='%23ffffff' borderopacity='1' inkscape:pageopacity='0' inkscape:pageshadow='2' inkscape:zoom='22.627418' inkscape:cx='15.427557' inkscape:cy='10.202857' inkscape:document-units='px' inkscape:current-layer='layer1' showgrid='true' borderlayer='true' inkscape:showpageshadow='true' inkscape:window-width='1920' inkscape:window-height='1001' inkscape:window-x='0' inkscape:window-y='27' inkscape:window-maximized='1' inkscape:snap-grids='true' fit-margin-top='0' fit-margin-left='0' fit-margin-right='0' fit-margin-bottom='0' units='px'%3E %3Cinkscape:grid type='xygrid' id='grid3336' color='%23b4bc45' opacity='0.1254902' originx='-122.9929' originy='-2128.9875' /%3E %3C/sodipodi:namedview%3E %3Cmetadata id='metadata7'%3E %3Crdf:RDF%3E %3Ccc:Work rdf:about=''%3E %3Cdc:format%3Eimage/svg+xml%3C/dc:format%3E %3Cdc:type rdf:resource='http://purl.org/dc/dcmitype/StillImage' /%3E %3Cdc:title%3E%3C/dc:title%3E %3C/cc:Work%3E %3C/rdf:RDF%3E %3C/metadata%3E %3Cg inkscape:label='Layer 1' inkscape:groupmode='layer' id='layer1' transform='translate(-113.49295,89.155926)'%3E %3Cpath style='opacity:1;fill:%23ffffff;fill-opacity:1;fill-rule:nonzero;stroke:%234d4d4d;stroke-width:0.50431865;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.19444448' d='' id='path3348' inkscape:connector-curvature='0' /%3E %3Cpath style='fill:none;fill-rule:evenodd;stroke:%23787e9f;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1' d='m 133.56118,-85.083165 c 0.86637,2.733835 1.81205,5.405611 4.49585,6.717115 l 0,0' id='path4983' inkscape:connector-curvature='0' sodipodi:nodetypes='ccc' /%3E %3Cpath style='fill:none;fill-rule:evenodd;stroke:%23787e9f;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1' d='m 126.50005,-85.144855 7,0' id='path4979' inkscape:connector-curvature='0' /%3E %3Cpath style='fill:none;fill-rule:evenodd;stroke:%23787e9f;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1' d='m 122.50005,-88.144855 c 1.02705,1.26253 2.15887,2.435254 4,3 l 0,0' id='path4308' inkscape:connector-curvature='0' sodipodi:nodetypes='ccc' /%3E %3Cpath style='fill:none;fill-rule:evenodd;stroke:%23ffffff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1' d='m 114.50005,-78.144855 c 2.03357,-3.570745 4.12089,-7.121335 8,-10 l 0,0' id='path4306' inkscape:connector-curvature='0' sodipodi:nodetypes='ccc' /%3E %3C/g%3E %3C/svg%3E\""
 
 /***/ },
-/* 16 */
+/* 17 */
 /***/ function(module, exports) {
 
 	module.exports = "\"data:image/svg+xml;charset=utf8,%3C?xml version='1.0' encoding='UTF-8' standalone='no'?%3E %3C!-- Created with Inkscape (http://www.inkscape.org/) --%3E %3Csvg xmlns:dc='http://purl.org/dc/elements/1.1/' xmlns:cc='http://creativecommons.org/ns%23' xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns%23' xmlns:svg='http://www.w3.org/2000/svg' xmlns='http://www.w3.org/2000/svg' xmlns:sodipodi='http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd' xmlns:inkscape='http://www.inkscape.org/namespaces/inkscape' width='25.578321' height='12.02346' viewBox='0 0 25.578321 12.02346' id='svg2' version='1.1' inkscape:version='0.91 r13725' sodipodi:docname='decay.svg'%3E %3Cdefs id='defs4' /%3E %3Csodipodi:namedview id='base' pagecolor='%23767676' bordercolor='%23ffffff' borderopacity='1' inkscape:pageopacity='0' inkscape:pageshadow='2' inkscape:zoom='22.627418' inkscape:cx='15.427557' inkscape:cy='10.202857' inkscape:document-units='px' inkscape:current-layer='layer1' showgrid='true' borderlayer='true' inkscape:showpageshadow='true' inkscape:window-width='1920' inkscape:window-height='1001' inkscape:window-x='0' inkscape:window-y='27' inkscape:window-maximized='1' inkscape:snap-grids='true' fit-margin-top='0' fit-margin-left='0' fit-margin-right='0' fit-margin-bottom='0' units='px'%3E %3Cinkscape:grid type='xygrid' id='grid3336' color='%23b4bc45' opacity='0.1254902' originx='-122.9929' originy='-2128.9875' /%3E %3C/sodipodi:namedview%3E %3Cmetadata id='metadata7'%3E %3Crdf:RDF%3E %3Ccc:Work rdf:about=''%3E %3Cdc:format%3Eimage/svg+xml%3C/dc:format%3E %3Cdc:type rdf:resource='http://purl.org/dc/dcmitype/StillImage' /%3E %3Cdc:title%3E%3C/dc:title%3E %3C/cc:Work%3E %3C/rdf:RDF%3E %3C/metadata%3E %3Cg inkscape:label='Layer 1' inkscape:groupmode='layer' id='layer1' transform='translate(-113.49295,89.155926)'%3E %3Cpath style='opacity:1;fill:%23ffffff;fill-opacity:1;fill-rule:nonzero;stroke:%234d4d4d;stroke-width:0.50431865;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.19444448' d='' id='path3348' inkscape:connector-curvature='0' /%3E %3Cpath style='fill:none;fill-rule:evenodd;stroke:%23787e9f;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1' d='m 114.50005,-78.144855 c 2.03357,-3.570745 4.12089,-7.121335 8,-10 l 0,0' id='path4306' inkscape:connector-curvature='0' sodipodi:nodetypes='ccc' /%3E %3Cpath style='fill:none;fill-rule:evenodd;stroke:%23787e9f;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1' d='m 133.56118,-85.083165 c 0.86637,2.733835 1.81205,5.405611 4.49585,6.717115 l 0,0' id='path4983' inkscape:connector-curvature='0' sodipodi:nodetypes='ccc' /%3E %3Cpath style='fill:none;fill-rule:evenodd;stroke:%23787e9f;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1' d='m 126.50005,-85.144855 7,0' id='path4979' inkscape:connector-curvature='0' /%3E %3Cpath style='fill:none;fill-rule:evenodd;stroke:%23ffffff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1' d='m 122.50005,-88.144855 c 1.02705,1.26253 2.15887,2.435254 4,3 l 0,0' id='path4308' inkscape:connector-curvature='0' sodipodi:nodetypes='ccc' /%3E %3C/g%3E %3C/svg%3E\""
 
 /***/ },
-/* 17 */
+/* 18 */
 /***/ function(module, exports) {
 
 	module.exports = "\"data:image/svg+xml;charset=utf8,%3C?xml version='1.0' encoding='UTF-8' standalone='no'?%3E %3Csvg viewBox='0 0 256 250' version='1.1' xmlns='http://www.w3.org/2000/svg'%3E %3Cpath fill='white' d='M128.00106,0 C57.3172926,0 0,57.3066942 0,128.00106 C0,184.555281 36.6761997,232.535542 87.534937,249.460899 C93.9320223,250.645779 96.280588,246.684165 96.280588,243.303333 C96.280588,240.251045 96.1618878,230.167899 96.106777,219.472176 C60.4967585,227.215235 52.9826207,204.369712 52.9826207,204.369712 C47.1599584,189.574598 38.770408,185.640538 38.770408,185.640538 C27.1568785,177.696113 39.6458206,177.859325 39.6458206,177.859325 C52.4993419,178.762293 59.267365,191.04987 59.267365,191.04987 C70.6837675,210.618423 89.2115753,204.961093 96.5158685,201.690482 C97.6647155,193.417512 100.981959,187.77078 104.642583,184.574357 C76.211799,181.33766 46.324819,170.362144 46.324819,121.315702 C46.324819,107.340889 51.3250588,95.9223682 59.5132437,86.9583937 C58.1842268,83.7344152 53.8029229,70.715562 60.7532354,53.0843636 C60.7532354,53.0843636 71.5019501,49.6441813 95.9626412,66.2049595 C106.172967,63.368876 117.123047,61.9465949 128.00106,61.8978432 C138.879073,61.9465949 149.837632,63.368876 160.067033,66.2049595 C184.49805,49.6441813 195.231926,53.0843636 195.231926,53.0843636 C202.199197,70.715562 197.815773,83.7344152 196.486756,86.9583937 C204.694018,95.9223682 209.660343,107.340889 209.660343,121.315702 C209.660343,170.478725 179.716133,181.303747 151.213281,184.472614 C155.80443,188.444828 159.895342,196.234518 159.895342,208.176593 C159.895342,225.303317 159.746968,239.087361 159.746968,243.303333 C159.746968,246.709601 162.05102,250.70089 168.53925,249.443941 C219.370432,232.499507 256,184.536204 256,128.00106 C256,57.3066942 198.691187,0 128.00106,0 Z M47.9405593,182.340212 C47.6586465,182.976105 46.6581745,183.166873 45.7467277,182.730227 C44.8183235,182.312656 44.2968914,181.445722 44.5978808,180.80771 C44.8734344,180.152739 45.876026,179.97045 46.8023103,180.409216 C47.7328342,180.826786 48.2627451,181.702199 47.9405593,182.340212 Z M54.2367892,187.958254 C53.6263318,188.524199 52.4329723,188.261363 51.6232682,187.366874 C50.7860088,186.474504 50.6291553,185.281144 51.2480912,184.70672 C51.8776254,184.140775 53.0349512,184.405731 53.8743302,185.298101 C54.7115892,186.201069 54.8748019,187.38595 54.2367892,187.958254 Z M58.5562413,195.146347 C57.7719732,195.691096 56.4895886,195.180261 55.6968417,194.042013 C54.9125733,192.903764 54.9125733,191.538713 55.713799,190.991845 C56.5086651,190.444977 57.7719732,190.936735 58.5753181,192.066505 C59.3574669,193.22383 59.3574669,194.58888 58.5562413,195.146347 Z M65.8613592,203.471174 C65.1597571,204.244846 63.6654083,204.03712 62.5716717,202.981538 C61.4524999,201.94927 61.1409122,200.484596 61.8446341,199.710926 C62.5547146,198.935137 64.0575422,199.15346 65.1597571,200.200564 C66.2704506,201.230712 66.6095936,202.705984 65.8613592,203.471174 Z M75.3025151,206.281542 C74.9930474,207.284134 73.553809,207.739857 72.1039724,207.313809 C70.6562556,206.875043 69.7087748,205.700761 70.0012857,204.687571 C70.302275,203.678621 71.7478721,203.20382 73.2083069,203.659543 C74.6539041,204.09619 75.6035048,205.261994 75.3025151,206.281542 Z M86.046947,207.473627 C86.0829806,208.529209 84.8535871,209.404622 83.3316829,209.4237 C81.8013,209.457614 80.563428,208.603398 80.5464708,207.564772 C80.5464708,206.498591 81.7483088,205.631657 83.2786917,205.606221 C84.8005962,205.576546 86.046947,206.424403 86.046947,207.473627 Z M96.6021471,207.069023 C96.7844366,208.099171 95.7267341,209.156872 94.215428,209.438785 C92.7295577,209.710099 91.3539086,209.074206 91.1652603,208.052538 C90.9808515,206.996955 92.0576306,205.939253 93.5413813,205.66582 C95.054807,205.402984 96.4092596,206.021919 96.6021471,207.069023 Z' /%3E %3C/svg%3E\""
 
 /***/ },
-/* 18 */
+/* 19 */
 /***/ function(module, exports) {
 
 	module.exports = "\"data:image/svg+xml;charset=utf8,%3C?xml version='1.0' encoding='UTF-8' standalone='no'?%3E %3C!-- Created with Inkscape (http://www.inkscape.org/) --%3E %3Csvg xmlns:osb='http://www.openswatchbook.org/uri/2009/osb' xmlns:dc='http://purl.org/dc/elements/1.1/' xmlns:cc='http://creativecommons.org/ns%23' xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns%23' xmlns:svg='http://www.w3.org/2000/svg' xmlns='http://www.w3.org/2000/svg' xmlns:sodipodi='http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd' xmlns:inkscape='http://www.inkscape.org/namespaces/inkscape' width='95' height='95' viewBox='0 0 95.000001 95.000001' id='svg2' version='1.1' sodipodi:docname='knob-bg.svg' inkscape:version='0.91 r13725'%3E %3Cdefs id='defs4'%3E %3ClinearGradient id='linearGradient6764' osb:paint='solid'%3E %3Cstop style='stop-color:%23000000;stop-opacity:1;' offset='0' id='stop6766' /%3E %3C/linearGradient%3E %3ClinearGradient id='linearGradient6758' osb:paint='solid'%3E %3Cstop style='stop-color:%23ffffff;stop-opacity:1;' offset='0' id='stop6760' /%3E %3C/linearGradient%3E %3ClinearGradient id='linearGradient6712' osb:paint='solid'%3E %3Cstop style='stop-color:%234d4d4d;stop-opacity:1;' offset='0' id='stop6714' /%3E %3C/linearGradient%3E %3ClinearGradient id='linearGradient6704' osb:paint='gradient'%3E %3Cstop style='stop-color:%23ffffff;stop-opacity:1;' offset='0' id='stop6706' /%3E %3Cstop style='stop-color:%23ffffff;stop-opacity:0;' offset='1' id='stop6708' /%3E %3C/linearGradient%3E %3ClinearGradient id='linearGradient6694' osb:paint='solid'%3E %3Cstop style='stop-color:%23ffffff;stop-opacity:1;' offset='0' id='stop6696' /%3E %3C/linearGradient%3E %3ClinearGradient id='linearGradient6680' osb:paint='gradient'%3E %3Cstop style='stop-color:%23ffffff;stop-opacity:1;' offset='0' id='stop6682' /%3E %3Cstop style='stop-color:%23ffffff;stop-opacity:0;' offset='1' id='stop6684' /%3E %3C/linearGradient%3E %3ClinearGradient id='linearGradient6568' osb:paint='solid'%3E %3Cstop style='stop-color:%23b5b5b5;stop-opacity:1;' offset='0' id='stop6570' /%3E %3C/linearGradient%3E %3C/defs%3E %3Csodipodi:namedview id='base' pagecolor='%237b7b7b' bordercolor='%23666666' borderopacity='1.0' inkscape:pageopacity='0' inkscape:pageshadow='2' inkscape:zoom='45.254834' inkscape:cx='34.104178' inkscape:cy='9.0115891' inkscape:document-units='px' inkscape:current-layer='g6790' showgrid='false' inkscape:snap-object-midpoints='false' inkscape:snap-others='true' inkscape:snap-center='false' inkscape:snap-nodes='true' inkscape:snap-grids='true' inkscape:snap-global='true' inkscape:window-width='1920' inkscape:window-height='1001' inkscape:window-x='0' inkscape:window-y='27' inkscape:window-maximized='1' showborder='true' borderlayer='false' fit-margin-top='0' fit-margin-left='0' fit-margin-right='0' fit-margin-bottom='0' showguides='true' inkscape:guide-bbox='true' units='px'%3E %3Cinkscape:grid type='xygrid' id='grid6887' originx='-5.9568231' originy='-922.09998' /%3E %3Csodipodi:guide position='134.79086,343.16329' orientation='0,1' id='guide4803' /%3E %3C/sodipodi:namedview%3E %3Cmetadata id='metadata7'%3E %3Crdf:RDF%3E %3Ccc:Work rdf:about=''%3E %3Cdc:format%3Eimage/svg+xml%3C/dc:format%3E %3Cdc:type rdf:resource='http://purl.org/dc/dcmitype/StillImage' /%3E %3Cdc:title /%3E %3C/cc:Work%3E %3C/rdf:RDF%3E %3C/metadata%3E %3Cg inkscape:label='knob-background' inkscape:groupmode='layer' id='layer1' style='display:inline' transform='translate(-5.9568232,-35.262201)'%3E %3Cg id='g6790' transform='matrix(0.7404283,0,0,0.7404283,-16.505639,-495.70166)'%3E %3Ccircle transform='scale(-1,1)' r='63.63961' cy='781.26819' cx='-94.47673' id='path3338' style='fill:%23787e9f;fill-opacity:1;fill-rule:evenodd;stroke:%23787e9f;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:round;stroke-opacity:1' /%3E %3Crect transform='scale(1,-1)' y='-784.38281' x='91.783913' height='60.403229' width='5.4254837' id='rect4144' style='fill:%23ffffff;fill-opacity:1;stroke:%23000000;stroke-width:0.81103253;stroke-linejoin:round;stroke-opacity:0' /%3E %3Crect transform='matrix(0,-1,-1,0,0,0)' y='-95.268585' x='-785.54913' height='58.806583' width='1.5347334' id='rect4144-2' style='fill:%23ffffff;fill-opacity:1;stroke:%23000000;stroke-width:0.42561644;stroke-linejoin:round;stroke-opacity:0' /%3E %3Crect transform='matrix(0,1,1,0,0,0)' y='94.729378' x='784.02789' height='57.76585' width='1.5075723' id='rect4144-1' style='fill:%23ffffff;fill-opacity:1;stroke:%23000000;stroke-width:0.41808408;stroke-linejoin:round;stroke-opacity:0' /%3E %3Crect transform='matrix(0.5,-0.8660254,-0.8660254,-0.5,0,0)' y='-474.68332' x='-633.16095' height='58.438953' width='1.525139' id='rect4144-2-6' style='fill:%23ffffff;fill-opacity:1;stroke:%23000000;stroke-width:0.42295569;stroke-linejoin:round;stroke-opacity:0' /%3E %3Crect transform='matrix(0.5,0.8660254,0.8660254,-0.5,0,0)' y='-310.55344' x='726.5202' height='58.285332' width='1.5211297' id='rect4144-2-6-3' style='fill:%23ffffff;fill-opacity:1;stroke:%23000000;stroke-width:0.42184386;stroke-linejoin:round;stroke-opacity:0' /%3E %3Crect transform='matrix(0.8660254,0.5,0.5,-0.8660254,0,0)' y='-632.7262' x='473.62811' height='59.216183' width='1.5454232' id='rect4144-2-6-3-2' style='fill:%23ffffff;fill-opacity:1;stroke:%23000000;stroke-width:0.42858094;stroke-linejoin:round;stroke-opacity:0' /%3E %3Crect transform='matrix(0.8660254,-0.5,-0.5,-0.8660254,0,0)' y='-726.9054' x='-311.18314' height='58.014194' width='1.5140537' id='rect4144-2-6-9' style='fill:%23ffffff;fill-opacity:1;stroke:%23000000;stroke-width:0.41988149;stroke-linejoin:round;stroke-opacity:0' /%3E %3Crect transform='matrix(-0.96592583,-0.25881904,-0.5,0.8660254,0,0)' y='759.33832' x='-492.80673' height='57.483643' width='3.1062579' id='rect4144-2-6-7' style='fill:%23ffffff;fill-opacity:1;stroke:none;stroke-width:0.463;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0' /%3E %3Crect transform='matrix(0.70710677,-0.70710679,-0.5,-0.8660254,0,0)' y='-701.51379' x='-323.34305' height='57.938328' width='3.1308279' id='rect4144-2-6-7-8' style='fill:%23ffffff;fill-opacity:1;fill-rule:nonzero;stroke:%23000000;stroke-width:0.463;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0' /%3E %3Crect transform='matrix(-0.5,-0.8660254,-0.8660254,0.5,0,0)' y='310.76205' x='-727.69421' height='58.09866' width='1.5162581' id='rect4144-2-2' style='fill:%23ffffff;fill-opacity:1;stroke:%23000000;stroke-width:0.4204928;stroke-linejoin:round;stroke-opacity:0' /%3E %3Crect transform='matrix(0.5,-0.8660254,-0.8660254,-0.5,0,0)' y='-530.71777' x='-632.9516' height='55.885605' width='1.4585018' id='rect4144-2-2-0' style='fill:%23ffffff;fill-opacity:1;stroke:%23000000;stroke-width:0.40447566;stroke-linejoin:round;stroke-opacity:0' /%3E %3Crect transform='matrix(-0.96592583,-0.25881904,-0.5,0.8660254,0,0)' y='759.34033' x='-489.74704' height='57.483643' width='3.1062579' id='rect4144-2-6-7-3' style='display:inline;fill:%23ffffff;fill-opacity:1;stroke:none;stroke-width:0.463;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0' /%3E %3Crect transform='matrix(0.70710677,-0.70710679,-0.5,-0.8660254,0,0)' y='-701.51331' x='-320.27475' height='57.938328' width='3.1308279' id='rect4144-2-6-7-8-6' style='display:inline;fill:%23ffffff;fill-opacity:1;fill-rule:nonzero;stroke:%23000000;stroke-width:0.46299997;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0' /%3E %3C/g%3E %3C/g%3E %3Cg inkscape:groupmode='layer' id='layer2' inkscape:label='knob-foreground' style='display:inline' transform='translate(-5.9568232,-35.262201)' /%3E %3C/svg%3E\""
 
 /***/ },
-/* 19 */
+/* 20 */
 /***/ function(module, exports) {
 
 	module.exports = "\"data:image/svg+xml;charset=utf8,%3C?xml version='1.0' encoding='UTF-8' standalone='no'?%3E %3C!-- Created with Inkscape (http://www.inkscape.org/) --%3E %3Csvg xmlns:osb='http://www.openswatchbook.org/uri/2009/osb' xmlns:dc='http://purl.org/dc/elements/1.1/' xmlns:cc='http://creativecommons.org/ns%23' xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns%23' xmlns:svg='http://www.w3.org/2000/svg' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' xmlns:sodipodi='http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd' xmlns:inkscape='http://www.inkscape.org/namespaces/inkscape' width='95' height='95' viewBox='0 0 95.000001 95.000001' id='svg2' version='1.1' sodipodi:docname='fg.svg' inkscape:version='0.91 r13725'%3E %3Cdefs id='defs4'%3E %3ClinearGradient id='linearGradient6764' osb:paint='solid'%3E %3Cstop style='stop-color:%23000000;stop-opacity:1;' offset='0' id='stop6766' /%3E %3C/linearGradient%3E %3ClinearGradient id='linearGradient6758' osb:paint='solid'%3E %3Cstop style='stop-color:%23ffffff;stop-opacity:1;' offset='0' id='stop6760' /%3E %3C/linearGradient%3E %3ClinearGradient id='linearGradient6712' osb:paint='solid'%3E %3Cstop style='stop-color:%234d4d4d;stop-opacity:1;' offset='0' id='stop6714' /%3E %3C/linearGradient%3E %3ClinearGradient id='linearGradient6704' osb:paint='gradient'%3E %3Cstop style='stop-color:%23ffffff;stop-opacity:1;' offset='0' id='stop6706' /%3E %3Cstop style='stop-color:%23ffffff;stop-opacity:0;' offset='1' id='stop6708' /%3E %3C/linearGradient%3E %3ClinearGradient id='linearGradient6694' osb:paint='solid'%3E %3Cstop style='stop-color:%23ffffff;stop-opacity:1;' offset='0' id='stop6696' /%3E %3C/linearGradient%3E %3ClinearGradient id='linearGradient6680' osb:paint='gradient'%3E %3Cstop style='stop-color:%23ffffff;stop-opacity:1;' offset='0' id='stop6682' /%3E %3Cstop style='stop-color:%23ffffff;stop-opacity:0;' offset='1' id='stop6684' /%3E %3C/linearGradient%3E %3ClinearGradient id='linearGradient6568' osb:paint='solid'%3E %3Cstop style='stop-color:%23b5b5b5;stop-opacity:1;' offset='0' id='stop6570' /%3E %3C/linearGradient%3E %3Cfilter inkscape:menu-tooltip='Basic diffuse bevel to use for building textures' inkscape:menu='ABCs' inkscape:label='Diffuse light' id='f117' style='color-interpolation-filters:sRGB'%3E %3CfeGaussianBlur id='feGaussianBlur6484' result='result0' in='SourceGraphic' stdDeviation='6' /%3E %3CfeDiffuseLighting id='feDiffuseLighting6486' result='result5' surfaceScale='10' diffuseConstant='1'%3E %3CfeDistantLight id='feDistantLight6488' azimuth='235' elevation='25' /%3E %3C/feDiffuseLighting%3E %3CfeComposite id='feComposite6490' k3='0.6' k2='0' operator='arithmetic' result='result4' in='result5' in2='SourceGraphic' k1='1' k4='0' /%3E %3C/filter%3E %3Cpattern xlink:href='%23Strips1_1' id='pattern6806' patternTransform='matrix(30,0,0,10,-770,-710)' /%3E %3Cpattern id='Strips1_1' patternTransform='translate(0,0) scale(10,10)' height='1' width='2' patternUnits='userSpaceOnUse'%3E %3Crect id='rect5384' height='2' width='1' y='-0.5' x='0' /%3E %3C/pattern%3E %3C/defs%3E %3Csodipodi:namedview id='base' pagecolor='%237b7b7b' bordercolor='%23666666' borderopacity='1.0' inkscape:pageopacity='0' inkscape:pageshadow='2' inkscape:zoom='2.8284271' inkscape:cx='41.258451' inkscape:cy='54.1403' inkscape:document-units='px' inkscape:current-layer='g6790' showgrid='false' inkscape:snap-object-midpoints='false' inkscape:snap-others='true' inkscape:snap-center='false' inkscape:snap-nodes='true' inkscape:snap-grids='true' inkscape:snap-global='true' inkscape:window-width='1366' inkscape:window-height='716' inkscape:window-x='316' inkscape:window-y='1080' inkscape:window-maximized='1' showborder='true' borderlayer='false' fit-margin-top='0' fit-margin-left='0' fit-margin-right='0' fit-margin-bottom='0' showguides='true' inkscape:guide-bbox='true' units='px'%3E %3Cinkscape:grid type='xygrid' id='grid6887' originx='-5.9568231' originy='-922.09998' /%3E %3Csodipodi:guide position='134.79086,343.16329' orientation='0,1' id='guide4803' /%3E %3C/sodipodi:namedview%3E %3Cmetadata id='metadata7'%3E %3Crdf:RDF%3E %3Ccc:Work rdf:about=''%3E %3Cdc:format%3Eimage/svg+xml%3C/dc:format%3E %3Cdc:type rdf:resource='http://purl.org/dc/dcmitype/StillImage' /%3E %3Cdc:title%3E%3C/dc:title%3E %3C/cc:Work%3E %3C/rdf:RDF%3E %3C/metadata%3E %3Cg inkscape:label='knob-background' inkscape:groupmode='layer' id='layer1' style='display:inline' transform='translate(-5.9568232,-35.262201)'%3E %3Cg id='g6790' transform='matrix(0.7404283,0,0,0.7404283,-16.505639,-495.70166)'%3E %3Cg id='g3595' transform='translate(0,-1.5118408)'%3E %3Ccircle style='fill:%23484848;stroke:%23484848;stroke-width:0.98509628' id='circle4202' cx='94.47673' cy='782.78003' r='44.329334' /%3E %3Ccircle style='fill:%233d3d3d;stroke:%23484848;stroke-width:0.49254814' id='circle4204' cx='94.47673' cy='782.78003' r='34.478371' /%3E %3Ccircle style='fill:%23484848;stroke:%23484848;stroke-width:0.98509628' id='circle4206' cx='94.47673' cy='782.78003' r='19.701925' /%3E %3C/g%3E %3Cg transform='matrix(0.98050088,0,0,1.0313289,-103.09215,719.17998)' id='g4208'%3E %3Cpath d='m 197.01675,13.185169 c -0.8127,17.013009 -1.62546,34.026017 -2.43818,51.039026 4.91187,-0.0059 9.82378,-0.01317 14.73565,-0.0198 -0.76953,-17.015837 -1.5391,-34.031684 -2.30864,-51.047521 -3.32961,0.0098 -6.6592,0.01892 -9.98883,0.02828 z' id='path4210' inkscape:connector-curvature='0' style='fill:%23e2e2e2;stroke:url(%23pattern6806);stroke-width:3.44300008;stroke-opacity:0.18999999' /%3E %3C/g%3E %3C/g%3E %3C/g%3E %3Cg inkscape:groupmode='layer' id='layer2' inkscape:label='knob-foreground' style='display:inline' transform='translate(-5.9568232,-35.262201)' /%3E %3C/svg%3E\""
 
 /***/ },
-/* 20 */
+/* 21 */
 /***/ function(module, exports) {
 
 	module.exports = "\"data:image/svg+xml;charset=utf8,%3C?xml version='1.0' encoding='UTF-8' standalone='no'?%3E %3C!-- Created with Inkscape (http://www.inkscape.org/) --%3E %3Csvg xmlns:dc='http://purl.org/dc/elements/1.1/' xmlns:cc='http://creativecommons.org/ns%23' xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns%23' xmlns:svg='http://www.w3.org/2000/svg' xmlns='http://www.w3.org/2000/svg' xmlns:sodipodi='http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd' xmlns:inkscape='http://www.inkscape.org/namespaces/inkscape' width='9.0351591mm' height='4.8058167mm' viewBox='0 0 32.014343 17.028484' id='svg2' version='1.1' inkscape:version='0.91 r13725' sodipodi:docname='pulse.svg'%3E %3Cdefs id='defs4' /%3E %3Csodipodi:namedview id='base' pagecolor='%23767676' bordercolor='%23ffffff' borderopacity='1' inkscape:pageopacity='0' inkscape:pageshadow='2' inkscape:zoom='2.8284273' inkscape:cx='-142.2296' inkscape:cy='-59.472086' inkscape:document-units='px' inkscape:current-layer='layer1' showgrid='true' borderlayer='true' inkscape:showpageshadow='true' inkscape:window-width='1920' inkscape:window-height='1001' inkscape:window-x='0' inkscape:window-y='27' inkscape:window-maximized='1' inkscape:snap-grids='true' fit-margin-top='0' fit-margin-left='0' fit-margin-right='0' fit-margin-bottom='0'%3E %3Cinkscape:grid type='xygrid' id='grid3336' color='%23b4bc45' opacity='0.1254902' originx='-18.49985' originy='-1998.4786' /%3E %3C/sodipodi:namedview%3E %3Cmetadata id='metadata7'%3E %3Crdf:RDF%3E %3Ccc:Work rdf:about=''%3E %3Cdc:format%3Eimage/svg+xml%3C/dc:format%3E %3Cdc:type rdf:resource='http://purl.org/dc/dcmitype/StillImage' /%3E %3Cdc:title /%3E %3C/cc:Work%3E %3C/rdf:RDF%3E %3C/metadata%3E %3Cg inkscape:label='Layer 1' inkscape:groupmode='layer' id='layer1' transform='translate(-8.9999,-36.347963)'%3E %3Cpath style='opacity:1;fill:%23ffffff;fill-opacity:1;fill-rule:nonzero;stroke:%234d4d4d;stroke-width:0.50431865;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.19444448' d='' id='path3348' inkscape:connector-curvature='0' /%3E %3Cg id='g4164' style='stroke-width:1.5;stroke-miterlimit:4;stroke-dasharray:none'%3E %3Cpath inkscape:connector-curvature='0' id='path4158' d='m 10,52.362205 0,-15 10,0' style='fill:none;fill-rule:evenodd;stroke:%23ffffff;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1' /%3E %3Cpath inkscape:connector-curvature='0' id='path4160' d='m 20,37.362205 0,15 20,0' style='fill:none;fill-rule:evenodd;stroke:%23ffffff;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1' /%3E %3C/g%3E %3C/g%3E %3C/svg%3E\""
 
 /***/ },
-/* 21 */
+/* 22 */
 /***/ function(module, exports) {
 
 	module.exports = "\"data:image/svg+xml;charset=utf8,%3C?xml version='1.0' encoding='UTF-8' standalone='no'?%3E %3C!-- Created with Inkscape (http://www.inkscape.org/) --%3E %3Csvg xmlns:dc='http://purl.org/dc/elements/1.1/' xmlns:cc='http://creativecommons.org/ns%23' xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns%23' xmlns:svg='http://www.w3.org/2000/svg' xmlns='http://www.w3.org/2000/svg' xmlns:sodipodi='http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd' xmlns:inkscape='http://www.inkscape.org/namespaces/inkscape' width='25.578321' height='12.02346' viewBox='0 0 25.578321 12.02346' id='svg2' version='1.1' inkscape:version='0.91 r13725' sodipodi:docname='release.svg'%3E %3Cdefs id='defs4' /%3E %3Csodipodi:namedview id='base' pagecolor='%23767676' bordercolor='%23ffffff' borderopacity='1' inkscape:pageopacity='0' inkscape:pageshadow='2' inkscape:zoom='22.627418' inkscape:cx='15.427557' inkscape:cy='10.202857' inkscape:document-units='px' inkscape:current-layer='layer1' showgrid='true' borderlayer='true' inkscape:showpageshadow='true' inkscape:window-width='1920' inkscape:window-height='1001' inkscape:window-x='0' inkscape:window-y='27' inkscape:window-maximized='1' inkscape:snap-grids='true' fit-margin-top='0' fit-margin-left='0' fit-margin-right='0' fit-margin-bottom='0' units='px'%3E %3Cinkscape:grid type='xygrid' id='grid3336' color='%23b4bc45' opacity='0.1254902' originx='-122.9929' originy='-2128.9875' /%3E %3C/sodipodi:namedview%3E %3Cmetadata id='metadata7'%3E %3Crdf:RDF%3E %3Ccc:Work rdf:about=''%3E %3Cdc:format%3Eimage/svg+xml%3C/dc:format%3E %3Cdc:type rdf:resource='http://purl.org/dc/dcmitype/StillImage' /%3E %3Cdc:title%3E%3C/dc:title%3E %3C/cc:Work%3E %3C/rdf:RDF%3E %3C/metadata%3E %3Cg inkscape:label='Layer 1' inkscape:groupmode='layer' id='layer1' transform='translate(-113.49295,89.155926)'%3E %3Cpath style='opacity:1;fill:%23ffffff;fill-opacity:1;fill-rule:nonzero;stroke:%234d4d4d;stroke-width:0.50431865;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.19444448' d='' id='path3348' inkscape:connector-curvature='0' /%3E %3Cpath style='fill:none;fill-rule:evenodd;stroke:%23787e9f;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1' d='m 114.50005,-78.144855 c 2.03357,-3.570745 4.12089,-7.121335 8,-10 l 0,0' id='path4306' inkscape:connector-curvature='0' sodipodi:nodetypes='ccc' /%3E %3Cpath style='fill:none;fill-rule:evenodd;stroke:%23787e9f;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1' d='m 122.50005,-88.144855 c 1.02705,1.26253 2.15887,2.435254 4,3 l 0,0' id='path4308' inkscape:connector-curvature='0' sodipodi:nodetypes='ccc' /%3E %3Cpath style='fill:none;fill-rule:evenodd;stroke:%23787e9f;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1' d='m 126.50005,-85.144855 7,0' id='path4979' inkscape:connector-curvature='0' /%3E %3Cpath style='fill:none;fill-rule:evenodd;stroke:%23ffffff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1' d='m 133.56118,-85.083165 c 0.86637,2.733835 1.81205,5.405611 4.49585,6.717115 l 0,0' id='path4983' inkscape:connector-curvature='0' sodipodi:nodetypes='ccc' /%3E %3C/g%3E %3C/svg%3E\""
 
 /***/ },
-/* 22 */
+/* 23 */
 /***/ function(module, exports) {
 
 	module.exports = "\"data:image/svg+xml;charset=utf8,%3C?xml version='1.0' encoding='UTF-8' standalone='no'?%3E %3C!-- Created with Inkscape (http://www.inkscape.org/) --%3E %3Csvg xmlns:dc='http://purl.org/dc/elements/1.1/' xmlns:cc='http://creativecommons.org/ns%23' xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns%23' xmlns:svg='http://www.w3.org/2000/svg' xmlns='http://www.w3.org/2000/svg' xmlns:sodipodi='http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd' xmlns:inkscape='http://www.inkscape.org/namespaces/inkscape' width='9.0387287mm' height='4.8058171mm' viewBox='0 0 32.026992 17.028485' id='svg2' version='1.1' inkscape:version='0.91 r13725' sodipodi:docname='saw.svg'%3E %3Cdefs id='defs4' /%3E %3Csodipodi:namedview id='base' pagecolor='%23767676' bordercolor='%23ffffff' borderopacity='1' inkscape:pageopacity='0' inkscape:pageshadow='2' inkscape:zoom='11.313709' inkscape:cx='-23.76401' inkscape:cy='-3.3776791' inkscape:document-units='px' inkscape:current-layer='layer1' showgrid='true' borderlayer='true' inkscape:showpageshadow='true' inkscape:window-width='1920' inkscape:window-height='1001' inkscape:window-x='0' inkscape:window-y='27' inkscape:window-maximized='1' inkscape:snap-grids='true' fit-margin-top='0' fit-margin-left='0' fit-margin-right='0' fit-margin-bottom='0'%3E %3Cinkscape:grid type='xygrid' id='grid3336' color='%23b4bc45' opacity='0.1254902' originx='37.012848' originy='-1997.9714' /%3E %3C/sodipodi:namedview%3E %3Cmetadata id='metadata7'%3E %3Crdf:RDF%3E %3Ccc:Work rdf:about=''%3E %3Cdc:format%3Eimage/svg+xml%3C/dc:format%3E %3Cdc:type rdf:resource='http://purl.org/dc/dcmitype/StillImage' /%3E %3Cdc:title /%3E %3C/cc:Work%3E %3C/rdf:RDF%3E %3C/metadata%3E %3Cg inkscape:label='Layer 1' inkscape:groupmode='layer' id='layer1' transform='translate(46.512799,-36.855105)'%3E %3Cpath style='opacity:1;fill:%23ffffff;fill-opacity:1;fill-rule:nonzero;stroke:%234d4d4d;stroke-width:0.50431865;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.19444448' d='' id='path3348' inkscape:connector-curvature='0' /%3E %3Cg transform='translate(-95.50005,30.507143)' id='g4172' style='stroke-width:1.5;stroke-miterlimit:4;stroke-dasharray:none'%3E %3Cpath inkscape:connector-curvature='0' id='path4152' d='m 50,22.362205 30,-15.0000003 0,0' style='fill:none;fill-rule:evenodd;stroke:%23ffffff;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1' /%3E %3Cpath inkscape:connector-curvature='0' id='path4154' d='M 80,7.3622047 80,22.362205' style='fill:none;fill-rule:evenodd;stroke:%23ffffff;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1' /%3E %3C/g%3E %3C/g%3E %3C/svg%3E\""
 
 /***/ },
-/* 23 */
+/* 24 */
 /***/ function(module, exports) {
 
 	module.exports = "\"data:image/svg+xml;charset=utf8,%3C?xml version='1.0' encoding='UTF-8' standalone='no'?%3E %3C!-- Created with Inkscape (http://www.inkscape.org/) --%3E %3Csvg xmlns:dc='http://purl.org/dc/elements/1.1/' xmlns:cc='http://creativecommons.org/ns%23' xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns%23' xmlns:svg='http://www.w3.org/2000/svg' xmlns='http://www.w3.org/2000/svg' xmlns:sodipodi='http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd' xmlns:inkscape='http://www.inkscape.org/namespaces/inkscape' width='30.656002' height='14.824542' viewBox='0 0 30.656002 14.824541' id='svg2' version='1.1' inkscape:version='0.91 r13725' sodipodi:docname='sine.svg'%3E %3Cdefs id='defs4' /%3E %3Csodipodi:namedview id='base' pagecolor='%23767676' bordercolor='%23ffffff' borderopacity='1' inkscape:pageopacity='0' inkscape:pageshadow='2' inkscape:zoom='11.313709' inkscape:cx='61.382421' inkscape:cy='16.869443' inkscape:document-units='px' inkscape:current-layer='layer1' showgrid='true' borderlayer='true' inkscape:showpageshadow='true' inkscape:window-width='1920' inkscape:window-height='1001' inkscape:window-x='0' inkscape:window-y='27' inkscape:window-maximized='1' inkscape:snap-grids='true' fit-margin-top='0' fit-margin-left='0' fit-margin-right='0' fit-margin-bottom='0' units='px'%3E %3Cinkscape:grid type='xygrid' id='grid3336' color='%23b4bc45' opacity='0.1254902' originx='-49.644373' originy='-1000.0742' dotted='false' /%3E %3C/sodipodi:namedview%3E %3Cmetadata id='metadata7'%3E %3Crdf:RDF%3E %3Ccc:Work rdf:about=''%3E %3Cdc:format%3Eimage/svg+xml%3C/dc:format%3E %3Cdc:type rdf:resource='http://purl.org/dc/dcmitype/StillImage' /%3E %3Cdc:title /%3E %3C/cc:Work%3E %3C/rdf:RDF%3E %3C/metadata%3E %3Cg inkscape:label='Layer 1' inkscape:groupmode='layer' id='layer1' transform='translate(-49.644373,-37.463506)'%3E %3Cpath style='opacity:1;fill:%23ffffff;fill-opacity:1;fill-rule:nonzero;stroke:%234d4d4d;stroke-width:0.50431865;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.19444448' d='' id='path3348' inkscape:connector-curvature='0' /%3E %3Cg id='g4183' style='stroke:%23ffffff;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1;stroke-width:1.5;stroke-miterlimit:4;stroke-dasharray:none'%3E %3Cpath sodipodi:nodetypes='cc' inkscape:connector-curvature='0' id='path4156' d='m 50,44.880464 c 4.400662,-8.279519 9.243899,-10.493239 14.973982,0' style='fill:none;fill-rule:evenodd;stroke:%23ffffff;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none' /%3E %3Cpath sodipodi:nodetypes='cc' inkscape:connector-curvature='0' id='path4156-6' d='m 79.944748,44.871088 c -4.400662,8.279519 -9.243899,10.493239 -14.973983,0' style='fill:none;fill-rule:evenodd;stroke:%23ffffff;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none' /%3E %3C/g%3E %3C/g%3E %3C/svg%3E\""
 
 /***/ },
-/* 24 */
+/* 25 */
 /***/ function(module, exports) {
 
 	module.exports = "\"data:image/svg+xml;charset=utf8,%3C?xml version='1.0' encoding='UTF-8' standalone='no'?%3E %3C!-- Created with Inkscape (http://www.inkscape.org/) --%3E %3Csvg xmlns:dc='http://purl.org/dc/elements/1.1/' xmlns:cc='http://creativecommons.org/ns%23' xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns%23' xmlns:svg='http://www.w3.org/2000/svg' xmlns='http://www.w3.org/2000/svg' xmlns:sodipodi='http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd' xmlns:inkscape='http://www.inkscape.org/namespaces/inkscape' width='31.215384' height='15.024919' viewBox='0 0 31.215383 15.024917' id='svg2' version='1.1' inkscape:version='0.91 r13725' sodipodi:docname='square.svg'%3E %3Cdefs id='defs4' /%3E %3Csodipodi:namedview id='base' pagecolor='%23767676' bordercolor='%23ffffff' borderopacity='1' inkscape:pageopacity='0' inkscape:pageshadow='2' inkscape:zoom='8.0000003' inkscape:cx='37.200259' inkscape:cy='-1.2929871' inkscape:document-units='px' inkscape:current-layer='layer1' showgrid='true' borderlayer='true' inkscape:showpageshadow='true' inkscape:window-width='1920' inkscape:window-height='1001' inkscape:window-x='0' inkscape:window-y='27' inkscape:window-maximized='1' inkscape:snap-grids='true' fit-margin-top='0' fit-margin-left='0' fit-margin-right='0' fit-margin-bottom='0' units='px'%3E %3Cinkscape:grid type='xygrid' id='grid3336' color='%23b4bc45' opacity='0.1254902' originx='-49.282932' originy='-999.98744' dotted='false' /%3E %3C/sodipodi:namedview%3E %3Cmetadata id='metadata7'%3E %3Crdf:RDF%3E %3Ccc:Work rdf:about=''%3E %3Cdc:format%3Eimage/svg+xml%3C/dc:format%3E %3Cdc:type rdf:resource='http://purl.org/dc/dcmitype/StillImage' /%3E %3Cdc:title /%3E %3C/cc:Work%3E %3C/rdf:RDF%3E %3C/metadata%3E %3Cg inkscape:label='Layer 1' inkscape:groupmode='layer' id='layer1' transform='translate(-49.282933,-37.34986)'%3E %3Cpath style='opacity:1;fill:%23ffffff;fill-opacity:1;fill-rule:nonzero;stroke:%234d4d4d;stroke-width:0.50431865;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.19444448' d='' id='path3348' inkscape:connector-curvature='0' /%3E %3Cpath style='fill:none;fill-rule:evenodd;stroke:%23ffffff;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1' d='m 50.283033,51.360536 0,-12.996434 15.111302,0 0,12.996434 14.103882,0 0,-12.996434' id='path6229' inkscape:connector-curvature='0' /%3E %3C/g%3E %3C/svg%3E\""
 
 /***/ },
-/* 25 */
+/* 26 */
 /***/ function(module, exports) {
 
 	module.exports = "\"data:image/svg+xml;charset=utf8,%3C?xml version='1.0' encoding='UTF-8' standalone='no'?%3E %3C!-- Created with Inkscape (http://www.inkscape.org/) --%3E %3Csvg xmlns:dc='http://purl.org/dc/elements/1.1/' xmlns:cc='http://creativecommons.org/ns%23' xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns%23' xmlns:svg='http://www.w3.org/2000/svg' xmlns='http://www.w3.org/2000/svg' xmlns:sodipodi='http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd' xmlns:inkscape='http://www.inkscape.org/namespaces/inkscape' width='25.578321' height='12.02346' viewBox='0 0 25.578321 12.02346' id='svg2' version='1.1' inkscape:version='0.91 r13725' sodipodi:docname='sustain.svg'%3E %3Cdefs id='defs4' /%3E %3Csodipodi:namedview id='base' pagecolor='%23767676' bordercolor='%23ffffff' borderopacity='1' inkscape:pageopacity='0' inkscape:pageshadow='2' inkscape:zoom='22.627418' inkscape:cx='15.427557' inkscape:cy='10.202857' inkscape:document-units='px' inkscape:current-layer='layer1' showgrid='true' borderlayer='true' inkscape:showpageshadow='true' inkscape:window-width='1920' inkscape:window-height='1001' inkscape:window-x='0' inkscape:window-y='27' inkscape:window-maximized='1' inkscape:snap-grids='true' fit-margin-top='0' fit-margin-left='0' fit-margin-right='0' fit-margin-bottom='0' units='px'%3E %3Cinkscape:grid type='xygrid' id='grid3336' color='%23b4bc45' opacity='0.1254902' originx='-122.9929' originy='-2128.9875' /%3E %3C/sodipodi:namedview%3E %3Cmetadata id='metadata7'%3E %3Crdf:RDF%3E %3Ccc:Work rdf:about=''%3E %3Cdc:format%3Eimage/svg+xml%3C/dc:format%3E %3Cdc:type rdf:resource='http://purl.org/dc/dcmitype/StillImage' /%3E %3Cdc:title%3E%3C/dc:title%3E %3C/cc:Work%3E %3C/rdf:RDF%3E %3C/metadata%3E %3Cg inkscape:label='Layer 1' inkscape:groupmode='layer' id='layer1' transform='translate(-113.49295,89.155926)'%3E %3Cpath style='opacity:1;fill:%23ffffff;fill-opacity:1;fill-rule:nonzero;stroke:%234d4d4d;stroke-width:0.50431865;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.19444448' d='' id='path3348' inkscape:connector-curvature='0' /%3E %3Cpath style='fill:none;fill-rule:evenodd;stroke:%23787e9f;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1' d='m 114.50005,-78.144855 c 2.03357,-3.570745 4.12089,-7.121335 8,-10 l 0,0' id='path4306' inkscape:connector-curvature='0' sodipodi:nodetypes='ccc' /%3E %3Cpath style='fill:none;fill-rule:evenodd;stroke:%23787e9f;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1' d='m 122.50005,-88.144855 c 1.02705,1.26253 2.15887,2.435254 4,3 l 0,0' id='path4308' inkscape:connector-curvature='0' sodipodi:nodetypes='ccc' /%3E %3Cpath style='fill:none;fill-rule:evenodd;stroke:%23787e9f;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1' d='m 133.56118,-85.083165 c 0.86637,2.733835 1.81205,5.405611 4.49585,6.717115 l 0,0' id='path4983' inkscape:connector-curvature='0' sodipodi:nodetypes='ccc' /%3E %3Cpath style='fill:none;fill-rule:evenodd;stroke:%23ffffff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1' d='m 126.50005,-85.144855 7,0' id='path4979' inkscape:connector-curvature='0' /%3E %3C/g%3E %3C/svg%3E\""
 
 /***/ },
-/* 26 */
+/* 27 */
 /***/ function(module, exports) {
 
 	module.exports = "\"data:image/svg+xml;charset=utf8,%3C?xml version='1.0' encoding='UTF-8' standalone='no'?%3E %3C!-- Created with Inkscape (http://www.inkscape.org/) --%3E %3Csvg xmlns:dc='http://purl.org/dc/elements/1.1/' xmlns:cc='http://creativecommons.org/ns%23' xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns%23' xmlns:svg='http://www.w3.org/2000/svg' xmlns='http://www.w3.org/2000/svg' xmlns:sodipodi='http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd' xmlns:inkscape='http://www.inkscape.org/namespaces/inkscape' width='9.1072025mm' height='3.8863542mm' viewBox='0 0 32.269615 13.770546' id='svg2' version='1.1' inkscape:version='0.91 r13725' sodipodi:docname='triangle.svg'%3E %3Cdefs id='defs4' /%3E %3Csodipodi:namedview id='base' pagecolor='%23767676' bordercolor='%23ffffff' borderopacity='1' inkscape:pageopacity='0' inkscape:pageshadow='2' inkscape:zoom='14.882794' inkscape:cx='2.2292639' inkscape:cy='7.4407221' inkscape:document-units='px' inkscape:current-layer='g4145' showgrid='true' borderlayer='true' inkscape:showpageshadow='true' inkscape:window-width='1920' inkscape:window-height='1001' inkscape:window-x='0' inkscape:window-y='27' inkscape:window-maximized='1' inkscape:snap-grids='true' fit-margin-top='0' fit-margin-left='0' fit-margin-right='0' fit-margin-bottom='0'%3E %3Cinkscape:grid type='xygrid' id='grid3336' color='%23b4bc45' opacity='0.1254902' originx='-8.8651931' originy='-1028.8677' /%3E %3C/sodipodi:namedview%3E %3Cmetadata id='metadata7'%3E %3Crdf:RDF%3E %3Ccc:Work rdf:about=''%3E %3Cdc:format%3Eimage/svg+xml%3C/dc:format%3E %3Cdc:type rdf:resource='http://purl.org/dc/dcmitype/StillImage' /%3E %3Cdc:title /%3E %3C/cc:Work%3E %3C/rdf:RDF%3E %3C/metadata%3E %3Cg inkscape:label='Layer 1' inkscape:groupmode='layer' id='layer1' transform='translate(-8.8651932,-9.7239158)'%3E %3Cg id='g4145'%3E %3Cg id='g4149' style='stroke-width:1.5;stroke-miterlimit:4;stroke-dasharray:none'%3E %3Cpath style='fill:none;fill-opacity:1;fill-rule:evenodd;stroke:%23ffffff;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.89570552' d='M 9.8764601,22.485684 C 25,10.732694 25,10.732694 25,10.732694' id='path3344' inkscape:connector-curvature='0' /%3E %3Cpath style='fill:none;fill-opacity:1;fill-rule:evenodd;stroke:%23ffffff;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.89570552' d='m 25,10.732694 15.12354,11.75299' id='path3346' inkscape:connector-curvature='0' /%3E %3C/g%3E %3C/g%3E %3Cpath style='opacity:1;fill:%23ffffff;fill-opacity:1;fill-rule:nonzero;stroke:%234d4d4d;stroke-width:0.50431865;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:0.19444448' d='' id='path3348' inkscape:connector-curvature='0' /%3E %3C/g%3E %3C/svg%3E\""
 
 /***/ },
-/* 27 */
+/* 28 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 	const Synth_1 = __webpack_require__(37);
 	const MIDI_1 = __webpack_require__(2);
-	const PresetManager_1 = __webpack_require__(38);
-	const Elm = __webpack_require__(9);
-	const presets = __webpack_require__(12);
+	const PresetManager_1 = __webpack_require__(39);
+	const Elm = __webpack_require__(10);
+	const presets = __webpack_require__(13);
 	const scaleMidiValue = (midiValue) => MIDI_1.default.logScaleToMax(midiValue, 1);
 	const noMidiMsg = `Your browser doesnt support WebMIDI API. Use another
 		browser or install the Jazz Midi Plugin http://jazz-soft.net/`;
@@ -13325,12 +13379,13 @@
 	                preset: preset,
 	                midiSupport: midiSupport
 	            });
-	            //const synthSettings = midiSettingsToSynthSettings(preset)
-	            this.synth = new Synth_1.default(preset);
+	            this.synth = new Synth_1.Synth();
+	            this.synth.setState(preset);
 	            // MACRO
 	            window.onblur = () => {
 	                this.app.ports.panic.send();
-	                this.synth.oscillators.panic();
+	                this.synth.oscillator1.panic();
+	                this.synth.oscillator2.panic();
 	            };
 	            window.oncontextmenu = () => false;
 	            this.app.ports.previousPreset
@@ -13354,21 +13409,21 @@
 	                .subscribe(this.synth.amplifier.adsr.setRelease);
 	            // OSCILLATORS
 	            this.app.ports.oscsMix
-	                .subscribe(this.synth.oscillators.mixer.setState);
+	                .subscribe(this.synth.mixer.setState);
 	            this.app.ports.osc2Semitone
-	                .subscribe(this.synth.oscillators.oscillator2.setSemitone);
+	                .subscribe(this.synth.oscillator2.setSemitone);
 	            this.app.ports.osc2Detune
-	                .subscribe(this.synth.oscillators.oscillator2.setDetune);
+	                .subscribe(this.synth.oscillator2.setDetune);
 	            this.app.ports.fmAmount
-	                .subscribe(this.synth.oscillators.oscillator1.setFmAmount);
+	                .subscribe(this.synth.oscillator1.setFmAmount);
 	            this.app.ports.pulseWidth
-	                .subscribe(this.synth.oscillators.oscillator2.setPulseWidth);
+	                .subscribe(this.synth.oscillator2.setPulseWidth);
 	            this.app.ports.osc1Waveform
-	                .subscribe(this.synth.oscillators.oscillator1.setWaveform);
+	                .subscribe(this.synth.oscillator1.setWaveform);
 	            this.app.ports.osc2Waveform
-	                .subscribe(this.synth.oscillators.oscillator2.setWaveform);
+	                .subscribe(this.synth.oscillator2.setWaveform);
 	            this.app.ports.osc2KbdTrack
-	                .subscribe(this.synth.oscillators.oscillator2.toggleKbdTrack);
+	                .subscribe(this.synth.oscillator2.toggleKbdTrack);
 	            // FILTER
 	            this.app.ports.filterEnvelopeAmount
 	                .subscribe(this.synth.filter.setEnvelopeAmount);
@@ -13413,7 +13468,7 @@
 
 
 /***/ },
-/* 28 */
+/* 29 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -13443,105 +13498,42 @@
 
 
 /***/ },
-/* 29 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-	const MIDI_1 = __webpack_require__(2);
-	class DualMixer {
-	    constructor(context) {
-	        this.setState = (midiValue) => {
-	            const mix = MIDI_1.default.normalizeValue(midiValue);
-	            this.mix = mix;
-	            this.channel1.gain.value = (1 - mix) / 2;
-	            this.channel2.gain.value = .5 - this.channel1.gain.value;
-	        };
-	        this.context = context;
-	        this.channel1 = this.context.createGain();
-	        this.channel2 = this.context.createGain();
-	    }
-	    connect(node) {
-	        // https://developer.mozilla.org/en-US/docs/Web/API/AudioNode/connect(AudioParam)
-	        // acording to the docs the type is right
-	        // make a PR to typings to fix this
-	        this.channel2.connect(node);
-	        this.channel2.connect(node);
-	    }
-	}
-	Object.defineProperty(exports, "__esModule", { value: true });
-	exports.default = DualMixer;
-
-
-/***/ },
 /* 30 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 	const MIDI_1 = __webpack_require__(2);
 	const Constants_1 = __webpack_require__(1);
-	const ADSR_1 = __webpack_require__(6);
-	class Filter {
+	class DualMixer {
 	    constructor(context) {
-	        /* triggers filter's attack, decay, and sustain envelope  */
-	        this.noteOn = () => {
-	            const filterMinFreq = this.biquadFilter.frequency.value;
-	            let filterMaxFreq = this.envelopeAmount * MIDI_1.default.toFilterCutoffFrequency(127);
-	            if (filterMaxFreq < filterMinFreq) {
-	                filterMaxFreq = filterMinFreq;
-	            }
-	            const filterMaxInCents = 1200 * Math.log2(filterMaxFreq / filterMinFreq);
-	            this.adsr.on(0, filterMaxInCents)(this.biquadFilter.detune);
-	        };
-	        /* triggers filter's release envelope  */
-	        this.noteOff = () => {
-	            this.adsr.off(this.biquadFilter.detune);
-	        };
-	        this.setCutoff = (midiValue) => {
-	            this.biquadFilter.frequency.value =
-	                MIDI_1.default.toFilterCutoffFrequency(midiValue);
-	        };
-	        this.setQ = (midiValue) => {
-	            this.biquadFilter.Q.value = MIDI_1.default.toFilterQAmount(midiValue);
-	        };
-	        this.setType = (filterType) => {
-	            const ft = filterType.toLowerCase();
-	            if (Constants_1.default.FILTER_TYPES.indexOf(ft) !== -1) {
-	                this.biquadFilter.type = ft;
-	            }
-	            else {
-	                throw new Error('Invalid Filter Type');
+	        this.channel1 = [];
+	        this.channel2 = [];
+	        this.connect = (nodes) => {
+	            // https://developer.mozilla.org/en-US/docs/Web/API/AudioNode/connect(AudioParam)
+	            // acording to the docs the type is right
+	            // make a PR to typings to fix this
+	            for (let i = 0; i < Constants_1.default.MAX_VOICES; i++) {
+	                this.channel1[i].connect(nodes[i]);
+	                this.channel2[i].connect(nodes[i]);
 	            }
 	        };
-	        this.setEnvelopeAmount = (midiValue) => {
-	            this.envelopeAmount = MIDI_1.default.logScaleToMax(midiValue, 1);
-	        };
-	        this.setState = (state) => {
-	            this.adsr.setState(state.adsr);
-	            this.setType(state.type_);
-	            this.setCutoff(state.frequency);
-	            this.setQ(state.q);
-	            this.setEnvelopeAmount(state.envelopeAmount);
-	        };
-	        this.connect = (node) => {
-	            this.output.connect(node);
-	            return this;
-	        };
-	        this.disconnect = (node) => {
-	            this.output.disconnect(node);
-	            return this;
+	        this.setState = (midiValue) => {
+	            const mix = MIDI_1.default.normalizeValue(midiValue);
+	            this.mix = mix;
+	            for (let i = 0; i < Constants_1.default.MAX_VOICES; i++) {
+	                this.channel1[i].gain.value = (1 - mix) / 2;
+	                this.channel2[i].gain.value = .5 - this.channel1[i].gain.value;
+	            }
 	        };
 	        this.context = context;
-	        /* filter adsr */
-	        this.adsr = new ADSR_1.ADSR(this.context);
-	        /* AudioNode graph routing */
-	        this.input = this.context.createGain();
-	        this.output = this.context.createGain();
-	        this.biquadFilter = this.context.createBiquadFilter();
-	        this.input.connect(this.biquadFilter);
-	        this.biquadFilter.connect(this.output);
+	        for (let i = 0; i < Constants_1.default.MAX_VOICES; i++) {
+	            this.channel1[i] = this.context.createGain();
+	            this.channel2[i] = this.context.createGain();
+	        }
 	    }
 	}
-	exports.Filter = Filter;
+	Object.defineProperty(exports, "__esModule", { value: true });
+	exports.default = DualMixer;
 
 
 /***/ },
@@ -13551,19 +13543,110 @@
 	"use strict";
 	const MIDI_1 = __webpack_require__(2);
 	const Constants_1 = __webpack_require__(1);
-	const midiToFreq = (midiValue) => 440 * Math.pow(2, (midiValue - 69) / 12);
-	class Osc1 {
+	const ADSR_1 = __webpack_require__(6);
+	class Filter {
 	    constructor(context) {
-	        this.state = {};
-	        this.vcos = [];
+	        this.inputs = [];
 	        this.outputs = [];
+	        this.biquadFilters = [];
+	        this.state = {};
+	        /* triggers filter's attack, decay, and sustain envelope  */
+	        this.noteOn = (midiNote) => {
+	            let filterMinFreq = MIDI_1.default.toFilterCutoffFrequency(this.state.frequency);
+	            //this.biquadFilters[midiNote].frequency.value
+	            let filterMaxFreq = MIDI_1.default.toFilterCutoffFrequency(this.state.envelopeAmount);
+	            //(this.envelopeAmount * (MIDI.toFilterCutoffFrequency(127) - //MIDI.toFilterCutoffFrequency(0)) + MIDI.toFilterCutoffFrequency(0))
+	            console.log("maxFreq", filterMaxFreq);
+	            console.log("minFreq", filterMinFreq);
+	            if (filterMaxFreq < filterMinFreq) {
+	                filterMaxFreq = filterMinFreq;
+	            }
+	            filterMinFreq = MIDI_1.default.toFilterCutoffFrequency(0);
+	            filterMaxFreq = MIDI_1.default.toFilterCutoffFrequency(127);
+	            let filterMaxInCents = 1200 * Math.log2(filterMaxFreq / filterMinFreq);
+	            console.log("INCENTS", filterMaxInCents);
+	            this.adsr.on(0, filterMaxInCents)(this.biquadFilters[midiNote].detune);
+	        };
+	        /* triggers filter's release envelope  */
+	        this.noteOff = (midiNote) => {
+	            this.adsr.off(this.biquadFilters[midiNote].detune);
+	        };
+	        this.setCutoff = (midiValue) => {
+	            this.state.frequency = midiValue;
+	            this.biquadFilters.forEach(filter => {
+	                filter.frequency.value =
+	                    MIDI_1.default.toFilterCutoffFrequency(midiValue);
+	            });
+	        };
+	        this.setQ = (midiValue) => {
+	            this.biquadFilters.forEach(filter => {
+	                filter.Q.value = MIDI_1.default.toFilterQAmount(midiValue);
+	            });
+	        };
+	        this.setType = (filterType) => {
+	            if (Constants_1.default.FILTER_TYPES.indexOf(filterType) !== -1) {
+	                this.biquadFilters.forEach(filter => {
+	                    filter.type = filterType;
+	                });
+	            }
+	            else {
+	                throw new Error('Invalid Filter Type');
+	            }
+	        };
+	        this.setEnvelopeAmount = (midiValue) => {
+	            this.state.envelopeAmount = midiValue; //MIDI.logScaleToMax(midiValue, 1)
+	        };
+	        this.setState = (state) => {
+	            this.adsr.setState(state.adsr);
+	            this.setType(state.type_);
+	            this.setCutoff(state.frequency);
+	            this.setQ(state.q);
+	            this.setEnvelopeAmount(state.envelopeAmount);
+	        };
+	        this.connect = (node) => {
+	            for (let i = 0; i < Constants_1.default.MAX_VOICES; i++) {
+	                this.outputs[i].connect(node);
+	            }
+	        };
+	        this.disconnect = (node) => {
+	            for (let i = 0; i < Constants_1.default.MAX_VOICES; i++) {
+	                this.outputs[i].disconnect(node);
+	            }
+	        };
+	        this.context = context;
+	        /* filter adsr */
+	        this.adsr = new ADSR_1.ADSR(this.context);
+	        for (let i = 0; i < Constants_1.default.MAX_VOICES; i++) {
+	            /* AudioNode graph routing */
+	            this.inputs[i] = this.context.createGain();
+	            this.outputs[i] = this.context.createGain();
+	            this.biquadFilters[i] = this.context.createBiquadFilter();
+	            this.inputs[i].connect(this.biquadFilters[i]);
+	            this.biquadFilters[i].connect(this.outputs[i]);
+	        }
+	    }
+	}
+	exports.Filter = Filter;
+
+
+/***/ },
+/* 32 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	const MIDI_1 = __webpack_require__(2);
+	const Constants_1 = __webpack_require__(1);
+	const BaseOscillator_1 = __webpack_require__(7);
+	class Osc1 extends BaseOscillator_1.default {
+	    constructor(context) {
+	        super(context);
+	        this.state = {};
 	        this.fmInputs = [];
 	        this.kill = (midiNote) => {
 	            this.fmInputs[midiNote].disconnect();
-	            this.vcos[midiNote].disconnect(this.outputs[midiNote]);
-	            this.vcos[midiNote] = null;
+	            this.vcos[midiNote].disconnect();
 	        };
-	        this.noteOn = (midiNote, noteOnAmpCB) => {
+	        this.noteOn = (midiNote) => {
 	            const now = this.context.currentTime;
 	            let vco = this.vcos[midiNote];
 	            if (vco !== null) {
@@ -13572,55 +13655,15 @@
 	            }
 	            vco = this.context.createOscillator();
 	            vco.type = this.state.waveformType;
-	            vco.frequency.value = midiToFreq(midiNote);
+	            vco.frequency.value = this.midiToFreq(midiNote);
 	            vco.connect(this.outputs[midiNote]);
 	            this.fmInputs[midiNote].connect(vco.frequency);
 	            this.vcos[midiNote] = vco;
 	            vco.onended = () => this.kill(midiNote);
 	            vco.start(now);
-	            if (noteOnAmpCB) {
-	                noteOnAmpCB(this.outputs[midiNote].gain);
-	            }
-	        };
-	        this.noteOff = (midiNote, noteOffAmpCB) => {
-	            const midiNoteKey = midiNote.toString();
-	            const vco = this.vcos[midiNote];
-	            if (!vco) {
-	                return;
-	            }
-	            const releaseTime = noteOffAmpCB(this.outputs[midiNote].gain);
-	            vco.stop(releaseTime);
-	        };
-	        this.panic = () => {
-	            for (let i = 0; i < Constants_1.default.MAX_VOICES; i++) {
-	                if (this.vcos[i] !== null) {
-	                    this.vcos[i].stop();
-	                }
-	            }
-	        };
-	        this.connect = (node) => {
-	            for (let i = 0; i < Constants_1.default.MAX_VOICES; i++) {
-	                if (this.outputs[i] !== null) {
-	                    this.outputs[i].connect(node);
-	                }
-	            }
-	        };
-	        // TODO: move this to osc 2 when refactor is done
-	        this.connectToFm = (nodes) => {
-	            for (let i = 0; i < Constants_1.default.MAX_VOICES; i++) {
-	                nodes[i].connect(this.fmInputs[i]);
-	            }
-	        };
-	        this.disconnect = (node) => {
-	            for (let i = 0; i < Constants_1.default.MAX_VOICES; i++) {
-	                if (this.outputs[i] !== null) {
-	                    this.outputs[i].disconnect(node);
-	                }
-	            }
 	        };
 	        this.setWaveform = (waveform) => {
-	            const wf = waveform.toLowerCase();
-	            if (Constants_1.default.OSC1_WAVEFORM_TYPES.indexOf(wf) !== -1) {
+	            if (Constants_1.default.OSC1_WAVEFORM_TYPES.indexOf(waveform) !== -1) {
 	                this.state.waveformType = waveform;
 	                for (let i = 0; i < Constants_1.default.MAX_VOICES; i++) {
 	                    if (this.vcos[i] !== null) {
@@ -13629,7 +13672,7 @@
 	                }
 	            }
 	            else {
-	                throw new Error(`Invalid Waveform Type ${wf}`);
+	                throw new Error(`Invalid Waveform Type ${waveform}`);
 	            }
 	        };
 	        this.setFmAmount = (fmAmount) => {
@@ -13643,38 +13686,33 @@
 	            this.setFmAmount(state.fmAmount);
 	            this.setWaveform(state.waveformType);
 	        };
-	        this.context = context;
 	        for (let i = 0; i < Constants_1.default.MAX_VOICES; i++) {
 	            this.fmInputs[i] = context.createGain();
-	            this.outputs[i] = context.createGain();
-	            this.vcos[i] = null;
 	        }
 	    }
 	}
-	Object.defineProperty(exports, "__esModule", { value: true });
-	exports.default = Osc1;
+	exports.Osc1 = Osc1;
 
 
 /***/ },
-/* 32 */
+/* 33 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
 	const MIDI_1 = __webpack_require__(2);
 	const Constants_1 = __webpack_require__(1);
-	const PulseOscillatorFactory_1 = __webpack_require__(34);
-	const NoiseOscillatorFactory_1 = __webpack_require__(33);
-	const midiToFreq = (midiValue) => 440 * Math.pow(2, (midiValue - 69) / 12);
-	class Osc2 {
+	const PulseOscillatorFactory_1 = __webpack_require__(35);
+	const NoiseOscillatorFactory_1 = __webpack_require__(34);
+	const BaseOscillator_1 = __webpack_require__(7);
+	class Osc2 extends BaseOscillator_1.default {
 	    constructor(context) {
+	        super(context);
 	        this.state = {};
-	        this.vcos = [];
 	        this.widthGains = [];
-	        this.outputs = [];
 	        this.kill = (midiNote) => {
-	            this.vcos[midiNote].disconnect(this.outputs[midiNote]);
+	            this.vcos[midiNote].disconnect();
 	        };
-	        this.noteOn = (midiNote, noteOnAmpCB) => {
+	        this.noteOn = (midiNote) => {
 	            const now = this.context.currentTime;
 	            let vco = this.vcos[midiNote];
 	            if (vco !== null) {
@@ -13693,61 +13731,24 @@
 	                vco = this.context.createOscillator();
 	                vco.type = this.state.waveformType;
 	            }
-	            vco.frequency.value = midiToFreq(midiNote);
+	            vco.frequency.value = this.midiToFreq(midiNote);
 	            vco.detune.value = this.state.detune + this.state.semitone;
 	            vco.onended = () => this.kill(midiNote);
 	            this.vcos[midiNote] = vco;
 	            vco.connect(this.outputs[midiNote]);
 	            vco.start(now);
-	            // When swapping oscillators no need to call new adsr cycle
-	            if (noteOnAmpCB) {
-	                noteOnAmpCB(this.outputs[midiNote].gain);
-	            }
-	        };
-	        this.noteOff = (midiNote, noteOffAmpCB) => {
-	            const midiNoteKey = midiNote.toString();
-	            const vco = this.vcos[midiNote];
-	            if (!vco) {
-	                return;
-	            }
-	            const releaseTime = noteOffAmpCB(this.outputs[midiNote].gain);
-	            vco.stop(releaseTime);
-	        };
-	        this.panic = () => {
-	            for (let i = 0; i < Constants_1.default.MAX_VOICES; i++) {
-	                if (this.vcos[i] !== null) {
-	                    this.vcos[i].stop();
-	                }
-	            }
-	        };
-	        this.connect = (node) => {
-	            for (let i = 0; i < Constants_1.default.MAX_VOICES; i++) {
-	                if (this.outputs[i] !== null) {
-	                    this.outputs[i].connect(node);
-	                }
-	            }
-	        };
-	        this.disconnect = (node) => {
-	            for (let i = 0; i < Constants_1.default.MAX_VOICES; i++) {
-	                if (this.outputs[i] !== null) {
-	                    this.outputs[i].disconnect(node);
-	                }
-	            }
 	        };
 	        this.setWaveform = (waveform) => {
-	            const wf = waveform.toLowerCase();
-	            if (Constants_1.default.OSC2_WAVEFORM_TYPES.indexOf(wf) !== -1) {
-	                this.state.waveformType = wf;
-	                console.log(wf);
-	                for (let i = 0; i < Constants_1.default.MAX_VOICES; i++) {
-	                    if (this.vcos[i] !== null) {
-	                        console.log("vaca", i);
-	                        this.noteOn(i, null);
+	            if (Constants_1.default.OSC2_WAVEFORM_TYPES.indexOf(waveform) !== -1) {
+	                this.state.waveformType = waveform;
+	                for (let voice = 0; voice < Constants_1.default.MAX_VOICES; voice++) {
+	                    if (this.vcos[voice] !== null) {
+	                        this.noteOn(voice);
 	                    }
 	                }
 	            }
 	            else {
-	                throw new Error(`Invalid Waveform Type ${wf}`);
+	                throw new Error(`Invalid Waveform Type ${waveform}`);
 	            }
 	        };
 	        this.toggleKbdTrack = (enabled) => {
@@ -13759,13 +13760,6 @@
 	            this.widthGains.forEach(widthGain => {
 	                widthGain.gain.value = pw;
 	            });
-	        };
-	        this.setState = (state) => {
-	            this.setWaveform(state.waveformType);
-	            this.setPulseWidth(state.pw);
-	            this.setDetune(state.detune);
-	            this.toggleKbdTrack(state.kbdTrack);
-	            this.setSemitone(state.semitone);
 	        };
 	        this.setSemitone = (semitone) => {
 	            this.state.semitone = semitone * 100;
@@ -13785,20 +13779,23 @@
 	                }
 	            });
 	        };
-	        this.context = context;
+	        this.setState = (state) => {
+	            this.setWaveform(state.waveformType);
+	            this.setPulseWidth(state.pw);
+	            this.setDetune(state.detune);
+	            this.toggleKbdTrack(state.kbdTrack);
+	            this.setSemitone(state.semitone);
+	        };
 	        for (let i = 0; i < Constants_1.default.MAX_VOICES; i++) {
-	            this.outputs[i] = context.createGain();
-	            this.vcos[i] = null;
 	            this.widthGains[i] = this.context.createGain();
 	        }
 	    }
 	}
-	Object.defineProperty(exports, "__esModule", { value: true });
-	exports.default = Osc2;
+	exports.Osc2 = Osc2;
 
 
 /***/ },
-/* 33 */
+/* 34 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -13825,7 +13822,7 @@
 
 
 /***/ },
-/* 34 */
+/* 35 */
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
@@ -13852,7 +13849,6 @@
 	        sawNode.connect = (node) => {
 	            pulseShaper.connect(node);
 	            widthGain.connect(pulseShaper);
-	            console.log("breno");
 	        };
 	        sawNode.disconnect = () => {
 	            pulseShaper.disconnect();
@@ -13867,123 +13863,6 @@
 	};
 	Object.defineProperty(exports, "__esModule", { value: true });
 	exports.default = pulseOscillatorFactory;
-
-
-/***/ },
-/* 35 */
-/***/ function(module, exports, __webpack_require__) {
-
-	"use strict";
-	const Osc1_1 = __webpack_require__(31);
-	const Osc2_1 = __webpack_require__(32);
-	const DualMixer_1 = __webpack_require__(29);
-	// TODO: move set state to Oscillator.js
-	class Oscillators {
-	    constructor(context) {
-	        this.state = {
-	            osc1: {}, osc2: {}
-	        };
-	        this.setState = (state) => {
-	            this.oscillator1.setState(state.osc1);
-	            this.oscillator2.setState(state.osc2);
-	            this.mixer.setState(state.mix);
-	        };
-	        //_newOscillator = (waveformType: WaveformType): BaseOscillator => {
-	        //	if (waveformType == CONSTANTS.WAVEFORM_TYPE.PULSE) {
-	        //		return new PulseOscillator(this.context)
-	        //	} else if (waveformType == CONSTANTS.WAVEFORM_TYPE.NOISE) {
-	        //		return new NoiseOscillator(this.context)
-	        //	} else {
-	        //		return new FMOscillator(this.context, waveformType)
-	        //	}
-	        //}
-	        //	_setOscillator2Waveform = (waveform: WaveformType) => {
-	        //		if (this.oscillator2.type !== CONSTANTS.WAVEFORM_TYPE.NOISE
-	        //			&& waveform !== CONSTANTS.WAVEFORM_TYPE.NOISE) {
-	        //
-	        //			if (waveform === CONSTANTS.WAVEFORM_TYPE.PULSE) {
-	        //				this._swapOsc2(new PulseOscillator(this.context),
-	        //					this.mixer.channel2)
-	        //			} else {
-	        //				this.oscillator2.setWaveform(waveform)
-	        //			}
-	        //		} else if (this.oscillator2.type !== CONSTANTS.WAVEFORM_TYPE.NOISE
-	        //			&& waveform === CONSTANTS.WAVEFORM_TYPE.NOISE) {
-	        //
-	        //			this._swapOsc2(new NoiseOscillator(this.context),
-	        //				this.mixer.channel2)
-	        //		} else if (this.oscillator2.type === CONSTANTS.WAVEFORM_TYPE.NOISE
-	        //			&& waveform !== CONSTANTS.WAVEFORM_TYPE.NOISE) {
-	        //			this._swapOsc2(
-	        //				new FMOscillator(this.context, waveform),
-	        //				this.mixer.channel2
-	        //			)
-	        //		}
-	        //		this.state.osc2.waveformType = waveform
-	        //	}
-	        //	_swapOsc2 = (osc: any, gainB: any) => {
-	        //		const now = this.context.currentTime
-	        //		for (let midiNote in this.oscillator2.voices) {
-	        //			if (this.oscillator2.voices.hasOwnProperty(midiNote)) {
-	        //				this.oscillator2.noteOff(now, midiNote)
-	        //				osc.noteOn(midiNote)
-	        //			}
-	        //		}
-	        //		this.oscillator2.voiceGains.forEach((oscGain: GainNode, i: number) =>
-	        //			// oscGain.disconnect(this.fmGains[i])
-	        //			oscGain.disconnect()
-	        //		)
-	        //		this.oscillator2.disconnect(gainB)
-	        //
-	        //		this.oscillator2 = osc
-	        //		this.oscillator2.setPulseWidth(this.state.pw)
-	        //		this.oscillator2.setDetune(this.state.osc2.detune)
-	        //		this.oscillator2.setKbdTrack(this.state.osc2.kbdTrack)
-	        //		this.oscillator2.setSemitone(this.state.osc2.semitone)
-	        //
-	        //		this.oscillator2.voiceGains.forEach((oscGain: GainNode, i: number) =>
-	        //			oscGain.connect(this.fmAmount[i])
-	        //		)
-	        //		this.oscillator2.connect(gainB)
-	        //	}
-	        this.connect = (node) => {
-	            this.mixer.channel1.connect(node);
-	            this.mixer.channel2.connect(node);
-	        };
-	        this.disconnect = (node) => {
-	            this.mixer.channel1.disconnect(node);
-	            this.mixer.channel2.disconnect(node);
-	        };
-	        this.panic = () => {
-	            this.oscillator1.panic();
-	            this.oscillator2.panic();
-	        };
-	        this.noteOn = (midiNote, noteOnCb /*, velocity*/) => {
-	            this.oscillator1.noteOn(midiNote, noteOnCb);
-	            this.oscillator2.noteOn(midiNote, noteOnCb);
-	        };
-	        this.noteOff = (midiNote, noteOffCb /*, velocity*/) => {
-	            this.oscillator1.noteOff(midiNote, noteOffCb);
-	            this.oscillator2.noteOff(midiNote, noteOffCb);
-	        };
-	        this.context = context;
-	        /* AudioNode graph routing */
-	        this.mixer = new DualMixer_1.default(context);
-	        /* create oscillator nodes */
-	        this.oscillator1 =
-	            new Osc1_1.default(context);
-	        this.oscillator2 =
-	            new Osc2_1.default(context);
-	        /* connect oscs with the previously mixed gains */
-	        this.oscillator1.connect(this.mixer.channel1);
-	        this.oscillator2.connect(this.mixer.channel2);
-	        /* connect Osc2 to Osc1 FM Input */
-	        /* Osc1 is the Carrier and Osc 2 the Modulator */
-	        this.oscillator1.connectToFm(this.oscillator2.outputs);
-	    }
-	}
-	Object.defineProperty(exports, "__esModule", { value: true });
-	exports.default = Oscillators;
 
 
 /***/ },
@@ -14081,18 +13960,23 @@
 /***/ function(module, exports, __webpack_require__) {
 
 	"use strict";
-	const Oscillators_1 = __webpack_require__(35);
-	const Filter_1 = __webpack_require__(30);
-	const Amplifier_1 = __webpack_require__(28);
+	const Osc1_1 = __webpack_require__(32);
+	const Osc2_1 = __webpack_require__(33);
+	const Filter_1 = __webpack_require__(31);
+	const Amplifier_1 = __webpack_require__(29);
 	const Overdrive_1 = __webpack_require__(36);
+	const VCA_1 = __webpack_require__(38);
 	const Constants_1 = __webpack_require__(1);
+	const DualMixer_1 = __webpack_require__(30);
 	class Synth {
-	    constructor(state) {
+	    constructor() {
 	        this.setState = (state) => {
 	            this.amplifier.setState(state.amp);
 	            this.overdrive.setState(state.overdrive);
 	            this.filter.setState(state.filter);
-	            this.oscillators.setState(state.oscs);
+	            this.oscillator1.setState(state.oscs.osc1);
+	            this.oscillator2.setState(state.oscs.osc2);
+	            this.mixer.setState(state.oscs.mix);
 	        };
 	        this.onMIDIMessage = (data) => {
 	            //console.log(data)
@@ -14104,36 +13988,77 @@
 	            //const velocity = data[2]
 	            switch (type) {
 	                case Constants_1.default.MIDI_EVENT.NOTE_ON:
-	                    this.oscillators.noteOn(note, this.amplifier.adsr.on(0, 1));
-	                    this.filter.noteOn();
+	                    this.oscillator1.noteOn(note);
+	                    this.oscillator2.noteOn(note);
+	                    this.amplifier.adsr.on(0, 1)(this.vca.inputs[note].gain);
+	                    this.filter.noteOn(note);
 	                    break;
 	                case Constants_1.default.MIDI_EVENT.NOTE_OFF:
-	                    this.oscillators.noteOff(note, this.amplifier.adsr.off);
-	                    this.filter.noteOff();
+	                    const releaseTime = this.amplifier.adsr.off(this.vca.inputs[note].gain);
+	                    this.oscillator1.noteOff(note, releaseTime);
+	                    this.oscillator2.noteOff(note, releaseTime);
+	                    this.filter.noteOff(note);
 	                    break;
 	            }
 	        };
 	        this.context = new AudioContext;
 	        this.amplifier = new Amplifier_1.Amplifier(this.context);
-	        this.amplifier.setState(state.amp);
 	        this.overdrive = new Overdrive_1.Overdrive(this.context);
-	        this.overdrive.setState(state.overdrive);
 	        this.overdrive.connect(this.amplifier.output);
 	        this.filter = new Filter_1.Filter(this.context);
-	        this.filter.setState(state.filter);
 	        this.filter.connect(this.overdrive.input);
-	        //this.vca = new VCA(this.context)
-	        this.oscillators = new Oscillators_1.default(this.context);
-	        this.oscillators.setState(state.oscs);
-	        this.oscillators.connect(this.filter.input);
+	        this.mixer = new DualMixer_1.default(this.context);
+	        this.oscillator1 = new Osc1_1.Osc1(this.context);
+	        this.oscillator2 = new Osc2_1.Osc2(this.context);
+	        for (let i = 0; i < Constants_1.default.MAX_VOICES; i++) {
+	            this.oscillator2.outputs[i].connect(this.oscillator1.fmInputs[i]);
+	        }
+	        /* connect oscs with the previously mixed gains */
+	        this.oscillator1.connect(this.mixer.channel1);
+	        this.oscillator2.connect(this.mixer.channel2);
+	        this.vca = new VCA_1.default(this.context);
+	        this.mixer.connect(this.vca.inputs);
+	        this.vca.connect(this.filter.inputs);
 	    }
 	}
-	Object.defineProperty(exports, "__esModule", { value: true });
-	exports.default = Synth;
+	exports.Synth = Synth;
 
 
 /***/ },
 /* 38 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+	const Constants_1 = __webpack_require__(1);
+	class VCA {
+	    constructor(context) {
+	        this.inputs = [];
+	        this.connect = (nodes) => {
+	            for (let i = 0; i < Constants_1.default.MAX_VOICES; i++) {
+	                if (this.inputs[i] !== null) {
+	                    this.inputs[i].connect(nodes[i]);
+	                }
+	            }
+	        };
+	        this.disconnect = (nodes) => {
+	            for (let i = 0; i < Constants_1.default.MAX_VOICES; i++) {
+	                if (this.inputs[i] !== null) {
+	                    this.inputs[i].disconnect(nodes[i]);
+	                }
+	            }
+	        };
+	        this.context = context;
+	        for (let i = 0; i < 128; i++) {
+	            this.inputs[i] = context.createGain();
+	        }
+	    }
+	}
+	Object.defineProperty(exports, "__esModule", { value: true });
+	exports.default = VCA;
+
+
+/***/ },
+/* 39 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -14167,14 +14092,14 @@
 
 
 /***/ },
-/* 39 */
+/* 40 */
 /***/ function(module, exports) {
 
 	module.exports = function() { throw new Error("define cannot be used indirect"); };
 
 
 /***/ },
-/* 40 */
+/* 41 */
 /***/ function(module, exports) {
 
 	module.exports = function(module) {
