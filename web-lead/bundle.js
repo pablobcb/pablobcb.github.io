@@ -13239,8 +13239,8 @@
 				},
 				"osc2": {
 					"waveformType": "sawtooth",
-					"semitone": 0,
-					"detune": -60,
+					"semitone": -48,
+					"detune": 0,
 					"kbdTrack": true,
 					"pw": 0
 				},
